@@ -9,465 +9,565 @@
     <script src="../public/toast.js" defer></script>
     <style>
         :root {
-            --card-bg: rgba(255,255,255,0.95);
-            --border-color: rgba(212,160,23,0.2);
-            --shadow: 0 8px 32px rgba(0,0,0,0.08);
+            --bg-dark: #0f1923;
+            --bg-card: #1a2733;
+            --border: #2a3a4a;
+            --text: #e0e0e0;
+            --text-secondary: #8899aa;
+            --accent: #00d4aa;
+            --accent2: #ff6b6b;
+            --gold: #f0c75e;
+            --green: #00d4aa;
+            --red: #ff4757;
+            --blue: #4dabf7;
+            --purple: #9775fa;
         }
-        
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .admin-header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .admin-header .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .admin-header .logo-area img {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+        }
+
+        .admin-header .logo-area h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .admin-header nav {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .admin-header nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .admin-header nav a:hover,
+        .admin-header nav a.active {
+            background: var(--border);
+            color: white;
+        }
+
+        .admin-header nav a.active {
+            background: var(--accent);
+            color: #000;
+        }
+
+        /* Container */
         .dashboard-container {
             max-width: 1400px;
-            margin: 20px auto;
-            padding: 0 20px;
+            margin: 0 auto;
+            padding: 25px;
         }
-        
-        /* Header Stats */
+
+        /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
-        
+
         .stat-card {
-            background: var(--card-bg);
-            border-radius: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
             padding: 25px;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow);
-            transition: all 0.3s ease;
+            transition: all 0.3s;
             position: relative;
             overflow: hidden;
         }
-        
+
         .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 40px rgba(0,212,170,0.15);
         }
-        
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 5px;
-            height: 100%;
-            background: var(--gold);
-            border-radius: 5px 0 0 5px;
+
+        .stat-card .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
         }
-        
+
         .stat-card .stat-icon {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
         }
-        
+
+        .stat-icon.products { background: rgba(77,171,247,0.15); color: var(--blue); }
+        .stat-icon.orders { background: rgba(240,199,94,0.15); color: var(--gold); }
+        .stat-icon.revenue { background: rgba(0,212,170,0.15); color: var(--accent); }
+        .stat-icon.affiliates { background: rgba(151,117,250,0.15); color: var(--purple); }
+
         .stat-card .stat-value {
             font-size: 2.2rem;
             font-weight: 700;
-            color: var(--primary);
+            margin: 5px 0;
         }
-        
+
         .stat-card .stat-label {
-            color: #666;
-            font-size: 0.95rem;
-            margin-top: 5px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
         }
-        
-        .stat-card .stat-change {
-            font-size: 0.85rem;
-            margin-top: 8px;
-            font-weight: 600;
+
+        .stat-card .stat-footer {
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
         }
-        
-        .stat-card .stat-change.positive { color: #27ae60; }
-        .stat-card .stat-change.negative { color: #e74c3c; }
-        
-        /* Two Column Layout */
+
+        /* Two Column */
         .dashboard-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 25px;
+            gap: 20px;
             margin-bottom: 30px;
         }
-        
+
         @media (max-width: 900px) {
             .dashboard-grid { grid-template-columns: 1fr; }
         }
-        
-        .dashboard-card {
-            background: var(--card-bg);
-            border-radius: 20px;
+
+        /* Cards */
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
             padding: 25px;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow);
         }
-        
-        .dashboard-card h3 {
-            font-size: 1.3rem;
-            color: var(--primary);
+
+        .panel h3 {
+            font-size: 1.1rem;
             margin-bottom: 20px;
+            color: white;
             display: flex;
             align-items: center;
             gap: 10px;
         }
-        
+
         /* Quick Actions */
         .quick-actions {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
             margin-bottom: 30px;
         }
-        
+
         .action-btn {
-            background: var(--card-bg);
-            border: 2px solid var(--border-color);
-            border-radius: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
             padding: 20px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
             text-decoration: none;
             color: var(--text);
-            display: block;
         }
-        
+
         .action-btn:hover {
-            background: var(--gold);
-            color: white;
-            border-color: var(--gold);
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(212,160,23,0.3);
+            border-color: var(--accent);
+            background: rgba(0,212,170,0.1);
+            transform: translateY(-2px);
         }
-        
-        .action-btn .action-icon {
-            font-size: 2rem;
+
+        .action-btn .icon {
+            font-size: 1.8rem;
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
-        
-        .action-btn .action-label {
+
+        .action-btn .label {
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
         }
-        
-        /* Recent Orders Table */
-        .order-table {
+
+        /* Table */
+        .table {
             width: 100%;
             border-collapse: collapse;
         }
-        
-        .order-table th {
+
+        .table th {
             text-align: left;
             padding: 12px 15px;
-            background: #fef9e7;
-            color: var(--primary);
+            color: var(--text-secondary);
             font-weight: 600;
-            font-size: 0.9rem;
-            border-radius: 10px 10px 0 0;
-        }
-        
-        .order-table td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #f0e6c8;
-            font-size: 0.9rem;
-        }
-        
-        .order-table tr:hover td {
-            background: #fef9e7;
-        }
-        
-        .badge {
-            padding: 4px 10px;
-            border-radius: 20px;
             font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .table td {
+            padding: 14px 15px;
+            border-bottom: 1px solid rgba(42,58,74,0.5);
+            font-size: 0.9rem;
+        }
+
+        .table tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
+
+        /* Badges */
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
             font-weight: 600;
         }
-        
-        .badge-pending { background: #fff3cd; color: #856404; }
-        .badge-completed { background: #d4edda; color: #155724; }
-        .badge-affiliate { background: #d4a017; color: white; }
-        
-        /* Chart Bars */
-        .bar-chart {
+
+        .badge-pending { background: rgba(240,199,94,0.15); color: var(--gold); }
+        .badge-completed { background: rgba(0,212,170,0.15); color: var(--accent); }
+        .badge-affiliate { background: rgba(151,117,250,0.15); color: var(--purple); }
+
+        /* Chart */
+        .chart-container {
             display: flex;
             align-items: flex-end;
-            gap: 10px;
-            height: 150px;
+            gap: 8px;
+            height: 180px;
             padding: 10px 0;
         }
-        
-        .bar {
+
+        .chart-bar {
             flex: 1;
-            background: linear-gradient(180deg, var(--gold) 0%, #f0c75e 100%);
-            border-radius: 8px 8px 0 0;
-            min-height: 10px;
-            transition: all 0.3s;
+            background: linear-gradient(180deg, var(--accent) 0%, rgba(0,212,170,0.3) 100%);
+            border-radius: 6px 6px 0 0;
             position: relative;
+            transition: all 0.3s;
             cursor: pointer;
+            min-height: 4px;
         }
-        
-        .bar:hover {
-            filter: brightness(1.1);
-            transform: scaleY(1.05);
+
+        .chart-bar:hover {
+            filter: brightness(1.3);
         }
-        
-        .bar-label {
+
+        .chart-bar .bar-val {
             position: absolute;
-            bottom: -25px;
+            top: -22px;
             left: 50%;
             transform: translateX(-50%);
             font-size: 0.7rem;
-            color: #666;
-            white-space: nowrap;
+            font-weight: 700;
+            color: var(--accent);
         }
-        
-        .bar-value {
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--primary);
+
+        .chart-labels {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .chart-labels span {
+            flex: 1;
+            text-align: center;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        /* Logout */
+        .logout-btn {
+            color: var(--red) !important;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-secondary);
+        }
+
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
         }
     </style>
 </head>
 <body>
-<header>
-    <div class="logo">
-        <img src="../public/logo.png" alt="OGSUN Logo">
-        <span>📊 Dashboard Admin</span>
+
+<!-- Header -->
+<div class="admin-header">
+    <div class="logo-area">
+        <img src="../public/logo.png" alt="OGSUN" onerror="this.style.display='none'">
+        <h1>OGSUN Admin</h1>
     </div>
     <nav>
-        <a href="dashboard.html" style="background:var(--gold);color:var(--primary);padding:8px 16px;border-radius:20px;">📊 Dashboard</a>
+        <a href="dashboard.html" class="active">📊 Dashboard</a>
         <a href="products.html">📦 Pwodui</a>
         <a href="affiliates.html">🤝 Afilye</a>
         <a href="orders.html">📋 Kòmand</a>
-        <a href="#" onclick="logout()" style="color:#e74c3c;">🚪 Dekonekte</a>
+        <a href="#" onclick="logout()" class="logout-btn">🚪 Sòti</a>
     </nav>
-</header>
+</div>
 
 <div class="dashboard-container">
-    
+
     <!-- Stats Cards -->
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-icon">📦</div>
-            <div class="stat-value" id="totalProducts">0</div>
+            <div class="stat-header">
+                <div class="stat-icon products">📦</div>
+            </div>
+            <div class="stat-value" id="totalProducts">—</div>
             <div class="stat-label">Pwodui Total</div>
-            <div class="stat-change positive">📋 Nan katalòg</div>
+            <div class="stat-footer">Nan katalòg la</div>
         </div>
+
         <div class="stat-card">
-            <div class="stat-icon">📋</div>
-            <div class="stat-value" id="totalOrders">0</div>
+            <div class="stat-header">
+                <div class="stat-icon orders">📋</div>
+            </div>
+            <div class="stat-value" id="totalOrders">—</div>
             <div class="stat-label">Kòmand Total</div>
-            <div class="stat-change positive" id="ordersChange">↗️ Semèn sa a</div>
+            <div class="stat-footer" id="ordersToday">Jodi a: —</div>
         </div>
+
         <div class="stat-card">
-            <div class="stat-icon">💰</div>
-            <div class="stat-value" id="totalRevenue">0 GDS</div>
+            <div class="stat-header">
+                <div class="stat-icon revenue">💰</div>
+            </div>
+            <div class="stat-value" id="totalRevenue">— GDS</div>
             <div class="stat-label">Revni Total</div>
-            <div class="stat-change positive">💵 Tout tan</div>
+            <div class="stat-footer" id="revenueToday">Jodi a: — GDS</div>
         </div>
+
         <div class="stat-card">
-            <div class="stat-icon">🤝</div>
-            <div class="stat-value" id="totalAffiliates">0</div>
+            <div class="stat-header">
+                <div class="stat-icon affiliates">🤝</div>
+            </div>
+            <div class="stat-value" id="totalAffiliates">—</div>
             <div class="stat-label">Afilye Aktif</div>
-            <div class="stat-change positive">🔗 K ap pataje</div>
+            <div class="stat-footer" id="totalCommissions">Komisyon: — GDS</div>
         </div>
     </div>
-    
+
     <!-- Quick Actions -->
     <div class="quick-actions">
         <a href="products.html" class="action-btn">
-            <span class="action-icon">➕</span>
-            <span class="action-label">Ajoute Pwodui</span>
+            <span class="icon">➕</span>
+            <span class="label">Nouvo Pwodui</span>
         </a>
         <a href="affiliates.html" class="action-btn">
-            <span class="action-icon">🤝</span>
-            <span class="action-label">Ajoute Afilye</span>
+            <span class="icon">🤝</span>
+            <span class="label">Nouvo Afilye</span>
         </a>
         <a href="orders.html" class="action-btn">
-            <span class="action-icon">📋</span>
-            <span class="action-label">Wè Kòmand yo</span>
+            <span class="icon">📋</span>
+            <span class="label">Wè Kòmand</span>
         </a>
         <a href="../index.html" target="_blank" class="action-btn">
-            <span class="action-icon">🏠</span>
-            <span class="action-label">Gade Sit la</span>
+            <span class="icon">🌐</span>
+            <span class="label">Gade Sit</span>
         </a>
     </div>
-    
-    <!-- Two Column Section -->
+
+    <!-- Two Column -->
     <div class="dashboard-grid">
-        
+
         <!-- Recent Orders -->
-        <div class="dashboard-card">
+        <div class="panel">
             <h3>📋 Dènye Kòmand yo</h3>
-            <div id="recentOrders" style="overflow-x:auto;">
-                <p style="text-align:center;color:#666;">Chajman...</p>
-            </div>
-            <a href="orders.html" style="display:block;text-align:center;margin-top:15px;color:var(--gold);font-weight:600;">Wè tout kòmand yo →</a>
+            <div id="recentOrders" class="loading pulse">Chajman...</div>
         </div>
-        
+
         <!-- Revenue Chart -->
-        <div class="dashboard-card">
-            <h3>📊 Revni pa Jou (Semèn sa a)</h3>
-            <div class="bar-chart" id="revenueChart">
-                <p style="text-align:center;color:#666;">Chajman...</p>
-            </div>
+        <div class="panel">
+            <h3>📈 Revni Semèn sa a</h3>
+            <div id="revenueChart" class="loading pulse">Chajman...</div>
         </div>
-        
+
     </div>
-    
+
     <!-- Top Affiliates -->
-    <div class="dashboard-card" style="margin-bottom:30px;">
-        <h3>🏆 Top Afilye yo</h3>
-        <div id="topAffiliates" style="overflow-x:auto;">
-            <p style="text-align:center;color:#666;">Chajman...</p>
-        </div>
+    <div class="panel" style="margin-bottom:30px;">
+        <h3>🏆 Top Afilye (pa komisyon)</h3>
+        <div id="topAffiliates" class="loading pulse">Chajman...</div>
     </div>
 
 </div>
-
-<footer>&copy; 2026 OGSUN MACHE LAKAY - Admin Panel | 📞 32924776</footer>
 
 <script>
 if (!localStorage.getItem('admin_token')) window.location.href = 'login.html';
 const TOKEN = localStorage.getItem('admin_token');
 
-// ========== CHAJE TOUT DONE ==========
 async function loadDashboard() {
     try {
-        // Chaje pwodui
-        const prodRes = await fetch('/api/products');
+        // Fetch data
+        const [prodRes, orderRes, affRes] = await Promise.all([
+            fetch('/api/products'),
+            fetch('/api/admin/orders', { headers: { 'Authorization': 'Bearer ' + TOKEN } }),
+            fetch('/api/admin/affiliates', { headers: { 'Authorization': 'Bearer ' + TOKEN } })
+        ]);
+
         const products = await prodRes.json();
-        document.getElementById('totalProducts').textContent = products.length;
-        
-        // Chaje kòmand
-        const orderRes = await fetch('/api/admin/orders', {
-            headers: { 'Authorization': 'Bearer ' + TOKEN }
-        });
         const orders = await orderRes.json();
-        document.getElementById('totalOrders').textContent = orders.length;
-        
-        // Kalkile revni total
-        const totalRevenue = orders.reduce((sum, o) => sum + parseFloat(o.total || 0), 0);
-        document.getElementById('totalRevenue').textContent = totalRevenue.toFixed(2) + ' GDS';
-        
-        // Chaje afilye
-        const affRes = await fetch('/api/admin/affiliates', {
-            headers: { 'Authorization': 'Bearer ' + TOKEN }
-        });
         const affiliates = await affRes.json();
+
+        // Stats
+        document.getElementById('totalProducts').textContent = products.length;
+        document.getElementById('totalOrders').textContent = orders.length;
         document.getElementById('totalAffiliates').textContent = affiliates.length;
-        
-        // Afiche dènye kòmand yo (5 dènye)
+
+        // Revenue
+        const totalRevenue = orders.reduce((s, o) => s + parseFloat(o.total || 0), 0);
+        document.getElementById('totalRevenue').textContent = totalRevenue.toFixed(2) + ' GDS';
+
+        // Today
+        const today = new Date().toISOString().split('T')[0];
+        const todayOrders = orders.filter(o => (o.created_at || '').startsWith(today));
+        const todayRevenue = todayOrders.reduce((s, o) => s + parseFloat(o.total || 0), 0);
+        document.getElementById('ordersToday').textContent = 'Jodi a: ' + todayOrders.length + ' kòmand';
+        document.getElementById('revenueToday').textContent = 'Jodi a: ' + todayRevenue.toFixed(2) + ' GDS';
+
+        // Total commissions
+        const totalComm = affiliates.reduce((s, a) => s + (a.total_commission || 0), 0);
+        document.getElementById('totalCommissions').textContent = 'Komisyon: ' + totalComm.toFixed(2) + ' GDS';
+
+        // Render tables
         renderRecentOrders(orders.slice(0, 5));
-        
-        // Afiche graf revni
         renderRevenueChart(orders);
-        
-        // Afiche top afilye yo
         renderTopAffiliates(affiliates);
-        
+
     } catch (err) {
-        console.error('Erè chajman dashboard:', err);
+        console.error('Dashboard error:', err);
     }
 }
 
 function renderRecentOrders(orders) {
-    if (orders.length === 0) {
-        document.getElementById('recentOrders').innerHTML = '<p style="text-align:center;color:#666;padding:20px;">Pa gen kòmand ankò.</p>';
+    const container = document.getElementById('recentOrders');
+    if (!orders.length) {
+        container.innerHTML = '<p style="color:var(--text-secondary);text-align:center;padding:20px;">Pa gen kòmand ankò</p>';
         return;
     }
-    
-    let html = `<table class="order-table">
+
+    let html = `<table class="table">
         <tr><th>ID</th><th>Kliyan</th><th>Total</th><th>Status</th><th>Afilye</th></tr>`;
-    
     orders.forEach(o => {
-        html += `
-        <tr>
+        html += `<tr>
             <td><strong>#${o.id}</strong></td>
-            <td>${o.customer_name}<br><small>📞 ${o.customer_phone}</small></td>
-            <td><strong>${parseFloat(o.total).toFixed(2)} GDS</strong></td>
+            <td>${o.customer_name}<br><small style="color:var(--text-secondary);">📞 ${o.customer_phone}</small></td>
+            <td><strong style="color:var(--accent);">${parseFloat(o.total).toFixed(2)} GDS</strong></td>
             <td><span class="badge badge-pending">${o.status || 'pending'}</span></td>
-            <td>${o.affiliate_code ? `<span class="badge badge-affiliate">🤝 ${o.affiliate_code}</span>` : '-'}</td>
+            <td>${o.affiliate_code ? `<span class="badge badge-affiliate">${o.affiliate_code}</span>` : '—'}</td>
         </tr>`;
     });
-    
     html += '</table>';
-    document.getElementById('recentOrders').innerHTML = html;
+    container.innerHTML = html;
 }
 
 function renderRevenueChart(orders) {
-    const days = ['Dim', 'Len', 'Ma', 'Mè', 'Je', 'Va', 'Sa'];
+    const container = document.getElementById('revenueChart');
+    const days = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
     const today = new Date();
     const weekData = {};
-    
-    // Inisyalize 7 dènye jou yo
+
     for (let i = 6; i >= 0; i--) {
         const d = new Date(today);
         d.setDate(d.getDate() - i);
-        const key = d.toISOString().split('T')[0];
-        weekData[key] = 0;
+        weekData[d.toISOString().split('T')[0]] = 0;
     }
-    
-    // Ranpli ak kòmand yo
+
     orders.forEach(o => {
-        const dateKey = o.created_at ? o.created_at.split('T')[0] : null;
-        if (dateKey && weekData[dateKey] !== undefined) {
-            weekData[dateKey] += parseFloat(o.total || 0);
-        }
+        const key = (o.created_at || '').split('T')[0];
+        if (key && weekData[key] !== undefined) weekData[key] += parseFloat(o.total || 0);
     });
-    
+
     const values = Object.values(weekData);
-    const maxVal = Math.max(...values, 1);
-    const labels = Object.keys(weekData).map(d => {
-        const day = new Date(d).getDay();
-        return days[day];
-    });
-    
-    let html = '';
-    Object.entries(weekData).forEach(([date, val], i) => {
-        const height = Math.max((val / maxVal) * 120, 10);
-        html += `
-        <div style="flex:1;text-align:center;">
-            <div class="bar" style="height:${height}px;">
-                <span class="bar-value">${val > 0 ? val.toFixed(0) : ''}</span>
-            </div>
-            <span style="font-size:0.75rem;color:#666;">${labels[i]}</span>
+    const max = Math.max(...values, 1);
+    const keys = Object.keys(weekData);
+
+    let bars = '';
+    let labels = '';
+    keys.forEach((key, i) => {
+        const val = values[i];
+        const h = Math.max((val / max) * 140, 6);
+        const d = new Date(key);
+        bars += `<div class="chart-bar" style="height:${h}px;" title="${key}: ${val.toFixed(2)} GDS">
+            ${val > 0 ? `<span class="bar-val">${val.toFixed(0)}</span>` : ''}
         </div>`;
+        labels += `<span>${days[d.getDay()]}</span>`;
     });
-    
-    document.getElementById('revenueChart').innerHTML = html;
+
+    container.innerHTML = `
+        <div class="chart-container">${bars}</div>
+        <div class="chart-labels">${labels}</div>`;
 }
 
 function renderTopAffiliates(affiliates) {
-    if (affiliates.length === 0) {
-        document.getElementById('topAffiliates').innerHTML = '<p style="text-align:center;color:#666;padding:20px;">Pa gen afilye ankò.</p>';
+    const container = document.getElementById('topAffiliates');
+    if (!affiliates.length) {
+        container.innerHTML = '<p style="color:var(--text-secondary);text-align:center;padding:20px;">Pa gen afilye ankò</p>';
         return;
     }
-    
-    // Triye pa revni
-    const sorted = affiliates.sort((a, b) => (b.total_commission || 0) - (a.total_commission || 0));
-    const top5 = sorted.slice(0, 5);
-    
-    let html = `<table class="order-table">
-        <tr><th>🏆</th><th>Afilye</th><th>Kòd</th><th>Klik</th><th>Vann</th><th>Komisyon</th></tr>`;
-    
-    top5.forEach((a, i) => {
-        html += `
-        <tr>
-            <td>${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '#'+(i+1)}</td>
+
+    const sorted = [...affiliates].sort((a, b) => (b.total_commission || 0) - (a.total_commission || 0));
+    const top = sorted.slice(0, 5);
+
+    let html = `<table class="table">
+        <tr><th>#</th><th>Afilye</th><th>Kòd</th><th>Klik</th><th>Vann</th><th>Komisyon</th></tr>`;
+    top.forEach((a, i) => {
+        const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+        html += `<tr>
+            <td>${medals[i]}</td>
             <td><strong>${a.name}</strong></td>
             <td><span class="badge badge-affiliate">${a.code}</span></td>
-            <td>👆 ${a.clicks || 0}</td>
-            <td>🏆 ${a.total_sales || 0}</td>
-            <td><strong style="color:var(--gold);">${(a.total_commission || 0).toFixed(2)} GDS</strong></td>
+            <td>${a.clicks || 0}</td>
+            <td>${a.total_sales || 0}</td>
+            <td><strong style="color:var(--accent);">${(a.total_commission || 0).toFixed(2)} GDS</strong></td>
         </tr>`;
     });
-    
     html += '</table>';
-    document.getElementById('topAffiliates').innerHTML = html;
+    container.innerHTML = html;
 }
 
 function logout() {
@@ -475,11 +575,15 @@ function logout() {
     window.location.href = 'login.html';
 }
 
-// Kòmanse
 loadDashboard();
-Toast.info('👋 Byenveni nan Dashboard!');
 </script>
 </body>
 </html>
+
+
+
+
+
+
 
 
