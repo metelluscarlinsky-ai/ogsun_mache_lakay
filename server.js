@@ -14,7 +14,13 @@ const app = express();
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 app.use(express.json({ limit: '10kb' }));
-app.use('/api/', rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
+app.use('/api/', rateLimit({ 
+  windowMs: 15 * 60 * 1000, 
+  max: 100,
+  validate: { trustProxy: false },
+  standardHeaders: true,
+  legacyHeaders: false,
+}));
 
 // ========== DOSYE DATA ==========
 const DATA_DIR = path.join(__dirname, 'data');
@@ -56,23 +62,19 @@ if (!fs.existsSync(path.join(DATA_DIR, 'products.json'))) {
 }
 
 if (!fs.existsSync(path.join(DATA_DIR, 'orders.json'))) writeJSON('orders.json', []);
+if (!fs.existsSync(path.join(DATA_DIR, 'commissions.json'))) writeJSON('commissions.json', []);
+
 if (!fs.existsSync(path.join(DATA_DIR, 'affiliates.json'))) {
   const affs = [];
   for (let i = 1; i <= 10; i++) {
     affs.push({ 
-      id: i, 
-      name: 'Afilye ' + i, 
-      code: 'AF00' + i, 
+      id: i, name: 'Afilye ' + i, code: 'AF00' + i, 
       commission_percent: 5 + (i % 6),
-      clicks: 0,
-      total_sales: 0,
-      total_revenue: 0,
-      total_commission: 0
+      clicks: 0, total_sales: 0, total_revenue: 0, total_commission: 0
     });
   }
   writeJSON('affiliates.json', affs);
 }
-if (!fs.existsSync(path.join(DATA_DIR, 'commissions.json'))) writeJSON('commissions.json', []);
 
 // ========== KONFIG ADMIN ==========
 const JWT_SECRET = process.env.JWT_SECRET || 'OgsunSecret2026!';
@@ -87,26 +89,10 @@ const verifyAdmin = (req, res, next) => {
   catch (e) { res.status(401).json({ error: 'Token invalide' }); }
 };
 
-// ========== SISTÈM AFILYE - TRAKE KLIK ==========
-app.get('/api/affiliate/click', (req, res) => {
-  const { ref } = req.query;
-  if (ref) {
-    const affiliates = readJSON('affiliates.json');
-    const affiliate = affiliates.find(a => a.code === ref);
-    if (affiliate) {
-      affiliate.clicks = (affiliate.clicks || 0) + 1;
-      writeJSON('affiliates.json', affiliates);
-    }
-  }
-  res.json({ success: true });
-});
-
 // ========== API PIBLIK ==========
 
 // Kategori
-app.get('/api/categories', (req, res) => {
-  res.json(readJSON('categories.json'));
-});
+app.get('/api/categories', (req, res) => res.json(readJSON('categories.json')));
 
 // Pwodui
 app.get('/api/products', (req, res) => {
@@ -131,15 +117,10 @@ app.post('/api/order', (req, res) => {
     if (!customer_name || !customer_phone || !items || !total) {
       return res.status(400).json({ error: 'Chan obligatwa manke' });
     }
-
     const orders = readJSON('orders.json');
     const newOrder = {
       id: orders.length > 0 ? Math.max(...orders.map(o => o.id)) + 1 : 1,
-      customer_name,
-      customer_phone,
-      customer_address,
-      items,
-      total,
+      customer_name, customer_phone, customer_address, items, total,
       delivery_fee: delivery_fee || 0,
       affiliate_code: affiliate_code || null,
       status: 'pending',
@@ -148,55 +129,53 @@ app.post('/api/order', (req, res) => {
     orders.push(newOrder);
     writeJSON('orders.json', orders);
 
-    // Si gen kòd afilye, mete ajou estatistik
     if (affiliate_code) {
       const affiliates = readJSON('affiliates.json');
       const affiliate = affiliates.find(a => a.code === affiliate_code);
       if (affiliate) {
         const commissions = readJSON('commissions.json');
         const commissionAmount = total * affiliate.commission_percent / 100;
-        
         commissions.push({
           id: commissions.length + 1,
-          affiliate_code: affiliate_code,
-          affiliate_name: affiliate.name,
-          order_id: newOrder.id,
-          amount: total,
+          affiliate_code, affiliate_name: affiliate.name,
+          order_id: newOrder.id, amount: total,
           commission: commissionAmount,
           created_at: new Date().toISOString()
         });
         writeJSON('commissions.json', commissions);
-        
         affiliate.total_sales = (affiliate.total_sales || 0) + 1;
         affiliate.total_revenue = (affiliate.total_revenue || 0) + total;
         affiliate.total_commission = (affiliate.total_commission || 0) + commissionAmount;
         writeJSON('affiliates.json', affiliates);
       }
     }
-
     res.json({ success: true, order_id: newOrder.id });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// ========== API AFILYE ==========
+// ========== API AFILYE PIBLIK ==========
+
+// Lis afilye (piblik - pou login)
+app.get('/api/affiliates', (req, res) => {
+  const affiliates = readJSON('affiliates.json');
+  res.json(affiliates.map(a => ({
+    id: a.id, name: a.name, code: a.code, commission_percent: a.commission_percent
+  })));
+});
 
 // Estatistik afilye
 app.get('/api/affiliate/stats', (req, res) => {
   const { code } = req.query;
   if (!code) return res.status(400).json({ error: 'Kòd afilye obligatwa' });
-  
   const affiliates = readJSON('affiliates.json');
   const affiliate = affiliates.find(a => a.code === code);
   if (!affiliate) return res.status(404).json({ error: 'Afilye pa jwenn' });
-  
   const commissions = readJSON('commissions.json');
   const myCommissions = commissions.filter(c => c.affiliate_code === code);
-  
   res.json({
-    name: affiliate.name,
-    code: affiliate.code,
+    name: affiliate.name, code: affiliate.code,
     commission_percent: affiliate.commission_percent,
     clicks: affiliate.clicks || 0,
     total_sales: affiliate.total_sales || 0,
@@ -204,6 +183,20 @@ app.get('/api/affiliate/stats', (req, res) => {
     total_commission: affiliate.total_commission || 0,
     recent_commissions: myCommissions.slice(-10).reverse()
   });
+});
+
+// Klik afilye
+app.get('/api/affiliate/click', (req, res) => {
+  const { ref } = req.query;
+  if (ref) {
+    const affiliates = readJSON('affiliates.json');
+    const affiliate = affiliates.find(a => a.code === ref);
+    if (affiliate) {
+      affiliate.clicks = (affiliate.clicks || 0) + 1;
+      writeJSON('affiliates.json', affiliates);
+    }
+  }
+  res.json({ success: true });
 });
 
 // ========== ADMIN AUTH ==========
@@ -224,20 +217,25 @@ app.get('/api/admin/orders', verifyAdmin, (req, res) => {
   res.json(readJSON('orders.json').reverse());
 });
 
-// Lis afilye ak estatistik
+// Retire kòmand
+app.delete('/api/admin/orders/:id', verifyAdmin, (req, res) => {
+  const id = parseInt(req.params.id);
+  let orders = readJSON('orders.json');
+  const index = orders.findIndex(o => o.id === id);
+  if (index === -1) return res.status(404).json({ error: 'Kòmand pa jwenn' });
+  orders.splice(index, 1);
+  writeJSON('orders.json', orders);
+  res.json({ success: true });
+});
+
+// Lis afilye ak estatistik (admin)
 app.get('/api/admin/affiliates', verifyAdmin, (req, res) => {
   const affiliates = readJSON('affiliates.json');
   const commissions = readJSON('commissions.json');
-  
-  const data = affiliates.map(a => {
-    const myCommissions = commissions.filter(c => c.affiliate_code === a.code);
-    return {
-      ...a,
-      recent_commissions: myCommissions.slice(-5).reverse()
-    };
-  });
-  
-  res.json(data);
+  res.json(affiliates.map(a => ({
+    ...a,
+    recent_commissions: commissions.filter(c => c.affiliate_code === a.code).slice(-5).reverse()
+  })));
 });
 
 // Ajoute afilye
@@ -245,21 +243,32 @@ app.post('/api/admin/affiliates', verifyAdmin, (req, res) => {
   try {
     const { name, code, commission_percent } = req.body;
     if (!name || !code) return res.status(400).json({ error: 'Non ak kòd obligatwa' });
-
     const affs = readJSON('affiliates.json');
+    if (affs.find(a => a.code === code)) return res.status(400).json({ error: 'Kòd sa a deja egziste!' });
     const newAff = {
       id: affs.length > 0 ? Math.max(...affs.map(a => a.id)) + 1 : 1,
-      name,
-      code,
+      name, code,
       commission_percent: commission_percent || 5,
-      clicks: 0,
-      total_sales: 0,
-      total_revenue: 0,
-      total_commission: 0
+      clicks: 0, total_sales: 0, total_revenue: 0, total_commission: 0
     };
     affs.push(newAff);
     writeJSON('affiliates.json', affs);
     res.json({ success: true, id: newAff.id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ✅ RETIRE AFILYE — Fonksyon sa a mache!
+app.delete('/api/admin/affiliates/:id', verifyAdmin, (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    let affiliates = readJSON('affiliates.json');
+    const index = affiliates.findIndex(a => a.id === id);
+    if (index === -1) return res.status(404).json({ error: 'Afilye pa jwenn' });
+    affiliates.splice(index, 1);
+    writeJSON('affiliates.json', affiliates);
+    res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -279,7 +288,7 @@ app.post('/api/admin/upload', verifyAdmin, upload.single('image'), (req, res) =>
   res.json({ success: true, url: '/uploads/' + newName });
 });
 
-// Ajoute pwodui
+// ✅ AJOUTE PWODUI
 app.post('/api/admin/products', verifyAdmin, (req, res) => {
   const { name, description, price, image_url, category_id } = req.body;
   if (!name || !price || !category_id) return res.status(400).json({ error: 'Chan obligatwa manke' });
@@ -295,6 +304,17 @@ app.post('/api/admin/products', verifyAdmin, (req, res) => {
   res.json({ success: true, id: newProduct.id });
 });
 
+// ✅ RETIRE PWODUI
+app.delete('/api/admin/products/:id', verifyAdmin, (req, res) => {
+  const id = parseInt(req.params.id);
+  let products = readJSON('products.json');
+  const index = products.findIndex(p => p.id === id);
+  if (index === -1) return res.status(404).json({ error: 'Pwodui pa jwenn' });
+  products.splice(index, 1);
+  writeJSON('products.json', products);
+  res.json({ success: true });
+});
+
 // ========== FICHYE ESTATIK ==========
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
@@ -305,8 +325,9 @@ app.use((req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html'))
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log('🌴 OGSUN MACHE LAKAY sou pò ' + PORT);
-  console.log('✅ Sistèm afilye aktif!');
-  console.log('📊 Admin: http://localhost:' + PORT + '/admin/login.html');
-  console.log('🤝 Afilye: http://localhost:' + PORT + '/affiliate/login.html');
-  console.log('🏠 Sit: http://localhost:' + PORT);
+  console.log('✅ Tout API yo:');
+  console.log('   📦 Pwodui - Ajoute/Retire');
+  console.log('   🤝 Afilye - Ajoute/Retire');
+  console.log('   📋 Kòmand - Retire');
+  console.log('   📊 Estatistik Reyèl');
 });

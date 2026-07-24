@@ -30,6 +30,13 @@
             <label>👤 Non konplè</label>
             <input type="text" id="customer-name" placeholder="Antre non ou..." required>
         </div>
+
+<div class="form-group">
+    <label>🏷️ Kòd Promo / Afilye (si genyen)</label>
+    <input type="text" id="promo-code" placeholder="Ekzanp: AF001" style="text-transform: uppercase;">
+    <button type="button" onclick="verifyPromoCode()" style="background:var(--gold);color:white;border:none;padding:10px 20px;border-radius:20px;cursor:pointer;margin-top:5px;font-weight:600;">✅ Verifye Kòd</button>
+    <span id="promo-status" style="margin-left:10px;font-weight:600;"></span>
+</div>
         <div class="form-group">
             <label>📞 WhatsApp / Telefòn</label>
             <input type="text" id="customer-phone" placeholder="32924776" required>
@@ -123,6 +130,42 @@ window.removeItem = (index) => {
 };
 
 renderCart();
+let verifiedPromoCode = null;
+let promoDiscount = 0;
+
+async function verifyPromoCode() {
+    const code = document.getElementById('promo-code').value.trim().toUpperCase();
+    const status = document.getElementById('promo-status');
+    
+    if (!code) {
+        status.style.color = 'red';
+        status.textContent = '❌ Antre yon kòd!';
+        return;
+    }
+    
+    try {
+        const res = await fetch('/api/affiliates');
+        const affiliates = await res.json();
+        const affiliate = affiliates.find(a => a.code === code);
+        
+        if (affiliate) {
+            status.style.color = 'green';
+            status.textContent = '✅ Kòd valide: ' + affiliate.name + ' (' + affiliate.commission_percent + '% komisyon)';
+            verifiedPromoCode = code;
+            promoDiscount = 0; // Pa gen rabè, se komisyon afilye
+            Toast.success('✅ Kòd promo valide: ' + affiliate.name);
+        } else {
+            status.style.color = 'red';
+            status.textContent = '❌ Kòd pa valid!';
+            verifiedPromoCode = null;
+            promoDiscount = 0;
+            Toast.error('❌ Kòd pa valid!');
+        }
+    } catch (err) {
+        status.style.color = 'red';
+        status.textContent = '❌ Erè verifye kòd';
+    }
+}
 
 document.getElementById('send-order').addEventListener('click', async () => {
     const name = document.getElementById('customer-name').value.trim();
@@ -155,7 +198,17 @@ document.getElementById('send-order').addEventListener('click', async () => {
     } catch (err) {
         console.warn('Sèvè pa disponib, men nap kontinye ak WhatsApp.');
     }
-    
+
+
+body: JSON.stringify({
+    customer_name: name,
+    customer_phone: phone,
+    customer_address: address,
+    items: cart,
+    total: grandTotal,
+    delivery_fee: deliveryFee,
+    affiliate_code: verifiedPromoCode  // AJOUTE SA A
+})    
     hideLoading();
     
     let msg = `*🛒 Kòmand OGSUN MACHE LAKAY*%0A%0A`;

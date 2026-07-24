@@ -161,9 +161,18 @@ async function addAffiliate() {
 async function deleteAffiliate(id) {
     if (!confirm('Eske w sèten w vle retire afilye sa a?')) return;
     
-    // Pou retire, nou ka modifye API a, men pou kounye a nou ka filtre
-    Toast.info('🗑️ Fonksyon retire ap vini...');
-    // Ou ka ajoute yon API DELETE si w vle
+    const res = await fetch('/api/admin/affiliates/' + id, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + TOKEN }
+    });
+    const data = await res.json();
+    
+    if (data.success) {
+        Toast.success('🗑️ Afilye retire!');
+        loadAffiliates();
+    } else {
+        Toast.error('❌ ' + (data.error || 'Erè'));
+    }
 }
 
 function logout() {
@@ -175,4 +184,5 @@ loadAffiliates();
 </script>
 </body>
 </html>
+
 
