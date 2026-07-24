@@ -3,7 +3,10 @@
     "id": 1,
     "name": "Afilye 1",
     "code": "AF001",
-    "commission_percent": 6
+    "commission_percent": 6,
+    "total_sales": 1,
+    "total_revenue": 3000,
+    "total_commission": 180
   },
   {
     "id": 2,

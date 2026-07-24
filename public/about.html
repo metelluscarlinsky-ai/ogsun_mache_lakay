@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sou Nou - OGSUN MACHE LAKAY</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="toast.css">
+    <script src="toast.js" defer></script>
+</head>
+<body>
+<header>
+    <div class="logo">
+        <img src="logo.png" alt="OGSUN Logo">
+        <span>OGSUN MACHE LAKAY</span>
+    </div>
+    <nav>
+        <a href="index.html">🏠 Akèy</a>
+        <a href="about.html">📖 Sou Nou</a>
+        <a href="cart.html" class="cart-icon">🛒 <span id="cart-badge" class="cart-badge">0</span></a>
+    </nav>
+</header>
+
+<div class="container" style="padding:40px 20px;">
+    <div style="text-align:center;margin-bottom:50px;">
+        <h1 style="font-size:3rem;color:var(--gold);margin-bottom:10px;">🌴 OGSUN MACHE LAKAY</h1>
+        <p style="font-size:1.4rem;color:#555;font-style:italic;">"Pi bon mache lokal ou a — Konekte ak tout sa w bezwen, rapid e an sekirite."</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:30px;margin-bottom:50px;">
+        <div style="background:var(--glass);padding:35px;border-radius:20px;text-align:center;backdrop-filter:blur(10px);">
+            <div style="font-size:4rem;">🎯</div>
+            <h2>Misyon Nou</h2>
+            <p style="color:#555;line-height:1.8;">Nou la pou rann makèt pi fasil, pi rapid, epi pi aksesib pou tout moun nan Gonayiv ak atravè peyi a. Nou kwè nan pouvwa teknoloji pou transfòme komès lokal.</p>
+        </div>
+        
+        <div style="background:var(--glass);padding:35px;border-radius:20px;text-align:center;backdrop-filter:blur(10px);">
+            <div style="font-size:4rem;">👁️</div>
+            <h2>Vizyon Nou</h2>
+            <p style="color:#555;line-height:1.8;">Vin nimewo 1 platfòm e-commerce an Ayiti kote chak kliyan jwenn pwodui kalite ak pi bon pri, epi chak machann jwenn yon espas pou l grandi.</p>
+        </div>
+        
+        <div style="background:var(--glass);padding:35px;border-radius:20px;text-align:center;backdrop-filter:blur(10px);">
+            <div style="font-size:4rem;">💚</div>
+            <h2>Valè Nou</h2>
+            <p style="color:#555;line-height:1.8;">Konfyans, Kalite, Rapidite, ak Sèvis Kliyan eksepsyonèl. Chak kòmand trete ak swen, chak kliyan respekte, chak pwodui verifye.</p>
+        </div>
+    </div>
+
+    <div style="background:linear-gradient(135deg,var(--primary),#1a5c1a);padding:50px;border-radius:24px;color:white;text-align:center;margin-bottom:40px;">
+        <h2 style="font-size:2rem;margin-bottom:20px;">💬 Sa Kliyan Nou Yo Di</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;">
+            <div style="background:rgba(255,255,255,0.15);padding:25px;border-radius:16px;">
+                <p>"Pi bon eksperyans mwen fè sou entènèt! Kòmand mwen an te rive nan 2 jou."</p>
+                <strong>— Marie J.</strong>
+            </div>
+            <div style="background:rgba(255,255,255,0.15);padding:25px;border-radius:16px;">
+                <p>"Mwen renmen jan sit la fasil pou itilize. Mwen rekòmande OGSUN pou tout moun!"</p>
+                <strong>— Jean P.</strong>
+            </div>
+            <div style="background:rgba(255,255,255,0.15);padding:25px;border-radius:16px;">
+                <p>"Pwodui yo bon kalite, pri yo rezonab. M ap toujou achte isit."</p>
+                <strong>— Sophie L.</strong>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align:center;padding:40px;">
+        <h2 style="font-size:2rem;color:var(--primary);">📞 Kontakte Nou</h2>
+        <p style="font-size:1.2rem;margin:20px 0;">📱 WhatsApp/Natcash: <strong>32924776</strong></p>
+        <p style="font-size:1.2rem;">📧 Email: <strong>metelluscarlinsky@gmail.com</strong></p>
+        <p style="font-size:1.2rem;">📍 Gonayiv, Ayiti</p>
+    </div>
+</div>
+
+<footer>
+    <p>&copy; 2026 OGSUN MACHE LAKAY - Tout dwa rezève</p>
+    <p>🌴 Pi bon mache lokal ou a</p>
+</footer>
+
+<script>
+let cart = JSON.parse(localStorage.getItem('ogsun_cart')) || [];
+document.getElementById('cart-badge').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+</script>
+</body>
+</html>

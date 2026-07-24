@@ -14,7 +14,7 @@
         .hero-banner {
             background: linear-gradient(135deg, var(--primary), #1a5c1a);
             border-radius: 24px;
-            padding: 40px;
+            padding: 50px 30px;
             text-align: center;
             margin-bottom: 30px;
             color: white;
@@ -24,10 +24,8 @@
         .hero-banner::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
             background: radial-gradient(circle, rgba(212,160,23,0.3) 0%, transparent 70%);
             animation: heroGlow 4s ease-in-out infinite;
         }
@@ -36,16 +34,154 @@
             50% { transform: translate(10%, 10%); }
         }
         .hero-banner h1 {
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             position: relative;
             z-index: 1;
             text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
         }
         .hero-banner p {
             position: relative;
             z-index: 1;
             font-size: 1.2rem;
             opacity: 0.9;
+        }
+        .hero-banner .hero-buttons {
+            position: relative;
+            z-index: 1;
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .hero-btn {
+            display: inline-block;
+            padding: 14px 30px;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .hero-btn-primary {
+            background: var(--gold);
+            color: white;
+            box-shadow: 0 8px 25px rgba(212,160,23,0.4);
+        }
+        .hero-btn-primary:hover {
+            background: #f0c75e;
+            transform: translateY(-3px);
+        }
+        .hero-btn-outline {
+            border: 2px solid white;
+            color: white;
+        }
+        .hero-btn-outline:hover {
+            background: white;
+            color: var(--primary);
+        }
+        
+        .search-bar {
+            margin: 25px 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .search-bar input {
+            padding: 15px 24px;
+            border-radius: 50px;
+            border: 2px solid var(--gold);
+            width: 100%;
+            max-width: 500px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+        .search-bar input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(212,160,23,0.3);
+        }
+        .search-bar button {
+            background: var(--gold);
+            color: white;
+            border: none;
+            padding: 15px 28px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        .search-bar button:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .quick-link-card {
+            background: rgba(255,255,255,0.9);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(212,160,23,0.2);
+        }
+        .quick-link-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            border-color: var(--gold);
+        }
+        .quick-link-card .icon {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 15px;
+        }
+        .quick-link-card h3 {
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        .quick-link-card p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .affiliate-banner {
+            background: linear-gradient(135deg, var(--gold), #f0c75e);
+            color: var(--primary);
+            padding: 30px;
+            border-radius: 20px;
+            margin: 30px 0;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(212,160,23,0.3);
+        }
+        .affiliate-banner h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        .affiliate-banner a {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+        .affiliate-banner a:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
     </style>
 </head>
@@ -57,28 +193,82 @@
     </div>
     <nav>
         <a href="index.html">🏠 Akèy</a>
+        <a href="about.html">📖 Sou Nou</a>
+        <a href="affiliate/login.html">🤝 Afilye</a>
         <a href="cart.html" class="cart-icon">🛒 <span id="cart-badge" class="cart-badge">0</span></a>
     </nav>
 </header>
 
 <div class="container">
+    <!-- Hero Banner -->
     <div class="hero-banner">
         <h1>🌴 Byenveni nan OGSUN MACHE LAKAY</h1>
         <p>Pi bon mache lokal ou a — Livrezon rapid nan Gonayiv ak tout peyi a!</p>
+        <div class="hero-buttons">
+            <a href="#products" class="hero-btn hero-btn-primary">🛍️ Gade Pwodui yo</a>
+            <a href="about.html" class="hero-btn hero-btn-outline">📖 Aprann Plis</a>
+        </div>
     </div>
     
+    <!-- Bar Rechèch -->
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="🔍 Chèche yon pwodui... (ekzanp: diri, mayo, telefòn)">
+        <button onclick="searchProducts()">🔍 Chèche</button>
+    </div>
+    <div id="searchResults" class="product-grid" style="display:none;"></div>
+    
+    <!-- Lyen Rapid -->
+    <div class="quick-links">
+        <a href="#products" class="quick-link-card">
+            <span class="icon">🛍️</span>
+            <h3>Pwodui yo</h3>
+            <p>Gade tout pwodui nou yo</p>
+        </a>
+        <a href="affiliate/login.html" class="quick-link-card">
+            <span class="icon">🤝</span>
+            <h3>Pwogram Afilye</h3>
+            <p>Touche komisyon pou chak kliyan</p>
+        </a>
+        <a href="about.html" class="quick-link-card">
+            <span class="icon">📖</span>
+            <h3>Sou Nou</h3>
+            <p>Misyon ak vizyon nou</p>
+        </a>
+        <a href="cart.html" class="quick-link-card">
+            <span class="icon">🛒</span>
+            <h3>Panier</h3>
+            <p>Gade panier ou</p>
+        </a>
+    </div>
+    
+    <!-- Banyè Afilye -->
+    <div class="affiliate-banner">
+        <h3>🤝 Vin yon Afilye OGSUN!</h3>
+        <p>Touche jiska 10% komisyon sou chak kliyan ou pote! Pataje lyen ou epi kòmanse touche.</p>
+        <a href="affiliate/login.html">🚀 Kòmanse Kounye a</a>
+    </div>
+    
+    <!-- Filtè Kategori -->
     <div id="category-filters" class="category-filters"></div>
-    <div id="product-grid" class="product-grid"></div>
+    
+    <!-- Grid Pwodui -->
+    <div id="product-grid" class="product-grid" id="products"></div>
 </div>
 
 <footer>
     <p>&copy; 2026 OGSUN MACHE LAKAY - Tout dwa rezève</p>
     <p>📞 WhatsApp/Natcash: 32924776 | 📧 metelluscarlinsky@gmail.com</p>
+    <p>
+        <a href="about.html" style="color:var(--gold-light);">Sou Nou</a> | 
+        <a href="affiliate/login.html" style="color:var(--gold-light);">Afilye</a> | 
+        <a href="admin/login.html" style="color:var(--gold-light);">Admin</a>
+    </p>
 </footer>
 
 <script>
 let cart = JSON.parse(localStorage.getItem('ogsun_cart')) || [];
 
+// ========== FUNKSYON DEBAZ ==========
 function updateCartBadge() {
     const total = cart.reduce((sum, item) => sum + item.quantity, 0);
     document.getElementById('cart-badge').textContent = total;
@@ -103,7 +293,7 @@ window.addToCart = function(product, event) {
     updateCartBadge();
     animateCartBadge();
     
-    Toast.success(`✅ ${product.name} ajoute nan panier! 🛒`);
+    Toast.success('✅ ' + product.name + ' ajoute nan panier! 🛒');
     
     const btn = event?.target;
     if (btn) {
@@ -113,8 +303,71 @@ window.addToCart = function(product, event) {
             setTimeout(() => card.classList.remove('added'), 600);
         }
     }
+    
+    // Trake si se yon afilye ki pote kliyan an
+    const ref = new URLSearchParams(window.location.search).get('ref');
+    if (ref) {
+        const clicks = parseInt(localStorage.getItem('clicks_' + ref) || '0');
+        localStorage.setItem('clicks_' + ref, clicks + 1);
+    }
 };
 
+// ========== RECHÈCH ==========
+window.searchProducts = function() {
+    const query = document.getElementById('searchInput').value.toLowerCase().trim();
+    if (!query) {
+        Toast.warning('⚠️ Antre yon mo pou chèche');
+        return;
+    }
+    
+    fetch('/api/products')
+        .then(res => res.json())
+        .then(products => {
+            const results = products.filter(p => 
+                p.name.toLowerCase().includes(query) || 
+                (p.description && p.description.toLowerCase().includes(query)) ||
+                (p.categories?.name && p.categories.name.toLowerCase().includes(query))
+            );
+            
+            const searchGrid = document.getElementById('searchResults');
+            const mainGrid = document.getElementById('product-grid');
+            const catFilters = document.getElementById('category-filters');
+            
+            searchGrid.style.display = 'grid';
+            
+            if (results.length === 0) {
+                searchGrid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:40px;font-size:1.2rem;">😔 Pa gen rezilta pou "' + query + '"</p>';
+                mainGrid.style.display = 'none';
+                catFilters.style.display = 'none';
+            } else {
+                searchGrid.innerHTML = '<h3 style="grid-column:1/-1;margin:10px 0;color:var(--primary);">🔍 ' + results.length + ' rezilta pou "' + query + '" <button onclick="clearSearch()" style="background:none;border:none;color:var(--gold);cursor:pointer;font-weight:600;">✕ Efase</button></h3>';
+                searchGrid.innerHTML += results.map(prod => `
+                    <div class="product-card">
+                        <img src="${prod.image_url || 'logo.png'}" alt="${prod.name}" onerror="this.src='logo.png'">
+                        <div class="product-info">
+                            <span class="category">📂 ${prod.categories?.name || ''}</span>
+                            <h3>${prod.name}</h3>
+                            <div class="price">💰 ${parseFloat(prod.price).toFixed(2)} GDS</div>
+                            <button class="add-to-cart" onclick='addToCart(${JSON.stringify(prod).replace(/'/g, "&#39;")}, event)'>🛒 Ajoute</button>
+                        </div>
+                    </div>
+                `).join('');
+                mainGrid.style.display = 'none';
+                catFilters.style.display = 'none';
+            }
+        });
+};
+
+window.clearSearch = function() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('searchResults').style.display = 'none';
+    document.getElementById('searchResults').innerHTML = '';
+    document.getElementById('product-grid').style.display = 'grid';
+    document.getElementById('category-filters').style.display = 'flex';
+    loadProducts();
+};
+
+// ========== CHAJE DONE ==========
 async function loadCategories() {
     try {
         const res = await fetch('/api/categories');
@@ -129,6 +382,8 @@ async function loadCategories() {
                 document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 loadProducts(this.dataset.category);
+                // Efase rezilta rechèch si genyen
+                clearSearch();
             });
         });
     } catch (err) {
@@ -139,7 +394,7 @@ async function loadCategories() {
 async function loadProducts(categorySlug = '') {
     try {
         let url = '/api/products';
-        if (categorySlug) url += `?category=${categorySlug}`;
+        if (categorySlug) url += '?category=' + categorySlug;
         const res = await fetch(url);
         const products = await res.json();
         const grid = document.getElementById('product-grid');
@@ -169,6 +424,16 @@ async function loadProducts(categorySlug = '') {
     }
 }
 
+// Verifik si gen paramèt afilye nan URL
+const urlParams = new URLSearchParams(window.location.search);
+const refCode = urlParams.get('ref');
+if (refCode) {
+    const clicks = parseInt(localStorage.getItem('clicks_' + refCode) || '0');
+    localStorage.setItem('clicks_' + refCode, clicks + 1);
+    Toast.info('🔗 Ou soti nan lyen afilye: ' + refCode);
+}
+
+// Kòmanse
 loadCategories();
 loadProducts();
 updateCartBadge();

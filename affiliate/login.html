@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Afilye Login - OGSUN MACHE LAKAY</title>
+    <link rel="stylesheet" href="../public/toast.css">
+    <script src="../public/toast.js" defer></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { 
+            display:flex; justify-content:center; align-items:center; min-height:100vh; 
+            background: linear-gradient(135deg, #0a3d0a 0%, #d4a017 100%);
+            font-family: 'Space Grotesk', 'Poppins', sans-serif;
+        }
+        .login-container {
+            background: white; 
+            padding: 50px 40px; 
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4); 
+            width: 420px; 
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity:0; transform:translateY(30px); }
+            to { opacity:1; transform:translateY(0); }
+        }
+        .login-container img { 
+            width: 80px; 
+            border-radius: 50%; 
+            margin-bottom: 20px; 
+            border: 3px solid #d4a017; 
+        }
+        .login-container h2 { 
+            color: #0a3d0a; 
+            margin-bottom: 10px; 
+            font-size: 1.8rem; 
+        }
+        .login-container p {
+            color: #666;
+            margin-bottom: 25px;
+        }
+        .login-container input { 
+            display: block; 
+            width: 100%; 
+            margin: 15px 0; 
+            padding: 16px;
+            border: 2px solid #e0d6c2; 
+            border-radius: 12px; 
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        .login-container input:focus { 
+            outline: none; 
+            border-color: #d4a017; 
+            box-shadow: 0 0 0 3px rgba(212,160,23,0.2); 
+        }
+        .login-container button { 
+            background: linear-gradient(135deg, #d4a017, #f0c75e);
+            color: #0a3d0a; 
+            border: none; 
+            padding: 16px; 
+            width: 100%;
+            border-radius: 12px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            font-size: 1.1rem;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+        .login-container button:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 10px 30px rgba(212,160,23,0.4); 
+        }
+        .error { color: #e74c3c; margin-top: 12px; font-weight: 600; }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <img src="../public/logo.png" alt="OGSUN Logo" onerror="this.style.display='none'">
+    <h2>🤝 Espas Afilye</h2>
+    <p>Antre kòd afilye w la pou w jwenn aksè a dashboard ou.</p>
+    <form id="affiliateForm">
+        <input type="text" id="affiliateCode" placeholder="🔑 Kòd Afilye (ekzanp: AF001)" required>
+        <button type="submit">🚀 Konekte</button>
+    </form>
+    <p id="message" class="error"></p>
+    <p style="margin-top:20px;font-size:0.9rem;color:#999;">
+        ❓ Pa gen kòd? <a href="register.html" style="color:#d4a017;">Klike la pou w enskri</a>
+    </p>
+</div>
+
+<script>
+document.getElementById('affiliateForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const code = document.getElementById('affiliateCode').value.trim().toUpperCase();
+    const btn = e.target.querySelector('button');
+    const originalText = btn.textContent;
+    
+    btn.textContent = '⏳ Chajman...';
+    btn.disabled = true;
+    
+    try {
+        const res = await fetch('/api/admin/affiliates');
+        const affiliates = await res.json();
+        const affiliate = affiliates.find(a => a.code === code);
+        
+        if (affiliate) {
+            localStorage.setItem('affiliate_code', affiliate.code);
+            localStorage.setItem('affiliate_name', affiliate.name);
+            Toast.success('✅ Byenveni, ' + affiliate.name + '! 🎉');
+            setTimeout(() => window.location.href = 'dashboard.html', 1200);
+        } else {
+            document.getElementById('message').textContent = '❌ Kòd afilye pa valid!';
+            Toast.error('❌ Kòd pa valid!');
+        }
+    } catch (err) {
+        document.getElementById('message').textContent = '❌ Erè koneksyon. Eseye ankò.';
+        Toast.error('❌ Erè koneksyon');
+    } finally {
+        btn.textContent = originalText;
+        btn.disabled = false;
+    }
+});
+</script>
+</body>
+</html>
