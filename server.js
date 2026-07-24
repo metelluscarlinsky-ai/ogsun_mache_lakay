@@ -36,35 +36,43 @@ function writeJSON(name, data) {
   fs.writeFileSync(path.join(DATA_DIR, name), JSON.stringify(data, null, 2));
 }
 
-// ========== INISYALIZE DONE ==========
-if (!fs.existsSync(path.join(DATA_DIR, 'categories.json'))) {
-  writeJSON('categories.json', [
-    { id:1, name:'Manje', slug:'manje' },
-    { id:2, name:'Bwason', slug:'bwason' },
-    { id:3, name:'Vètman', slug:'vetman' },
-    { id:4, name:'Elektwonik', slug:'elektwonik' },
-    { id:5, name:'Kay ak Jaden', slug:'kay' },
-    { id:6, name:'Bote ak Swen', slug:'bote' },
-    { id:7, name:'Sante', slug:'sante' },
-    { id:8, name:'Lwazi', slug:'lwazi' },
-    { id:9, name:'Edikasyon', slug:'edikasyon' },
-    { id:10, name:'Lòt', slug:'lot' }
-  ]);
+// ========== INISYALIZE DONE — SÈLMAN SI FICHYE A PA EGZISTE ==========
+// 🔒 PA JANM EKRAZE DONE KI DEJA EGZISTE!
+
+function initIfNotExists(filename, defaultData) {
+  const filePath = path.join(DATA_DIR, filename);
+  if (!fs.existsSync(filePath)) {
+    writeJSON(filename, defaultData);
+    console.log('✅ Kreye ' + filename + ' (premye fwa)');
+  } else {
+    console.log('📂 ' + filename + ' deja egziste — KONSÈVE!');
+  }
 }
 
-if (!fs.existsSync(path.join(DATA_DIR, 'products.json'))) {
-  writeJSON('products.json', [
-    { id:1, name:'Diri blan 1 sak', description:'Diri lokal 25 lb', price:1500, image_url:'logo.png', category_id:1, affiliate_id:null, created_at: new Date().toISOString() },
-    { id:2, name:'Ji pòm', description:'Ji pòm natirèl 1 lit', price:500, image_url:'logo.png', category_id:2, affiliate_id:null, created_at: new Date().toISOString() },
-    { id:3, name:'Mayo blan', description:'Mayo koton 100%', price:800, image_url:'logo.png', category_id:3, affiliate_id:2, created_at: new Date().toISOString() },
-    { id:4, name:'Telefòn pòtatif', description:'Telefòn entelijan debaz', price:5000, image_url:'logo.png', category_id:4, affiliate_id:null, created_at: new Date().toISOString() }
-  ]);
-}
+initIfNotExists('categories.json', [
+  { id:1, name:'Manje', slug:'manje' },
+  { id:2, name:'Bwason', slug:'bwason' },
+  { id:3, name:'Vètman', slug:'vetman' },
+  { id:4, name:'Elektwonik', slug:'elektwonik' },
+  { id:5, name:'Kay ak Jaden', slug:'kay' },
+  { id:6, name:'Bote ak Swen', slug:'bote' },
+  { id:7, name:'Sante', slug:'sante' },
+  { id:8, name:'Lwazi', slug:'lwazi' },
+  { id:9, name:'Edikasyon', slug:'edikasyon' },
+  { id:10, name:'Lòt', slug:'lot' }
+]);
 
-if (!fs.existsSync(path.join(DATA_DIR, 'orders.json'))) writeJSON('orders.json', []);
-if (!fs.existsSync(path.join(DATA_DIR, 'commissions.json'))) writeJSON('commissions.json', []);
+initIfNotExists('products.json', [
+  { id:1, name:'Diri blan 1 sak', description:'Diri lokal 25 lb', price:1500, image_url:'logo.png', category_id:1, created_at: new Date().toISOString() },
+  { id:2, name:'Ji pòm', description:'Ji pòm natirèl 1 lit', price:500, image_url:'logo.png', category_id:2, created_at: new Date().toISOString() },
+  { id:3, name:'Mayo blan', description:'Mayo koton 100%', price:800, image_url:'logo.png', category_id:3, created_at: new Date().toISOString() },
+  { id:4, name:'Telefòn pòtatif', description:'Telefòn entelijan debaz', price:5000, image_url:'logo.png', category_id:4, created_at: new Date().toISOString() }
+]);
 
-if (!fs.existsSync(path.join(DATA_DIR, 'affiliates.json'))) {
+initIfNotExists('orders.json', []);
+initIfNotExists('commissions.json', []);
+
+initIfNotExists('affiliates.json', (() => {
   const affs = [];
   for (let i = 1; i <= 10; i++) {
     affs.push({ 
@@ -73,8 +81,8 @@ if (!fs.existsSync(path.join(DATA_DIR, 'affiliates.json'))) {
       clicks: 0, total_sales: 0, total_revenue: 0, total_commission: 0
     });
   }
-  writeJSON('affiliates.json', affs);
-}
+  return affs;
+})());
 
 // ========== KONFIG ADMIN ==========
 const JWT_SECRET = process.env.JWT_SECRET || 'OgsunSecret2026!';
@@ -91,10 +99,8 @@ const verifyAdmin = (req, res, next) => {
 
 // ========== API PIBLIK ==========
 
-// Kategori
 app.get('/api/categories', (req, res) => res.json(readJSON('categories.json')));
 
-// Pwodui
 app.get('/api/products', (req, res) => {
   let products = readJSON('products.json');
   const categories = readJSON('categories.json');
@@ -110,7 +116,6 @@ app.get('/api/products', (req, res) => {
   res.json(products.reverse());
 });
 
-// Kòmand
 app.post('/api/order', (req, res) => {
   try {
     const { customer_name, customer_phone, customer_address, items, total, delivery_fee, affiliate_code } = req.body;
@@ -157,7 +162,6 @@ app.post('/api/order', (req, res) => {
 
 // ========== API AFILYE PIBLIK ==========
 
-// Lis afilye (piblik - pou login)
 app.get('/api/affiliates', (req, res) => {
   const affiliates = readJSON('affiliates.json');
   res.json(affiliates.map(a => ({
@@ -165,7 +169,6 @@ app.get('/api/affiliates', (req, res) => {
   })));
 });
 
-// Estatistik afilye
 app.get('/api/affiliate/stats', (req, res) => {
   const { code } = req.query;
   if (!code) return res.status(400).json({ error: 'Kòd afilye obligatwa' });
@@ -185,7 +188,6 @@ app.get('/api/affiliate/stats', (req, res) => {
   });
 });
 
-// Klik afilye
 app.get('/api/affiliate/click', (req, res) => {
   const { ref } = req.query;
   if (ref) {
@@ -212,12 +214,10 @@ app.post('/api/admin/login', (req, res) => {
 
 // ========== API ADMIN ==========
 
-// Lis kòmand
 app.get('/api/admin/orders', verifyAdmin, (req, res) => {
   res.json(readJSON('orders.json').reverse());
 });
 
-// Retire kòmand
 app.delete('/api/admin/orders/:id', verifyAdmin, (req, res) => {
   const id = parseInt(req.params.id);
   let orders = readJSON('orders.json');
@@ -228,7 +228,6 @@ app.delete('/api/admin/orders/:id', verifyAdmin, (req, res) => {
   res.json({ success: true });
 });
 
-// Lis afilye ak estatistik (admin)
 app.get('/api/admin/affiliates', verifyAdmin, (req, res) => {
   const affiliates = readJSON('affiliates.json');
   const commissions = readJSON('commissions.json');
@@ -238,7 +237,6 @@ app.get('/api/admin/affiliates', verifyAdmin, (req, res) => {
   })));
 });
 
-// Ajoute afilye
 app.post('/api/admin/affiliates', verifyAdmin, (req, res) => {
   try {
     const { name, code, commission_percent } = req.body;
@@ -259,7 +257,6 @@ app.post('/api/admin/affiliates', verifyAdmin, (req, res) => {
   }
 });
 
-// ✅ RETIRE AFILYE — Fonksyon sa a mache!
 app.delete('/api/admin/affiliates/:id', verifyAdmin, (req, res) => {
   try {
     const id = parseInt(req.params.id);
@@ -274,7 +271,6 @@ app.delete('/api/admin/affiliates/:id', verifyAdmin, (req, res) => {
   }
 });
 
-// Upload imaj
 const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 const upload = multer({ dest: uploadDir });
@@ -288,7 +284,6 @@ app.post('/api/admin/upload', verifyAdmin, upload.single('image'), (req, res) =>
   res.json({ success: true, url: '/uploads/' + newName });
 });
 
-// ✅ AJOUTE PWODUI
 app.post('/api/admin/products', verifyAdmin, (req, res) => {
   const { name, description, price, image_url, category_id } = req.body;
   if (!name || !price || !category_id) return res.status(400).json({ error: 'Chan obligatwa manke' });
@@ -304,7 +299,6 @@ app.post('/api/admin/products', verifyAdmin, (req, res) => {
   res.json({ success: true, id: newProduct.id });
 });
 
-// ✅ RETIRE PWODUI
 app.delete('/api/admin/products/:id', verifyAdmin, (req, res) => {
   const id = parseInt(req.params.id);
   let products = readJSON('products.json');
@@ -325,9 +319,5 @@ app.use((req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html'))
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log('🌴 OGSUN MACHE LAKAY sou pò ' + PORT);
-  console.log('✅ Tout API yo:');
-  console.log('   📦 Pwodui - Ajoute/Retire');
-  console.log('   🤝 Afilye - Ajoute/Retire');
-  console.log('   📋 Kòmand - Retire');
-  console.log('   📊 Estatistik Reyèl');
+  console.log('🔒 Done ou yo PÈSISTE — pa janm efase!');
 });
