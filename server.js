@@ -25,18 +25,20 @@ app.use('/api/', rateLimit({
 // ========== DOSYE DATA ==========
 const DATA_DIR = path.join(__dirname, 'data');
 if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR);
+  fs.mkdirSync(DATA_DIR, { recursive: true });
   console.log('✅ Dosye data/ kreye');
 }
 
 function readJSON(name) {
   const file = path.join(DATA_DIR, name);
   if (!fs.existsSync(file)) {
-    console.log('⚠️ Fichye ' + name + ' pa egziste, retounen []');
+    console.log('⚠️ ' + name + ' pa egziste, retounen []');
     return [];
   }
   try {
-    return JSON.parse(fs.readFileSync(file, 'utf8'));
+    const content = fs.readFileSync(file, 'utf8');
+    if (!content || content.trim() === '') return [];
+    return JSON.parse(content);
   } catch (e) {
     console.error('❌ Erè li ' + name + ':', e.message);
     return [];
@@ -46,8 +48,8 @@ function readJSON(name) {
 function writeJSON(name, data) {
   const file = path.join(DATA_DIR, name);
   try {
-    fs.writeFileSync(file, JSON.stringify(data, null, 2));
-    console.log('💾 ' + name + ' sove ak siksè');
+    fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf8');
+    console.log('💾 ' + name + ' sove (' + data.length + ' eleman)');
   } catch (e) {
     console.error('❌ Erè ekri ' + name + ':', e.message);
   }
@@ -60,7 +62,8 @@ function initIfNotExists(filename, defaultData) {
     writeJSON(filename, defaultData);
     console.log('✅ ' + filename + ' kreye ak done defo');
   } else {
-    console.log('📂 ' + filename + ' deja egziste — KONSÈVE!');
+    const existing = readJSON(filename);
+    console.log('📂 ' + filename + ' deja egziste (' + existing.length + ' eleman) — KONSÈVE!');
   }
 }
 
@@ -139,46 +142,73 @@ app.get('/api/products', (req, res) => {
   res.json(products.reverse());
 });
 
+// ========== KÒMAND AK AFILYE ==========
+
 app.post('/api/order', (req, res) => {
   try {
     const { customer_name, customer_phone, customer_address, items, total, delivery_fee, affiliate_code } = req.body;
+    
     if (!customer_name || !customer_phone || !items || !total) {
       return res.status(400).json({ error: 'Chan obligatwa manke' });
     }
+
+    // Chèche non afilye a si gen kòd
+    let affiliate_name = null;
+    if (affiliate_code) {
+      const affiliates = readJSON('affiliates.json');
+      const affiliate = affiliates.find(a => a.code === affiliate_code);
+      if (affiliate) {
+        affiliate_name = affiliate.name;
+      }
+    }
+
     const orders = readJSON('orders.json');
     const newOrder = {
       id: orders.length > 0 ? Math.max(...orders.map(o => o.id)) + 1 : 1,
-      customer_name, customer_phone, customer_address, items, total,
+      customer_name,
+      customer_phone,
+      customer_address,
+      items,
+      total,
       delivery_fee: delivery_fee || 0,
       affiliate_code: affiliate_code || null,
+      affiliate_name: affiliate_name || null,  // ✅ NON AFILYE A LA!
       status: 'pending',
       created_at: new Date().toISOString()
     };
+    
     orders.push(newOrder);
     writeJSON('orders.json', orders);
 
-    if (affiliate_code) {
+    // Mete ajou estatistik afilye
+    if (affiliate_code && affiliate_name) {
       const affiliates = readJSON('affiliates.json');
       const affiliate = affiliates.find(a => a.code === affiliate_code);
       if (affiliate) {
         const commissions = readJSON('commissions.json');
         const commissionAmount = total * affiliate.commission_percent / 100;
+        
         commissions.push({
           id: commissions.length + 1,
-          affiliate_code, affiliate_name: affiliate.name,
-          order_id: newOrder.id, amount: total,
+          affiliate_code,
+          affiliate_name,
+          order_id: newOrder.id,
+          amount: total,
           commission: commissionAmount,
           created_at: new Date().toISOString()
         });
         writeJSON('commissions.json', commissions);
+        
         affiliate.total_sales = (affiliate.total_sales || 0) + 1;
         affiliate.total_revenue = (affiliate.total_revenue || 0) + total;
         affiliate.total_commission = (affiliate.total_commission || 0) + commissionAmount;
         writeJSON('affiliates.json', affiliates);
       }
     }
-    res.json({ success: true, order_id: newOrder.id });
+
+    res.json({ success: true, order_id: newOrder.id, affiliate_name: affiliate_name });
   } catch (err) {
+    console.error('❌ Erè kòmand:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -201,7 +231,8 @@ app.get('/api/affiliate/stats', (req, res) => {
   const commissions = readJSON('commissions.json');
   const myCommissions = commissions.filter(c => c.affiliate_code === code);
   res.json({
-    name: affiliate.name, code: affiliate.code,
+    name: affiliate.name,
+    code: affiliate.code,
     commission_percent: affiliate.commission_percent,
     clicks: affiliate.clicks || 0,
     total_sales: affiliate.total_sales || 0,
@@ -274,6 +305,7 @@ app.post('/api/admin/affiliates', verifyAdmin, (req, res) => {
     };
     affs.push(newAff);
     writeJSON('affiliates.json', affs);
+    console.log('✅ Afilye ajoute: ' + name + ' (' + code + ')');
     res.json({ success: true, id: newAff.id });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -285,8 +317,9 @@ app.delete('/api/admin/affiliates/:id', verifyAdmin, (req, res) => {
   let affiliates = readJSON('affiliates.json');
   const index = affiliates.findIndex(a => a.id === id);
   if (index === -1) return res.status(404).json({ error: 'Afilye pa jwenn' });
-  affiliates.splice(index, 1);
+  const deleted = affiliates.splice(index, 1)[0];
   writeJSON('affiliates.json', affiliates);
+  console.log('🗑️ Afilye retire: ' + deleted.name);
   res.json({ success: true });
 });
 
@@ -304,18 +337,29 @@ app.post('/api/admin/upload', verifyAdmin, upload.single('image'), (req, res) =>
 });
 
 app.post('/api/admin/products', verifyAdmin, (req, res) => {
-  const { name, description, price, image_url, category_id } = req.body;
-  if (!name || !price || !category_id) return res.status(400).json({ error: 'Chan obligatwa manke' });
-  const products = readJSON('products.json');
-  const newProduct = {
-    id: products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1,
-    name, description: description || '', price: parseFloat(price),
-    image_url: image_url || 'logo.png', category_id: parseInt(category_id),
-    created_at: new Date().toISOString()
-  };
-  products.push(newProduct);
-  writeJSON('products.json', products);
-  res.json({ success: true, id: newProduct.id });
+  try {
+    const { name, description, price, image_url, category_id } = req.body;
+    if (!name || !price || !category_id) {
+      return res.status(400).json({ error: 'Chan obligatwa manke: name, price, category_id' });
+    }
+    const products = readJSON('products.json');
+    const newProduct = {
+      id: products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1,
+      name,
+      description: description || '',
+      price: parseFloat(price),
+      image_url: image_url || 'logo.png',
+      category_id: parseInt(category_id),
+      created_at: new Date().toISOString()
+    };
+    products.push(newProduct);
+    writeJSON('products.json', products);
+    console.log('✅ Pwodui ajoute: ' + name + ' (ID: ' + newProduct.id + ')');
+    res.json({ success: true, id: newProduct.id, product: newProduct });
+  } catch (err) {
+    console.error('❌ Erè ajoute pwodui:', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.delete('/api/admin/products/:id', verifyAdmin, (req, res) => {
@@ -323,8 +367,9 @@ app.delete('/api/admin/products/:id', verifyAdmin, (req, res) => {
   let products = readJSON('products.json');
   const index = products.findIndex(p => p.id === id);
   if (index === -1) return res.status(404).json({ error: 'Pwodui pa jwenn' });
-  products.splice(index, 1);
+  const deleted = products.splice(index, 1)[0];
   writeJSON('products.json', products);
+  console.log('🗑️ Pwodui retire: ' + deleted.name);
   res.json({ success: true });
 });
 
@@ -337,7 +382,11 @@ app.use((req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html'))
 // ========== KÒMANSE SÈVÈ ==========
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, '0.0.0.0', () => {
+  console.log('====================================');
   console.log('🌴 OGSUN MACHE LAKAY sou pò ' + PORT);
-  console.log('🔒 Done ou yo PÈSISTE — pa janm efase!');
-  console.log('📂 Dosye data: ' + DATA_DIR);
+  console.log('🔒 Done PÈSISTE — pa janm efase!');
+  console.log('📂 ' + DATA_DIR);
+  console.log('====================================');
 });
+
+
