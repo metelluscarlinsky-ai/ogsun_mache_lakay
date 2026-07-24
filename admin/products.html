@@ -212,12 +212,25 @@ async function addProduct() {
         Toast.error('❌ ' + (data.error || 'Erè'));
     }
 }
-
-// Retire pwodui (filtre)
 async function deleteProduct(id) {
     if (!confirm('Eske w sèten w vle retire pwodui sa a?')) return;
-    Toast.info('🗑️ Fonksyon retire ap vini...');
-    // Ou ka ajoute yon API DELETE si w vle
+    
+    try {
+        const res = await fetch('/api/admin/products/' + id, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + TOKEN }
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            Toast.success('🗑️ Pwodui retire ak siksè!');
+            loadProducts(); // Rechaje lis la
+        } else {
+            Toast.error('❌ ' + (data.error || 'Erè'));
+        }
+    } catch (err) {
+        Toast.error('❌ Erè koneksyon!');
+    }
 }
 
 function logout() {
@@ -230,3 +243,4 @@ loadProducts();
 </script>
 </body>
 </html>
+

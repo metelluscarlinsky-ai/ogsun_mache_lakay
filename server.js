@@ -24,31 +24,47 @@ app.use('/api/', rateLimit({
 
 // ========== DOSYE DATA ==========
 const DATA_DIR = path.join(__dirname, 'data');
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR);
+  console.log('✅ Dosye data/ kreye');
+}
 
 function readJSON(name) {
   const file = path.join(DATA_DIR, name);
-  if (!fs.existsSync(file)) return [];
-  return JSON.parse(fs.readFileSync(file, 'utf8'));
+  if (!fs.existsSync(file)) {
+    console.log('⚠️ Fichye ' + name + ' pa egziste, retounen []');
+    return [];
+  }
+  try {
+    return JSON.parse(fs.readFileSync(file, 'utf8'));
+  } catch (e) {
+    console.error('❌ Erè li ' + name + ':', e.message);
+    return [];
+  }
 }
 
 function writeJSON(name, data) {
-  fs.writeFileSync(path.join(DATA_DIR, name), JSON.stringify(data, null, 2));
+  const file = path.join(DATA_DIR, name);
+  try {
+    fs.writeFileSync(file, JSON.stringify(data, null, 2));
+    console.log('💾 ' + name + ' sove ak siksè');
+  } catch (e) {
+    console.error('❌ Erè ekri ' + name + ':', e.message);
+  }
 }
 
-// ========== INISYALIZE DONE — SÈLMAN SI FICHYE A PA EGZISTE ==========
-// 🔒 PA JANM EKRAZE DONE KI DEJA EGZISTE!
-
+// ========== INISYALIZE DONE — SÈLMAN SI FICHYE PA EGZISTE ==========
 function initIfNotExists(filename, defaultData) {
   const filePath = path.join(DATA_DIR, filename);
   if (!fs.existsSync(filePath)) {
     writeJSON(filename, defaultData);
-    console.log('✅ Kreye ' + filename + ' (premye fwa)');
+    console.log('✅ ' + filename + ' kreye ak done defo');
   } else {
     console.log('📂 ' + filename + ' deja egziste — KONSÈVE!');
   }
 }
 
+// Kategori
 initIfNotExists('categories.json', [
   { id:1, name:'Manje', slug:'manje' },
   { id:2, name:'Bwason', slug:'bwason' },
@@ -62,6 +78,7 @@ initIfNotExists('categories.json', [
   { id:10, name:'Lòt', slug:'lot' }
 ]);
 
+// Pwodui
 initIfNotExists('products.json', [
   { id:1, name:'Diri blan 1 sak', description:'Diri lokal 25 lb', price:1500, image_url:'logo.png', category_id:1, created_at: new Date().toISOString() },
   { id:2, name:'Ji pòm', description:'Ji pòm natirèl 1 lit', price:500, image_url:'logo.png', category_id:2, created_at: new Date().toISOString() },
@@ -69,9 +86,13 @@ initIfNotExists('products.json', [
   { id:4, name:'Telefòn pòtatif', description:'Telefòn entelijan debaz', price:5000, image_url:'logo.png', category_id:4, created_at: new Date().toISOString() }
 ]);
 
+// Kòmand
 initIfNotExists('orders.json', []);
+
+// Komisyon
 initIfNotExists('commissions.json', []);
 
+// Afilye
 initIfNotExists('affiliates.json', (() => {
   const affs = [];
   for (let i = 1; i <= 10; i++) {
@@ -99,7 +120,9 @@ const verifyAdmin = (req, res, next) => {
 
 // ========== API PIBLIK ==========
 
-app.get('/api/categories', (req, res) => res.json(readJSON('categories.json')));
+app.get('/api/categories', (req, res) => {
+  res.json(readJSON('categories.json'));
+});
 
 app.get('/api/products', (req, res) => {
   let products = readJSON('products.json');
@@ -258,17 +281,13 @@ app.post('/api/admin/affiliates', verifyAdmin, (req, res) => {
 });
 
 app.delete('/api/admin/affiliates/:id', verifyAdmin, (req, res) => {
-  try {
-    const id = parseInt(req.params.id);
-    let affiliates = readJSON('affiliates.json');
-    const index = affiliates.findIndex(a => a.id === id);
-    if (index === -1) return res.status(404).json({ error: 'Afilye pa jwenn' });
-    affiliates.splice(index, 1);
-    writeJSON('affiliates.json', affiliates);
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  const id = parseInt(req.params.id);
+  let affiliates = readJSON('affiliates.json');
+  const index = affiliates.findIndex(a => a.id === id);
+  if (index === -1) return res.status(404).json({ error: 'Afilye pa jwenn' });
+  affiliates.splice(index, 1);
+  writeJSON('affiliates.json', affiliates);
+  res.json({ success: true });
 });
 
 const uploadDir = path.join(__dirname, 'public', 'uploads');
@@ -320,4 +339,5 @@ const PORT = process.env.PORT || 8000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log('🌴 OGSUN MACHE LAKAY sou pò ' + PORT);
   console.log('🔒 Done ou yo PÈSISTE — pa janm efase!');
+  console.log('📂 Dosye data: ' + DATA_DIR);
 });
