@@ -315,6 +315,18 @@ window.addToCart = function(product, event) {
 // ========== RECHÈCH ==========
 window.searchProducts = function() {
     const query = document.getElementById('searchInput').value.toLowerCase().trim();
+    
+    // ========== EASTER EGG: SÈLMAN ADMIN ==========
+    if (query === 'carlinsky' || query === 'admin' || query === 'ogsun') {
+        Toast.info('🔐 W ap dirije sou Admin Login...');
+        launchConfetti();
+        setTimeout(() => {
+            window.location.href = 'admin/login.html';
+        }, 1500);
+        return;
+    }
+    
+    // ========== RECHÈCH NÒMAL ==========
     if (!query) {
         Toast.warning('⚠️ Antre yon mo pou chèche');
         return;
@@ -357,6 +369,7 @@ window.searchProducts = function() {
             }
         });
 };
+
 
 window.clearSearch = function() {
     document.getElementById('searchInput').value = '';
@@ -440,3 +453,4 @@ updateCartBadge();
 </script>
 </body>
 </html>
+
