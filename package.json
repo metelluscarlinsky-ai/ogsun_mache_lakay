@@ -1,23 +1,19 @@
 {
-  "name": "ogsun-mache",
+  "name": "ogsun-mache-lakay",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "OGSUN MACHE LAKAY - E-commerce 2026",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "build": "echo 'No build needed'"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "@supabase/supabase-js": "^2.110.8",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "express-rate-limit": "^8.6.0",
-    "helmet": "^8.3.0",
-    "jsonwebtoken": "^9.0.3",
-    "multer": "^2.2.0"
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "express-rate-limit": "^7.4.0",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1"
   }
 }
