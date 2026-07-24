@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "name": "Afilye 1",
+    "code": "AF001",
+    "commission_percent": 6
+  },
+  {
+    "id": 2,
+    "name": "Afilye 2",
+    "code": "AF002",
+    "commission_percent": 7
+  },
+  {
+    "id": 3,
+    "name": "Afilye 3",
+    "code": "AF003",
+    "commission_percent": 8
+  },
+  {
+    "id": 4,
+    "name": "Afilye 4",
+    "code": "AF004",
+    "commission_percent": 9
+  },
+  {
+    "id": 5,
+    "name": "Afilye 5",
+    "code": "AF005",
+    "commission_percent": 10
+  },
+  {
+    "id": 6,
+    "name": "Afilye 6",
+    "code": "AF006",
+    "commission_percent": 5
+  },
+  {
+    "id": 7,
+    "name": "Afilye 7",
+    "code": "AF007",
+    "commission_percent": 6
+  },
+  {
+    "id": 8,
+    "name": "Afilye 8",
+    "code": "AF008",
+    "commission_percent": 7
+  },
+  {
+    "id": 9,
+    "name": "Afilye 9",
+    "code": "AF009",
+    "commission_percent": 8
+  },
+  {
+    "id": 10,
+    "name": "Afilye 10",
+    "code": "AF0010",
+    "commission_percent": 9
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "name": "Manje",
+    "slug": "manje"
+  },
+  {
+    "id": 2,
+    "name": "Bwason",
+    "slug": "bwason"
+  },
+  {
+    "id": 3,
+    "name": "Vètman",
+    "slug": "vetman"
+  },
+  {
+    "id": 4,
+    "name": "Elektwonik",
+    "slug": "elektwonik"
+  },
+  {
+    "id": 5,
+    "name": "Kay ak Jaden",
+    "slug": "kay"
+  },
+  {
+    "id": 6,
+    "name": "Bote ak Swen",
+    "slug": "bote"
+  },
+  {
+    "id": 7,
+    "name": "Sante",
+    "slug": "sante"
+  },
+  {
+    "id": 8,
+    "name": "Lwazi",
+    "slug": "lwazi"
+  },
+  {
+    "id": 9,
+    "name": "Edikasyon",
+    "slug": "edikasyon"
+  },
+  {
+    "id": 10,
+    "name": "Lòt",
+    "slug": "lot"
+  }
+]

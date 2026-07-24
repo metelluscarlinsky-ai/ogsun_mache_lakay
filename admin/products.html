@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jere Pwodui - OGSUN Admin</title>
+    <link rel="stylesheet" href="../public/style.css">
+    <style>
+        .product-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .product-item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+        }
+        .product-item img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        .product-item h4 { margin: 10px 0; }
+        .product-item .price { color: var(--primary); font-weight: 700; font-size: 1.2rem; }
+        .btn-submit {
+            background: var(--gold);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="logo"><span>📦 Jere Pwodui</span></div>
+    <nav>
+        <a href="dashboard.html">📊 Dashboard</a>
+        <a href="orders.html">📋 Kòmand</a>
+        <a href="#" onclick="logout()">🚪 Dekonekte</a>
+    </nav>
+</header>
+
+<div class="container">
+    <h2>Ajoute yon Nouvo Pwodui</h2>
+    <form id="addProductForm" class="checkout-form">
+        <div class="form-group">
+            <label>Non Pwodui</label>
+            <input type="text" id="name" required>
+        </div>
+        <div class="form-group">
+            <label>Deskripsyon</label>
+            <textarea id="description" rows="2"></textarea>
+        </div>
+        <div class="form-group">
+            <label>Pri (GDS)</label>
+            <input type="number" id="price" step="0.01" required>
+        </div>
+        <div class="form-group">
+            <label>Imaj</label>
+            <input type="file" id="image" accept="image/*">
+        </div>
+        <div class="form-group">
+            <label>Kategori</label>
+            <select id="category_id"></select>
+        </div>
+        <button type="submit" class="btn-submit">➕ Ajoute Pwodui</button>
+    </form>
+
+    <h3 style="margin-top:40px;">Lis Pwodui yo</h3>
+    <div class="product-list" id="productList">Chajman...</div>
+</div>
+
+<footer>&copy; 2026 OGSUN MACHE LAKAY - Admin Panel</footer>
+
+<script>
+if (!localStorage.getItem('admin_token')) {
+    window.location.href = 'login.html';
+}
+
+const TOKEN = localStorage.getItem('admin_token');
+
+// Chaje kategori pou select la
+async function loadCategories() {
+    const res = await fetch('/api/categories');
+    const cats = await res.json();
+    const select = document.getElementById('category_id');
+    cats.forEach(c => {
+        select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+    });
+}
+
+// Chaje pwodui yo
+async function loadProducts() {
+    const res = await fetch('/api/products');
+    const products = await res.json();
+    const container = document.getElementById('productList');
+    container.innerHTML = products.map(p => `
+        <div class="product-item">
+            <img src="${p.image_url || '../logo.png'}" alt="${p.name}">
+            <h4>${p.name}</h4>
+            <p>${p.description || ''}</p>
+            <div class="price">${p.price} GDS</div>
+            <small>${p.categories?.name || ''}</small>
+        </div>
+    `).join('');
+}
+
+// Ajoute pwodui
+document.getElementById('addProductForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const imageFile = document.getElementById('image').files[0];
+    let imageUrl = 'logo.png';
+    
+    if (imageFile) {
+        const formData = new FormData();
+        formData.append('image', imageFile);
+        const uploadRes = await fetch('/api/admin/upload', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + TOKEN },
+            body: formData
+        });
+        const uploadData = await uploadRes.json();
+        if (uploadData.success) {
+            imageUrl = uploadData.url;
+        }
+    }
+    
+    const data = {
+        name: document.getElementById('name').value,
+        description: document.getElementById('description').value,
+        price: parseFloat(document.getElementById('price').value),
+        image_url: imageUrl,
+        category_id: parseInt(document.getElementById('category_id').value)
+    };
+    
+    const res = await fetch('/api/admin/products', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + TOKEN
+        },
+        body: JSON.stringify(data)
+    });
+    
+    const result = await res.json();
+    if (result.success) {
+        alert('✅ Pwodui ajoute!');
+        loadProducts();
+        document.getElementById('addProductForm').reset();
+    } else {
+        alert('❌ Erè: ' + (result.error || ''));
+    }
+});
+
+function logout() {
+    localStorage.removeItem('admin_token');
+    window.location.href = 'login.html';
+}
+
+loadCategories();
+loadProducts();
+</script>
+</body>
+</html>

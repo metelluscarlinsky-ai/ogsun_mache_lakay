@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kòmand yo - OGSUN Admin</title>
+    <link rel="stylesheet" href="../public/style.css">
+    <style>
+        .order-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+        .order-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-confirmed { background: #d4edda; color: #155724; }
+        .order-items { margin: 15px 0; }
+        .order-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dotted #ddd; }
+        .order-total { font-size: 1.3rem; font-weight: 700; text-align: right; margin-top: 15px; color: var(--primary); }
+    </style>
+</head>
+<body>
+<header>
+    <div class="logo"><span>📋 Kòmand yo</span></div>
+    <nav>
+        <a href="dashboard.html">📊 Dashboard</a>
+        <a href="products.html">📦 Pwodui</a>
+        <a href="#" onclick="logout()">🚪 Dekonekte</a>
+    </nav>
+</header>
+
+<div class="container">
+    <h2>Lis Kòmand yo</h2>
+    <div id="ordersList">Chajman...</div>
+</div>
+
+<footer>&copy; 2026 OGSUN MACHE LAKAY - Admin Panel</footer>
+
+<script>
+if (!localStorage.getItem('admin_token')) {
+    window.location.href = 'login.html';
+}
+
+const TOKEN = localStorage.getItem('admin_token');
+
+async function loadOrders() {
+    const res = await fetch('/api/admin/orders', {
+        headers: { 'Authorization': 'Bearer ' + TOKEN }
+    });
+    const orders = await res.json();
+    const container = document.getElementById('ordersList');
+    
+    if (orders.length === 0) {
+        container.innerHTML = '<p style="text-align:center;padding:50px;">Pa gen kòmand ankò.</p>';
+        return;
+    }
+    
+    container.innerHTML = orders.map(order => `
+        <div class="order-card">
+            <div class="order-header">
+                <div>
+                    <strong>#${order.id}</strong> - ${new Date(order.created_at).toLocaleDateString('ht-HT')}
+                </div>
+                <span class="order-status status-${order.status}">${order.status}</span>
+            </div>
+            <div>
+                <strong>👤 ${order.customer_name}</strong><br>
+                📞 ${order.customer_phone}<br>
+                📍 ${order.customer_address || '-'}
+            </div>
+            <div class="order-items">
+                ${order.items.map(item => `
+                    <div class="order-item">
+                        <span>${item.name} x${item.quantity}</span>
+                        <span>${(item.price * item.quantity).toFixed(2)} GDS</span>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="order-total">
+                Total: ${parseFloat(order.total).toFixed(2)} GDS
+                ${order.delivery_fee > 0 ? ` (Frè livrezon: ${order.delivery_fee} GDS)` : ' (Livrezon Gratis)'}
+            </div>
+        </div>
+    `).join('');
+}
+
+function logout() {
+    localStorage.removeItem('admin_token');
+    window.location.href = 'login.html';
+}
+
+loadOrders();
+</script>
+</body>
+</html>

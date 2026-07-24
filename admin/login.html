@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - OGSUN</title>
+    <link rel="stylesheet" href="../public/toast.css">
+    <script src="../public/toast.js" defer></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { 
+            display:flex; justify-content:center; align-items:center; min-height:100vh; 
+            background: linear-gradient(135deg, #0a3d0a 0%, #1e5e1e 50%, #0a3d0a 100%);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .login-container {
+            background: rgba(255,255,255,0.95);
+            padding: 50px 40px;
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+            width: 400px;
+            text-align: center;
+            backdrop-filter: blur(20px);
+        }
+        .login-container img { width: 80px; border-radius: 50%; margin-bottom: 20px; border: 3px solid var(--gold); }
+        .login-container h2 { color: #0a3d0a; margin-bottom: 30px; font-size: 1.8rem; }
+        .login-container input {
+            display: block; width: 100%; margin: 15px 0; padding: 16px;
+            border: 2px solid #e0d6c2; border-radius: 12px; font-size: 1rem;
+            transition: all 0.3s; font-family: inherit;
+        }
+        .login-container input:focus { outline: none; border-color: #d4a017; box-shadow: 0 0 0 3px rgba(212,160,23,0.2); }
+        .login-container button {
+            background: linear-gradient(135deg, #d4a017, #f0c75e);
+            color: white; border: none; padding: 16px; width: 100%;
+            border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 1.1rem;
+            margin-top: 15px; transition: all 0.3s;
+        }
+        .login-container button:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(212,160,23,0.4); }
+        .login-container .error { color: #e74c3c; margin-top: 10px; font-weight: 600; }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <img src="../public/logo.png" alt="OGSUN Logo" onerror="this.style.display='none'">
+    <h2>🔐 Admin OGSUN</h2>
+    <form id="loginForm">
+        <input type="email" id="email" placeholder="📧 Email" required>
+        <input type="password" id="password" placeholder="🔒 Modpas" required>
+        <input type="text" id="secret" placeholder="🔑 Kòd sekrè" required>
+        <button type="submit">🚀 Konekte</button>
+    </form>
+    <p id="error" class="error"></p>
+</div>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    const hideLoading = showLoading(btn);
+    
+    try {
+        const res = await fetch('/api/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                secret_code: document.getElementById('secret').value
+            })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            localStorage.setItem('admin_token', data.token);
+            Toast.success('✅ Koneksyon reyisi!');
+            setTimeout(() => window.location.href = 'dashboard.html', 1000);
+        } else {
+            document.getElementById('error').textContent = '❌ ' + (data.error || 'Idantifyan pa bon!');
+            Toast.error('❌ Idantifyan pa bon!');
+        }
+    } catch (err) {
+        Toast.error('❌ Erè koneksyon');
+    } finally {
+        hideLoading();
+    }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OGSUN MACHE LAKAY 2026</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="toast.css">
+    <link rel="manifest" href="manifest.json">
+    <script src="supabase-config.js" defer></script>
+    <script src="toast.js" defer></script>
+    <script src="pwa-install.js" defer></script>
+    <style>
+        .hero-banner {
+            background: linear-gradient(135deg, var(--primary), #1a5c1a);
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(212,160,23,0.3) 0%, transparent 70%);
+            animation: heroGlow 4s ease-in-out infinite;
+        }
+        @keyframes heroGlow {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(10%, 10%); }
+        }
+        .hero-banner h1 {
+            font-size: 2.5rem;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .hero-banner p {
+            position: relative;
+            z-index: 1;
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="logo">
+        <img src="logo.png" alt="OGSUN Logo">
+        <span>OGSUN MACHE LAKAY</span>
+    </div>
+    <nav>
+        <a href="index.html">🏠 Akèy</a>
+        <a href="cart.html" class="cart-icon">🛒 <span id="cart-badge" class="cart-badge">0</span></a>
+    </nav>
+</header>
+
+<div class="container">
+    <div class="hero-banner">
+        <h1>🌴 Byenveni nan OGSUN MACHE LAKAY</h1>
+        <p>Pi bon mache lokal ou a — Livrezon rapid nan Gonayiv ak tout peyi a!</p>
+    </div>
+    
+    <div id="category-filters" class="category-filters"></div>
+    <div id="product-grid" class="product-grid"></div>
+</div>
+
+<footer>
+    <p>&copy; 2026 OGSUN MACHE LAKAY - Tout dwa rezève</p>
+    <p>📞 WhatsApp/Natcash: 32924776 | 📧 metelluscarlinsky@gmail.com</p>
+</footer>
+
+<script>
+let cart = JSON.parse(localStorage.getItem('ogsun_cart')) || [];
+
+function updateCartBadge() {
+    const total = cart.reduce((sum, item) => sum + item.quantity, 0);
+    document.getElementById('cart-badge').textContent = total;
+}
+
+function animateCartBadge() {
+    const badge = document.getElementById('cart-badge');
+    if (badge) {
+        badge.classList.add('pop');
+        setTimeout(() => badge.classList.remove('pop'), 400);
+    }
+}
+
+window.addToCart = function(product, event) {
+    const existing = cart.find(item => item.id === product.id);
+    if (existing) {
+        existing.quantity += 1;
+    } else {
+        cart.push({...product, quantity: 1});
+    }
+    localStorage.setItem('ogsun_cart', JSON.stringify(cart));
+    updateCartBadge();
+    animateCartBadge();
+    
+    Toast.success(`✅ ${product.name} ajoute nan panier! 🛒`);
+    
+    const btn = event?.target;
+    if (btn) {
+        const card = btn.closest('.product-card');
+        if (card) {
+            card.classList.add('added');
+            setTimeout(() => card.classList.remove('added'), 600);
+        }
+    }
+};
+
+async function loadCategories() {
+    try {
+        const res = await fetch('/api/categories');
+        const categories = await res.json();
+        const container = document.getElementById('category-filters');
+        container.innerHTML = '<button class="category-btn active" data-category="">🌟 Tout</button>';
+        categories.forEach(cat => {
+            container.innerHTML += `<button class="category-btn" data-category="${cat.slug}">${cat.name}</button>`;
+        });
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                loadProducts(this.dataset.category);
+            });
+        });
+    } catch (err) {
+        Toast.error('❌ Pa ka chaje kategori yo');
+    }
+}
+
+async function loadProducts(categorySlug = '') {
+    try {
+        let url = '/api/products';
+        if (categorySlug) url += `?category=${categorySlug}`;
+        const res = await fetch(url);
+        const products = await res.json();
+        const grid = document.getElementById('product-grid');
+        
+        if (products.length === 0) {
+            grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:60px;font-size:1.2rem;">😔 Pa gen pwodui nan kategori sa a.</p>';
+            return;
+        }
+        
+        grid.innerHTML = products.map(prod => `
+            <div class="product-card">
+                <img src="${prod.image_url || 'logo.png'}" alt="${prod.name}" onerror="this.src='logo.png'">
+                <div class="product-info">
+                    <span class="category">📂 ${prod.categories?.name || ''}</span>
+                    <h3>${prod.name}</h3>
+                    <p>${prod.description ? prod.description.substring(0, 80) : ''}</p>
+                    <div class="price">💰 ${parseFloat(prod.price).toFixed(2)} GDS</div>
+                    <button class="add-to-cart" onclick='addToCart(${JSON.stringify(prod).replace(/'/g, "&#39;")}, event)'>
+                        🛒 Ajoute nan Panier
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    } catch (err) {
+        Toast.error('❌ Pa ka chaje pwodui yo');
+        document.getElementById('product-grid').innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:60px;">⚠️ Pa ka chaje pwodui yo kounye a.</p>';
+    }
+}
+
+loadCategories();
+loadProducts();
+updateCartBadge();
+</script>
+</body>
+</html>

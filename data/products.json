@@ -1,0 +1,51 @@
+[
+  {
+    "id": 1,
+    "name": "Diri blan 1 sak",
+    "description": "Diri lokal 25 lb",
+    "price": 1500,
+    "image_url": "logo.png",
+    "category_id": 1,
+    "affiliate_id": null,
+    "created_at": "2026-07-23T23:00:21.325Z"
+  },
+  {
+    "id": 2,
+    "name": "Ji pòm",
+    "description": "Ji pòm natirèl 1 lit",
+    "price": 500,
+    "image_url": "logo.png",
+    "category_id": 2,
+    "affiliate_id": null,
+    "created_at": "2026-07-23T23:00:21.361Z"
+  },
+  {
+    "id": 3,
+    "name": "Mayo blan",
+    "description": "Mayo koton 100%",
+    "price": 800,
+    "image_url": "logo.png",
+    "category_id": 3,
+    "affiliate_id": 2,
+    "created_at": "2026-07-23T23:00:21.361Z"
+  },
+  {
+    "id": 4,
+    "name": "Telefòn pòtatif",
+    "description": "Telefòn entelijan debaz",
+    "price": 5000,
+    "image_url": "logo.png",
+    "category_id": 4,
+    "affiliate_id": null,
+    "created_at": "2026-07-23T23:00:21.361Z"
+  },
+  {
+    "id": 5,
+    "name": "Nouvo Pwodui",
+    "description": "Yon bèl pwodui",
+    "price": 2500,
+    "image_url": "logo.png",
+    "category_id": 1,
+    "created_at": "2026-07-23T23:27:20.826Z"
+  }
+]

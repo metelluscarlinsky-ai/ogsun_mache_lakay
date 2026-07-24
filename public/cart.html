@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panier - OGSUN MACHE LAKAY</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="toast.css">
+    <script src="supabase-config.js" defer></script>
+    <script src="toast.js" defer></script>
+</head>
+<body>
+<header>
+    <div class="logo">
+        <img src="logo.png" alt="OGSUN Logo">
+        <span>🛒 Panier</span>
+    </div>
+    <nav>
+        <a href="index.html">🏠 Akèy</a>
+    </nav>
+</header>
+
+<div class="container">
+    <h2 style="text-align:center;margin-bottom:30px;">🛒 Panier Ou</h2>
+    <div id="cart-items"></div>
+    <div id="cart-summary"></div>
+    <div id="checkout-form" class="checkout-form" style="display:none;">
+        <h2>📝 Enfòmasyon Kliyan</h2>
+        <div class="form-group">
+            <label>👤 Non konplè</label>
+            <input type="text" id="customer-name" placeholder="Antre non ou..." required>
+        </div>
+        <div class="form-group">
+            <label>📞 WhatsApp / Telefòn</label>
+            <input type="text" id="customer-phone" placeholder="32924776" required>
+        </div>
+        <div class="form-group">
+            <label>📍 Adrès livrezon</label>
+            <textarea id="customer-address" rows="2" placeholder="Antre adrès ou..."></textarea>
+        </div>
+        <div class="form-group">
+            <label>💳 Mètòd Peman</label>
+            <select id="payment-method">
+                <option value="cash">💵 Lajan Kach</option>
+                <option value="natcash">📱 Natcash (32924776)</option>
+                <option value="moncash">📱 Moncash</option>
+            </select>
+        </div>
+        <p style="color:#d4a017; font-weight:600; text-align:center; padding:15px; background:#fff8e1; border-radius:10px; margin:15px 0;">
+            ⚠️ Ou dwe voye screenshot peman an sou WhatsApp (32924776) pou konfime kòmand la.
+        </p>
+        <button id="send-order" class="btn-whatsapp">📲 Voye Kòmand sou WhatsApp</button>
+    </div>
+</div>
+
+<footer>
+    <p>&copy; 2026 OGSUN MACHE LAKAY - Tout dwa rezève</p>
+    <p>📞 32924776 | 📧 metelluscarlinsky@gmail.com</p>
+</footer>
+
+<script>
+let cart = JSON.parse(localStorage.getItem('ogsun_cart')) || [];
+
+function renderCart() {
+    const container = document.getElementById('cart-items');
+    
+    if (cart.length === 0) {
+        container.innerHTML = '<p style="text-align:center;padding:60px;font-size:1.3rem;">🛒 Panier ou vid.<br><a href="index.html" style="color:var(--gold);">🏠 Klike la pou w al achte</a></p>';
+        document.getElementById('checkout-form').style.display = 'none';
+        document.getElementById('cart-summary').innerHTML = '';
+        return;
+    }
+    
+    document.getElementById('checkout-form').style.display = 'block';
+    let total = 0;
+    
+    container.innerHTML = cart.map((item, index) => {
+        const subtotal = item.price * item.quantity;
+        total += subtotal;
+        return `
+        <div class="cart-item">
+            <img src="${item.image_url || 'logo.png'}" alt="${item.name}" onerror="this.src='logo.png'">
+            <div style="flex:1;">
+                <strong style="font-size:1.1rem;">${item.name}</strong><br>
+                <span style="color:#666;">${parseFloat(item.price).toFixed(2)} GDS chak</span>
+            </div>
+            <div class="quantity-controls">
+                <button onclick="changeQuantity(${index}, -1)">−</button>
+                <span style="font-weight:700;min-width:30px;text-align:center;">${item.quantity}</span>
+                <button onclick="changeQuantity(${index}, 1)">+</button>
+            </div>
+            <div style="font-weight:700;color:var(--primary);">${subtotal.toFixed(2)} GDS</div>
+            <button onclick="removeItem(${index})" style="background:#e74c3c;color:white;border:none;padding:8px 12px;border-radius:10px;cursor:pointer;">🗑️</button>
+        </div>`;
+    }).join('');
+    
+    const deliveryFee = total > 2500 ? 0 : 200;
+    const grandTotal = total + deliveryFee;
+    
+    document.getElementById('cart-summary').innerHTML = `
+        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;padding:25px;background:var(--glass);border-radius:20px;margin-top:20px;font-size:1.1rem;">
+            <span>Sou-total: <strong>${total.toFixed(2)} GDS</strong></span>
+            <span>Livrezon: <strong style="color:${deliveryFee === 0 ? 'green' : 'var(--primary)'};">${deliveryFee === 0 ? '🎉 Gratis (Gonayiv)' : deliveryFee.toFixed(2) + ' GDS'}</strong></span>
+            <span style="font-size:1.4rem;">Total: <strong style="color:var(--gold);">${grandTotal.toFixed(2)} GDS</strong></span>
+        </div>`;
+    
+    window._cartData = { total, deliveryFee, grandTotal };
+}
+
+window.changeQuantity = (index, delta) => {
+    cart[index].quantity += delta;
+    if (cart[index].quantity < 1) cart.splice(index, 1);
+    localStorage.setItem('ogsun_cart', JSON.stringify(cart));
+    renderCart();
+};
+
+window.removeItem = (index) => {
+    const itemName = cart[index].name;
+    cart.splice(index, 1);
+    localStorage.setItem('ogsun_cart', JSON.stringify(cart));
+    renderCart();
+    Toast.info(`🗑️ ${itemName} retire nan panier`);
+};
+
+renderCart();
+
+document.getElementById('send-order').addEventListener('click', async () => {
+    const name = document.getElementById('customer-name').value.trim();
+    const phone = document.getElementById('customer-phone').value.trim();
+    const address = document.getElementById('customer-address').value.trim();
+    const payment = document.getElementById('payment-method').value;
+    
+    if (!name || !phone) {
+        Toast.warning('⚠️ Tanpri ranpli non ak telefòn.');
+        return;
+    }
+    
+    const { total, deliveryFee, grandTotal } = window._cartData;
+    
+    const hideLoading = showLoading(document.getElementById('send-order'));
+    
+    try {
+        await fetch('/api/order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                customer_name: name,
+                customer_phone: phone,
+                customer_address: address,
+                items: cart,
+                total: grandTotal,
+                delivery_fee: deliveryFee
+            })
+        });
+    } catch (err) {
+        console.warn('Sèvè pa disponib, men nap kontinye ak WhatsApp.');
+    }
+    
+    hideLoading();
+    
+    let msg = `*🛒 Kòmand OGSUN MACHE LAKAY*%0A%0A`;
+    msg += `*👤 Non:* ${name}%0A`;
+    msg += `*📞 Tel:* ${phone}%0A`;
+    msg += `*📍 Adrès:* ${address}%0A`;
+    msg += `*💳 Peman:* ${payment}%0A%0A`;
+    msg += `*📦 Atik:*%0A`;
+    cart.forEach(item => {
+        msg += `- ${item.name} x${item.quantity} = ${(item.price*item.quantity).toFixed(2)} GDS%0A`;
+    });
+    msg += `%0A*💰 Total:* ${grandTotal.toFixed(2)} GDS (Frè livrezon: ${deliveryFee} GDS)`;
+    msg += `%0A%0A⚠️ *Tanpri voye screenshot peman an isit la.*`;
+    
+    Toast.success('🎉 Kòmand prepare! Ouvèti WhatsApp...');
+    launchConfetti();
+    
+    localStorage.removeItem('ogsun_cart');
+    
+    setTimeout(() => {
+        window.open(`https://wa.me/32924776?text=${msg}`, '_blank');
+        window.location.href = 'order-success.html';
+    }, 1500);
+});
+</script>
+</body>
+</html>
