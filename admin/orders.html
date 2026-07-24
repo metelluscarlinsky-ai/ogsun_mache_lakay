@@ -44,6 +44,14 @@
     </nav>
 </header>
 
+<div style="margin-top:10px;">
+    ${order.affiliate_code ? `
+        <span style="background:#d4a017;color:white;padding:5px 12px;border-radius:15px;font-size:0.9rem;font-weight:600;">
+            🤝 Afilye: ${order.affiliate_code}
+        </span>
+    ` : ''}
+</div>
+
 <div class="container">
     <h2>Lis Kòmand yo</h2>
     <div id="ordersList">Chajman...</div>
