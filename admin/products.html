@@ -5,38 +5,79 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jere Pwodui - OGSUN Admin</title>
     <link rel="stylesheet" href="../public/style.css">
+    <link rel="stylesheet" href="../public/toast.css">
+    <script src="../public/toast.js" defer></script>
     <style>
-        .product-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-        .product-item {
+        .product-card-admin {
             background: white;
-            border-radius: 15px;
+            border-radius: 16px;
             padding: 20px;
-            box-shadow: var(--shadow-sm);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
             text-align: center;
+            position: relative;
         }
-        .product-item img {
+        .product-card-admin img {
             width: 100%;
             height: 180px;
             object-fit: cover;
-            border-radius: 10px;
+            border-radius: 12px;
+            margin-bottom: 10px;
         }
-        .product-item h4 { margin: 10px 0; }
-        .product-item .price { color: var(--primary); font-weight: 700; font-size: 1.2rem; }
-        .btn-submit {
+        .product-card-admin h4 { margin: 8px 0; }
+        .product-card-admin .price { color: var(--primary); font-weight: 700; font-size: 1.2rem; }
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+        }
+        .add-form {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        .add-form input, .add-form select, .add-form textarea {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 14px;
+            border: 2px solid #e0d6c2;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+        .add-form button {
             background: var(--gold);
             color: white;
             border: none;
             padding: 14px 30px;
-            border-radius: 50px;
-            font-weight: 600;
+            border-radius: 30px;
+            font-weight: 700;
             cursor: pointer;
-            margin-top: 15px;
+            margin-top: 10px;
             width: 100%;
+            font-size: 1.1rem;
+        }
+        .product-grid-admin {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .preview-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin: 10px auto;
+            display: block;
+            border: 2px solid var(--gold);
         }
     </style>
 </head>
@@ -45,55 +86,56 @@
     <div class="logo"><span>📦 Jere Pwodui</span></div>
     <nav>
         <a href="dashboard.html">📊 Dashboard</a>
+        <a href="affiliates.html">🤝 Afilye</a>
         <a href="orders.html">📋 Kòmand</a>
-        <a href="#" onclick="logout()">🚪 Dekonekte</a>
+        <a href="#" onclick="logout()" style="color:#e74c3c;">🚪 Dekonekte</a>
     </nav>
 </header>
 
 <div class="container">
-    <h2>Ajoute yon Nouvo Pwodui</h2>
-    <form id="addProductForm" class="checkout-form">
-        <div class="form-group">
-            <label>Non Pwodui</label>
-            <input type="text" id="name" required>
-        </div>
-        <div class="form-group">
-            <label>Deskripsyon</label>
-            <textarea id="description" rows="2"></textarea>
-        </div>
-        <div class="form-group">
-            <label>Pri (GDS)</label>
-            <input type="number" id="price" step="0.01" required>
-        </div>
-        <div class="form-group">
-            <label>Imaj</label>
-            <input type="file" id="image" accept="image/*">
-        </div>
-        <div class="form-group">
-            <label>Kategori</label>
-            <select id="category_id"></select>
-        </div>
-        <button type="submit" class="btn-submit">➕ Ajoute Pwodui</button>
-    </form>
+    <!-- Fòmilè pou ajoute pwodui -->
+    <div class="add-form">
+        <h3>➕ Ajoute yon Nouvo Pwodui</h3>
+        <input type="text" id="prodName" placeholder="📦 Non Pwodui">
+        <textarea id="prodDesc" placeholder="📝 Deskripsyon" rows="2"></textarea>
+        <input type="number" id="prodPrice" placeholder="💰 Pri (GDS)" step="0.01">
+        
+        <label style="font-weight:600;margin-top:10px;">🖼️ Imaj Pwodui (PNG/JPG)</label>
+        <input type="file" id="prodImage" accept="image/*" onchange="previewImage()">
+        <img id="preview" class="preview-img" style="display:none;" alt="Preview">
+        
+        <select id="prodCategory">
+            <option value="">📂 Chwazi Kategori</option>
+        </select>
+        
+        <button onclick="addProduct()">➕ Ajoute Pwodui</button>
+    </div>
 
-    <h3 style="margin-top:40px;">Lis Pwodui yo</h3>
-    <div class="product-list" id="productList">Chajman...</div>
+    <h3>📋 Lis Pwodui yo</h3>
+    <div id="productList" class="product-grid-admin">Chajman...</div>
 </div>
 
 <footer>&copy; 2026 OGSUN MACHE LAKAY - Admin Panel</footer>
 
 <script>
-if (!localStorage.getItem('admin_token')) {
-    window.location.href = 'login.html';
-}
-
+if (!localStorage.getItem('admin_token')) window.location.href = 'login.html';
 const TOKEN = localStorage.getItem('admin_token');
+
+// Preview imaj
+function previewImage() {
+    const file = document.getElementById('prodImage').files[0];
+    const preview = document.getElementById('preview');
+    if (file) {
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
+    }
+}
 
 // Chaje kategori pou select la
 async function loadCategories() {
     const res = await fetch('/api/categories');
     const cats = await res.json();
-    const select = document.getElementById('category_id');
+    const select = document.getElementById('prodCategory');
     cats.forEach(c => {
         select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
     });
@@ -103,28 +145,37 @@ async function loadCategories() {
 async function loadProducts() {
     const res = await fetch('/api/products');
     const products = await res.json();
-    const container = document.getElementById('productList');
-    container.innerHTML = products.map(p => `
-        <div class="product-item">
-            <img src="${p.image_url || '../logo.png'}" alt="${p.name}">
+    document.getElementById('productList').innerHTML = products.map(p => `
+        <div class="product-card-admin">
+            <img src="${p.image_url || '../logo.png'}" alt="${p.name}" onerror="this.src='../logo.png'">
             <h4>${p.name}</h4>
-            <p>${p.description || ''}</p>
-            <div class="price">${p.price} GDS</div>
-            <small>${p.categories?.name || ''}</small>
+            <p style="color:#666;font-size:0.9rem;">${p.description || ''}</p>
+            <div class="price">💰 ${parseFloat(p.price).toFixed(2)} GDS</div>
+            <small>📂 ${p.categories?.name || ''}</small>
+            <button class="btn-delete" onclick="deleteProduct(${p.id})">🗑️ Retire</button>
         </div>
     `).join('');
 }
 
 // Ajoute pwodui
-document.getElementById('addProductForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const imageFile = document.getElementById('image').files[0];
+async function addProduct() {
+    const name = document.getElementById('prodName').value.trim();
+    const description = document.getElementById('prodDesc').value.trim();
+    const price = parseFloat(document.getElementById('prodPrice').value);
+    const category_id = parseInt(document.getElementById('prodCategory').value);
+    const imageFile = document.getElementById('prodImage').files[0];
+
+    if (!name || !price || !category_id) {
+        return Toast.warning('⚠️ Ranpli non, pri, ak kategori!');
+    }
+
     let imageUrl = 'logo.png';
-    
+
+    // Si gen imaj, upload li
     if (imageFile) {
         const formData = new FormData();
         formData.append('image', imageFile);
+
         const uploadRes = await fetch('/api/admin/upload', {
             method: 'POST',
             headers: { 'Authorization': 'Bearer ' + TOKEN },
@@ -133,35 +184,41 @@ document.getElementById('addProductForm').addEventListener('submit', async (e) =
         const uploadData = await uploadRes.json();
         if (uploadData.success) {
             imageUrl = uploadData.url;
+        } else {
+            Toast.warning('⚠️ Upload imaj echwe, nap itilize logo defo.');
         }
     }
-    
-    const data = {
-        name: document.getElementById('name').value,
-        description: document.getElementById('description').value,
-        price: parseFloat(document.getElementById('price').value),
-        image_url: imageUrl,
-        category_id: parseInt(document.getElementById('category_id').value)
-    };
-    
+
     const res = await fetch('/api/admin/products', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + TOKEN
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify({ name, description, price, image_url: imageUrl, category_id })
     });
-    
-    const result = await res.json();
-    if (result.success) {
-        alert('✅ Pwodui ajoute!');
+
+    const data = await res.json();
+    if (data.success) {
+        Toast.success('✅ Pwodui ajoute!');
+        launchConfetti();
+        document.getElementById('prodName').value = '';
+        document.getElementById('prodDesc').value = '';
+        document.getElementById('prodPrice').value = '';
+        document.getElementById('prodImage').value = '';
+        document.getElementById('preview').style.display = 'none';
         loadProducts();
-        document.getElementById('addProductForm').reset();
     } else {
-        alert('❌ Erè: ' + (result.error || ''));
+        Toast.error('❌ ' + (data.error || 'Erè'));
     }
-});
+}
+
+// Retire pwodui (filtre)
+async function deleteProduct(id) {
+    if (!confirm('Eske w sèten w vle retire pwodui sa a?')) return;
+    Toast.info('🗑️ Fonksyon retire ap vini...');
+    // Ou ka ajoute yon API DELETE si w vle
+}
 
 function logout() {
     localStorage.removeItem('admin_token');

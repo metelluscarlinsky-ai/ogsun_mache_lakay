@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jere Afilye - OGSUN Admin</title>
+    <link rel="stylesheet" href="../public/style.css">
+    <link rel="stylesheet" href="../public/toast.css">
+    <script src="../public/toast.js" defer></script>
+    <style>
+        .affiliate-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .affiliate-info { flex: 1; min-width: 200px; }
+        .affiliate-info strong { font-size: 1.2rem; display: block; }
+        .affiliate-code {
+            background: var(--gold);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .affiliate-stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .stat-mini { text-align: center; }
+        .stat-mini .val { font-size: 1.3rem; font-weight: 700; color: var(--primary); }
+        .stat-mini .lbl { font-size: 0.8rem; color: #666; }
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-delete:hover { background: #c0392b; transform: scale(1.05); }
+        .add-form {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        .add-form input {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 14px;
+            border: 2px solid #e0d6c2;
+            border-radius: 12px;
+            font-size: 1rem;
+        }
+        .add-form button {
+            background: var(--gold);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 30px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="logo"><span>🤝 Jere Afilye</span></div>
+    <nav>
+        <a href="dashboard.html">📊 Dashboard</a>
+        <a href="products.html">📦 Pwodui</a>
+        <a href="orders.html">📋 Kòmand</a>
+        <a href="#" onclick="logout()" style="color:#e74c3c;">🚪 Dekonekte</a>
+    </nav>
+</header>
+
+<div class="container">
+    <!-- Fòmilè pou ajoute afilye -->
+    <div class="add-form">
+        <h3>➕ Ajoute yon Nouvo Afilye</h3>
+        <input type="text" id="affName" placeholder="👤 Non Afilye">
+        <input type="text" id="affCode" placeholder="🔑 Kòd Promo (ekzanp: AF011)">
+        <input type="number" id="affCommission" placeholder="💰 % Komisyon (ekzanp: 10)" step="0.1" value="5">
+        <button onclick="addAffiliate()">➕ Ajoute Afilye</button>
+    </div>
+
+    <h3>📋 Lis Afilye yo</h3>
+    <div id="affiliatesList">Chajman...</div>
+</div>
+
+<footer>&copy; 2026 OGSUN MACHE LAKAY - Admin Panel</footer>
+
+<script>
+if (!localStorage.getItem('admin_token')) window.location.href = 'login.html';
+const TOKEN = localStorage.getItem('admin_token');
+
+async function loadAffiliates() {
+    const res = await fetch('/api/admin/affiliates', {
+        headers: { 'Authorization': 'Bearer ' + TOKEN }
+    });
+    const affiliates = await res.json();
+    
+    document.getElementById('affiliatesList').innerHTML = affiliates.map(a => `
+        <div class="affiliate-card">
+            <div class="affiliate-info">
+                <strong>${a.name}</strong>
+                <span class="affiliate-code">${a.code}</span>
+                <span style="margin-left:10px;color:var(--gold);font-weight:600;">${a.commission_percent}% komisyon</span>
+            </div>
+            <div class="affiliate-stats">
+                <div class="stat-mini"><div class="val">👆 ${a.clicks || 0}</div><div class="lbl">Klik</div></div>
+                <div class="stat-mini"><div class="val">🏆 ${a.total_sales || 0}</div><div class="lbl">Vann</div></div>
+                <div class="stat-mini"><div class="val">💰 ${(a.total_commission || 0).toFixed(2)}</div><div class="lbl">Komisyon GDS</div></div>
+            </div>
+            <button class="btn-delete" onclick="deleteAffiliate(${a.id})">🗑️ Retire</button>
+        </div>
+    `).join('');
+}
+
+async function addAffiliate() {
+    const name = document.getElementById('affName').value.trim();
+    const code = document.getElementById('affCode').value.trim().toUpperCase();
+    const commission = parseFloat(document.getElementById('affCommission').value) || 5;
+
+    if (!name || !code) return Toast.warning('⚠️ Ranpli non ak kòd!');
+
+    const res = await fetch('/api/admin/affiliates', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + TOKEN
+        },
+        body: JSON.stringify({ name, code, commission_percent: commission })
+    });
+    const data = await res.json();
+    if (data.success) {
+        Toast.success('✅ Afilye ajoute!');
+        document.getElementById('affName').value = '';
+        document.getElementById('affCode').value = '';
+        loadAffiliates();
+    } else {
+        Toast.error('❌ ' + (data.error || 'Erè'));
+    }
+}
+
+async function deleteAffiliate(id) {
+    if (!confirm('Eske w sèten w vle retire afilye sa a?')) return;
+    
+    // Pou retire, nou ka modifye API a, men pou kounye a nou ka filtre
+    Toast.info('🗑️ Fonksyon retire ap vini...');
+    // Ou ka ajoute yon API DELETE si w vle
+}
+
+function logout() {
+    localStorage.removeItem('admin_token');
+    window.location.href = 'login.html';
+}
+
+loadAffiliates();
+</script>
+</body>
+</html>
+
