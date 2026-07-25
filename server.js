@@ -224,29 +224,39 @@ app.delete('/api/admin/products/:id', verifyAdmin, (req, res) => {
 });
 
 // ========== UPLOAD IMAJ SOU SUPABASE STORAGE ==========
-const upload = multer({ dest: TMP_DIR, limits: { fileSize: 5 * 1024 * 1024 } });
+const storage = multer.memoryStorage();
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB max
+});
 
 app.post('/api/admin/upload', verifyAdmin, upload.single('image'), async (req, res) => {
   try {
-    const file = req.file;
-    if (!file) return res.status(400).json({ error: 'Pa gen fichye' });
+    if (!req.file) {
+      return res.status(400).json({ error: 'Pa gen fichye! Chwazi yon foto.' });
+    }
 
-    const fileBuffer = fs.readFileSync(file.path);
-    const fileName = Date.now() + '_' + file.originalname.replace(/[^a-zA-Z0-9._-]/g, '');
+    const fileBuffer = req.file.buffer;
+    const fileName = Date.now() + '_' + req.file.originalname.replace(/[^a-zA-Z0-9._-]/g, '');
+
+    console.log('📸 Uploading: ' + fileName + ' (' + (fileBuffer.length / 1024).toFixed(1) + ' KB)');
 
     const { data, error } = await supabase.storage
       .from('product-images')
       .upload(fileName, fileBuffer, {
-        contentType: file.mimetype,
+        contentType: req.file.mimetype,
         upsert: true
       });
 
-    fs.unlinkSync(file.path);
-
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase upload error:', error);
+      throw error;
+    }
 
     const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(fileName);
     const imageUrl = urlData.publicUrl;
+
+    console.log('✅ Uploaded: ' + imageUrl);
 
     res.json({ success: true, url: imageUrl });
   } catch (err) {
@@ -268,3 +278,4 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log('☁️  Upload imaj sou Supabase Storage');
   console.log('💾 Done pèsiste sou disk + cloud');
 });
+
