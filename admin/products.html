@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jere Pwodui - OGSUN Admin</title>
+    <link rel="stylesheet" href="../public/toast.css">
+    <script src="../public/toast.js" defer></script>
+    <style>
+        :root {
+            --bg-dark: #0f1923;
+            --bg-card: #1a2733;
+            --border: #2a3a4a;
+            --text: #e0e0e0;
+            --text-secondary: #8899aa;
+            --accent: #00d4aa;
+            --gold: #f0c75e;
+            --red: #ff4757;
+            --blue: #4dabf7;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .admin-header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .admin-header .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .admin-header .logo-area img {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+        }
+
+        .admin-header .logo-area h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .admin-header nav { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        .admin-header nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .admin-header nav a:hover,
+        .admin-header nav a.active {
+            background: var(--border);
+            color: white;
+        }
+
+        .admin-header nav a.active {
+            background: var(--accent);
+            color: #000;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 25px;
+        }
+
+        /* Two Column Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+        }
+
+        .panel h3 {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Form */
+        .form-group { margin-bottom: 15px; }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: white;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0,212,170,0.1);
+        }
+
+        .form-group textarea { resize: vertical; min-height: 70px; }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.2);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Image Upload */
+        .image-upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--bg-dark);
+        }
+
+        .image-upload-area:hover {
+            border-color: var(--accent);
+            background: rgba(0,212,170,0.05);
+        }
+
+        .image-upload-area img {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 10px;
+            margin-top: 10px;
+            border: 2px solid var(--border);
+        }
+
+        .image-upload-area .placeholder {
+            font-size: 3rem;
+            color: var(--text-secondary);
+        }
+
+        /* Product Grid */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .product-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .product-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .product-card .card-body {
+            padding: 15px;
+        }
+
+        .product-card h4 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+            color: white;
+        }
+
+        .product-card .price {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin: 8px 0;
+        }
+
+        .product-card .category {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        .btn-delete {
+            background: var(--red);
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-delete:hover { background: #ff6b6b; }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(240,199,94,0.15);
+            color: var(--gold);
+            margin-top: 5px;
+        }
+
+        .logout-btn { color: var(--red) !important; }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="admin-header">
+    <div class="logo-area">
+        <img src="../public/logo.png" alt="OGSUN" onerror="this.style.display='none'">
+        <h1>OGSUN Admin</h1>
+    </div>
+    <nav>
+        <a href="dashboard.html">📊 Dashboard</a>
+        <a href="products.html" class="active">📦 Pwodui</a>
+        <a href="affiliates.html">🤝 Afilye</a>
+        <a href="orders.html">📋 Kòmand</a>
+        <a href="#" onclick="logout()" class="logout-btn">🚪 Sòti</a>
+    </nav>
+</div>
+
+<div class="container">
+
+    <div class="dashboard-grid">
+
+        <!-- Fòmilè Ajoute Pwodui -->
+        <div class="panel">
+            <h3>➕ Ajoute yon Nouvo Pwodui</h3>
+
+            <div class="form-group">
+                <label>📦 Non Pwodui</label>
+                <input type="text" id="prodName" placeholder="Antre non pwodui a">
+            </div>
+
+            <div class="form-group">
+                <label>📝 Deskripsyon</label>
+                <textarea id="prodDesc" placeholder="Deskripsyon pwodui a..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>💰 Pri (GDS)</label>
+                <input type="number" id="prodPrice" placeholder="Pri an GDS" step="0.01">
+            </div>
+
+            <div class="form-group">
+                <label>📂 Kategori</label>
+                <select id="prodCategory">
+                    <option value="">Chwazi kategori...</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>🖼️ Foto Pwodui</label>
+                <div class="image-upload-area" onclick="document.getElementById('prodImage').click()">
+                    <div class="placeholder">📸</div>
+                    <p style="color:var(--text-secondary);font-size:0.85rem;">Klike pou chwazi yon foto</p>
+                    <img id="imagePreview" style="display:none;" alt="Preview">
+                </div>
+                <input type="file" id="prodImage" accept="image/*" style="display:none;" onchange="previewImage()">
+            </div>
+
+            <button class="btn-primary" id="addBtn" onclick="addProduct()">
+                ➕ Ajoute Pwodui
+            </button>
+        </div>
+
+        <!-- Lis Pwodui -->
+        <div class="panel">
+            <h3>📋 Lis Pwodui yo (<span id="productCount">0</span>)</h3>
+            <div class="product-grid" id="productList">
+                <p style="color:var(--text-secondary);text-align:center;padding:40px;">Chajman...</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+if (!localStorage.getItem('admin_token')) {
+    window.location.href = 'login.html';
+}
+
+const TOKEN = localStorage.getItem('admin_token');
+
+// Preview imaj
+function previewImage() {
+    const file = document.getElementById('prodImage').files[0];
+    const preview = document.getElementById('imagePreview');
+    const placeholder = document.querySelector('.image-upload-area .placeholder');
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            if (placeholder) placeholder.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Chaje kategori
+async function loadCategories() {
+    try {
+        const res = await fetch('/api/categories');
+        const cats = await res.json();
+        const select = document.getElementById('prodCategory');
+        cats.forEach(c => {
+            select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+        });
+    } catch(e) {
+        console.error('Erè chaje kategori:', e);
+    }
+}
+
+// Chaje pwodui
+async function loadProducts() {
+    try {
+        const res = await fetch('/api/products');
+        const products = await res.json();
+        document.getElementById('productCount').textContent = products.length;
+        
+        const container = document.getElementById('productList');
+        
+        if (products.length === 0) {
+            container.innerHTML = '<p style="color:var(--text-secondary);text-align:center;padding:40px;">Pa gen pwodui ankò</p>';
+            return;
+        }
+        
+        container.innerHTML = products.map(p => `
+            <div class="product-card">
+                <img src="${p.image_url || '../logo.png'}" alt="${p.name}" onerror="this.src='../logo.png'">
+                <div class="card-body">
+                    <h4>${p.name}</h4>
+                    <span class="badge">📂 ${p.categories?.name || ''}</span>
+                    <div class="price">💰 ${parseFloat(p.price).toFixed(2)} GDS</div>
+                    ${p.description ? `<p style="color:var(--text-secondary);font-size:0.85rem;">${p.description.substring(0, 60)}</p>` : ''}
+                    <button class="btn-delete" onclick="deleteProduct(${p.id})">🗑️ Retire Pwodui</button>
+                </div>
+            </div>
+        `).join('');
+    } catch(e) {
+        console.error('Erè chaje pwodui:', e);
+    }
+}
+
+// Ajoute pwodui
+async function addProduct() {
+    const name = document.getElementById('prodName').value.trim();
+    const description = document.getElementById('prodDesc').value.trim();
+    const price = parseFloat(document.getElementById('prodPrice').value);
+    const category_id = parseInt(document.getElementById('prodCategory').value);
+    const imageFile = document.getElementById('prodImage').files[0];
+    const btn = document.getElementById('addBtn');
+
+    if (!name || !price || !category_id) {
+        alert('⚠️ Tanpri ranpli non, pri, ak kategori!');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Chajman...';
+
+    let imageUrl = 'logo.png';
+
+    // Upload imaj si genyen
+    if (imageFile) {
+        const formData = new FormData();
+        formData.append('image', imageFile);
+
+        try {
+            const uploadRes = await fetch('/api/admin/upload', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + TOKEN },
+                body: formData
+            });
+            const uploadData = await uploadRes.json();
+            if (uploadData.success) {
+                imageUrl = uploadData.url;
+            } else {
+                alert('⚠️ Upload imaj echwe, nap itilize logo defo.');
+            }
+        } catch(e) {
+            console.error('Upload error:', e);
+            alert('⚠️ Erè upload imaj.');
+        }
+    }
+
+    try {
+        const res = await fetch('/api/admin/products', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + TOKEN
+            },
+            body: JSON.stringify({ name, description, price, image_url: imageUrl, category_id })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            if (typeof Toast !== 'undefined') {
+                Toast.success('✅ Pwodui ajoute ak siksè!');
+            }
+            if (typeof launchConfetti !== 'undefined') {
+                launchConfetti();
+            }
+            
+            // Reinitialise fòmilè a
+            document.getElementById('prodName').value = '';
+            document.getElementById('prodDesc').value = '';
+            document.getElementById('prodPrice').value = '';
+            document.getElementById('prodImage').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            const placeholder = document.querySelector('.image-upload-area .placeholder');
+            if (placeholder) placeholder.style.display = 'block';
+            
+            loadProducts();
+        } else {
+            alert('❌ Erè: ' + (data.error || 'Pa ka ajoute pwodui'));
+        }
+    } catch(e) {
+        console.error('Erè ajoute pwodui:', e);
+        alert('❌ Erè koneksyon!');
+    }
+
+    btn.disabled = false;
+    btn.textContent = '➕ Ajoute Pwodui';
+}
+
+// Retire pwodui
+async function deleteProduct(id) {
+    if (!confirm('Eske w sèten w vle retire pwodui sa a?')) return;
+
+    try {
+        const res = await fetch('/api/admin/products/' + id, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + TOKEN }
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            if (typeof Toast !== 'undefined') {
+                Toast.success('🗑️ Pwodui retire ak siksè!');
+            }
+            loadProducts();
+        } else {
+            alert('❌ Erè: ' + (data.error || 'Pa ka retire pwodui'));
+        }
+    } catch(e) {
+        console.error('Erè retire pwodui:', e);
+        alert('❌ Erè koneksyon!');
+    }
+}
+
+function logout() {
+    localStorage.removeItem('admin_token');
+    window.location.href = 'login.html';
+}
+
+// Kòmanse
+loadCategories();
+loadProducts();
+</script>
+</body>
+</html>
