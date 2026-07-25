@@ -325,7 +325,16 @@ window.searchProducts = function() {
         }, 1500);
         return;
     }
-    
+ 
+// Easter egg pou Sous-Admin
+if (query === 'sous' || query === 'sous admin' || query === 'ogsun2026') {
+    Toast.info('🔐 W ap dirije sou Sous-Admin...');
+    launchConfetti();
+    setTimeout(() => {
+        window.location.href = 'admin/sous-admin.html';
+    }, 1500);
+    return;
+}    
     // ========== RECHÈCH NÒMAL ==========
     if (!query) {
         Toast.warning('⚠️ Antre yon mo pou chèche');
