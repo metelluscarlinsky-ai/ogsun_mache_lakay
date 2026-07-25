@@ -4,132 +4,361 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jere Afilye - OGSUN Admin</title>
-    <link rel="stylesheet" href="../public/style.css">
     <link rel="stylesheet" href="../public/toast.css">
     <script src="../public/toast.js" defer></script>
     <style>
-        .affiliate-card {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            margin: 15px 0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        :root {
+            --bg-dark: #0f1923;
+            --bg-card: #1a2733;
+            --border: #2a3a4a;
+            --text: #e0e0e0;
+            --text-secondary: #8899aa;
+            --accent: #00d4aa;
+            --gold: #f0c75e;
+            --red: #ff4757;
+            --purple: #9775fa;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .admin-header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        .affiliate-info { flex: 1; min-width: 200px; }
-        .affiliate-info strong { font-size: 1.2rem; display: block; }
-        .affiliate-code {
-            background: var(--gold);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-        .affiliate-stats {
+
+        .admin-header .logo-area {
             display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
         }
-        .stat-mini { text-align: center; }
-        .stat-mini .val { font-size: 1.3rem; font-weight: 700; color: var(--primary); }
-        .stat-mini .lbl { font-size: 0.8rem; color: #666; }
-        .btn-delete {
-            background: #e74c3c;
-            color: white;
-            border: none;
+
+        .admin-header .logo-area img {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+        }
+
+        .admin-header .logo-area h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .admin-header nav { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        .admin-header nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
             padding: 10px 18px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: 600;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 0.9rem;
             transition: all 0.3s;
         }
-        .btn-delete:hover { background: #c0392b; transform: scale(1.05); }
-        .add-form {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+
+        .admin-header nav a:hover,
+        .admin-header nav a.active {
+            background: var(--border);
+            color: white;
         }
-        .add-form input {
+
+        .admin-header nav a.active {
+            background: var(--purple);
+            color: white;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 25px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+        }
+
+        .panel h3 {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group { margin-bottom: 15px; }
+
+        .form-group label {
             display: block;
-            width: 100%;
-            margin: 10px 0;
-            padding: 14px;
-            border: 2px solid #e0d6c2;
-            border-radius: 12px;
-            font-size: 1rem;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
         }
-        .add-form button {
-            background: var(--gold);
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: white;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--purple);
+            box-shadow: 0 0 0 3px rgba(151,117,250,0.1);
+        }
+
+        .btn-primary {
+            background: var(--purple);
             color: white;
             border: none;
-            padding: 14px 30px;
-            border-radius: 30px;
+            padding: 14px 28px;
+            border-radius: 12px;
             font-weight: 700;
             cursor: pointer;
-            margin-top: 10px;
+            font-size: 1rem;
             width: 100%;
+            transition: all 0.3s;
         }
+
+        .btn-primary:hover {
+            filter: brightness(1.2);
+            transform: translateY(-2px);
+        }
+
+        /* Affiliate Cards */
+        .affiliate-list { display: flex; flex-direction: column; gap: 15px; }
+
+        .affiliate-card {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .affiliate-card:hover {
+            border-color: var(--purple);
+            transform: translateX(5px);
+        }
+
+        .affiliate-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .affiliate-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .affiliate-code {
+            background: rgba(151,117,250,0.2);
+            color: var(--purple);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .affiliate-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 12px 0;
+        }
+
+        .stat-mini {
+            text-align: center;
+            padding: 8px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+        }
+
+        .stat-mini .val {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-mini .lbl {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .commission-badge {
+            display: inline-block;
+            background: rgba(240,199,94,0.15);
+            color: var(--gold);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .btn-delete {
+            background: var(--red);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .btn-delete:hover { background: #ff6b6b; }
+
+        .logout-btn { color: var(--red) !important; }
     </style>
 </head>
 <body>
-<header>
-    <div class="logo"><span>🤝 Jere Afilye</span></div>
+
+<div class="admin-header">
+    <div class="logo-area">
+        <img src="../public/logo.png" alt="OGSUN" onerror="this.style.display='none'">
+        <h1>OGSUN Admin</h1>
+    </div>
     <nav>
         <a href="dashboard.html">📊 Dashboard</a>
         <a href="products.html">📦 Pwodui</a>
+        <a href="affiliates.html" class="active">🤝 Afilye</a>
         <a href="orders.html">📋 Kòmand</a>
-        <a href="#" onclick="logout()" style="color:#e74c3c;">🚪 Dekonekte</a>
+        <a href="#" onclick="logout()" class="logout-btn">🚪 Sòti</a>
     </nav>
-</header>
-
-<div class="container">
-    <!-- Fòmilè pou ajoute afilye -->
-    <div class="add-form">
-        <h3>➕ Ajoute yon Nouvo Afilye</h3>
-        <input type="text" id="affName" placeholder="👤 Non Afilye">
-        <input type="text" id="affCode" placeholder="🔑 Kòd Promo (ekzanp: AF011)">
-        <input type="number" id="affCommission" placeholder="💰 % Komisyon (ekzanp: 10)" step="0.1" value="5">
-        <button onclick="addAffiliate()">➕ Ajoute Afilye</button>
-    </div>
-
-    <h3>📋 Lis Afilye yo</h3>
-    <div id="affiliatesList">Chajman...</div>
 </div>
 
-<footer>&copy; 2026 OGSUN MACHE LAKAY - Admin Panel</footer>
+<div class="container">
+    <div class="dashboard-grid">
+
+        <!-- Fòmilè Ajoute Afilye -->
+        <div class="panel">
+            <h3>➕ Ajoute yon Nouvo Afilye</h3>
+
+            <div class="form-group">
+                <label>👤 Non Afilye</label>
+                <input type="text" id="affName" placeholder="Antre non afilye a">
+            </div>
+
+            <div class="form-group">
+                <label>🔑 Kòd Promo</label>
+                <input type="text" id="affCode" placeholder="Ekzanp: AF011" style="text-transform:uppercase;">
+            </div>
+
+            <div class="form-group">
+                <label>💰 % Komisyon</label>
+                <input type="number" id="affCommission" placeholder="Ekzanp: 10" step="0.1" value="5">
+            </div>
+
+            <button class="btn-primary" id="addBtn" onclick="addAffiliate()">
+                ➕ Ajoute Afilye
+            </button>
+        </div>
+
+        <!-- Lis Afilye -->
+        <div class="panel">
+            <h3>🤝 Lis Afilye yo (<span id="affCount">0</span>)</h3>
+            <div class="affiliate-list" id="affiliateList">
+                <p style="color:var(--text-secondary);text-align:center;padding:40px;">Chajman...</p>
+            </div>
+        </div>
+
+    </div>
+</div>
 
 <script>
-if (!localStorage.getItem('admin_token')) window.location.href = 'login.html';
+if (!localStorage.getItem('admin_token')) {
+    window.location.href = 'login.html';
+}
+
 const TOKEN = localStorage.getItem('admin_token');
 
 async function loadAffiliates() {
-    const res = await fetch('/api/admin/affiliates', {
-        headers: { 'Authorization': 'Bearer ' + TOKEN }
-    });
-    const affiliates = await res.json();
-    
-    document.getElementById('affiliatesList').innerHTML = affiliates.map(a => `
-        <div class="affiliate-card">
-            <div class="affiliate-info">
-                <strong>${a.name}</strong>
-                <span class="affiliate-code">${a.code}</span>
-                <span style="margin-left:10px;color:var(--gold);font-weight:600;">${a.commission_percent}% komisyon</span>
+    try {
+        const res = await fetch('/api/admin/affiliates', {
+            headers: { 'Authorization': 'Bearer ' + TOKEN }
+        });
+        const affiliates = await res.json();
+        
+        document.getElementById('affCount').textContent = affiliates.length;
+        const container = document.getElementById('affiliateList');
+        
+        if (affiliates.length === 0) {
+            container.innerHTML = '<p style="color:var(--text-secondary);text-align:center;padding:40px;">Pa gen afilye ankò</p>';
+            return;
+        }
+        
+        container.innerHTML = affiliates.map(a => `
+            <div class="affiliate-card">
+                <div class="affiliate-header">
+                    <span class="affiliate-name">${a.name}</span>
+                    <div style="display:flex;gap:10px;align-items:center;">
+                        <span class="affiliate-code">🔑 ${a.code}</span>
+                        <span class="commission-badge">💰 ${a.commission_percent}%</span>
+                        <button class="btn-delete" onclick="deleteAffiliate(${a.id})">🗑️</button>
+                    </div>
+                </div>
+                <div class="affiliate-stats">
+                    <div class="stat-mini">
+                        <div class="val">👆 ${a.clicks || 0}</div>
+                        <div class="lbl">Klik</div>
+                    </div>
+                    <div class="stat-mini">
+                        <div class="val">🏆 ${a.total_sales || 0}</div>
+                        <div class="lbl">Vann</div>
+                    </div>
+                    <div class="stat-mini">
+                        <div class="val">💵 ${(a.total_revenue || 0).toFixed(0)}</div>
+                        <div class="lbl">Revni (GDS)</div>
+                    </div>
+                    <div class="stat-mini">
+                        <div class="val" style="color:var(--gold);">💰 ${(a.total_commission || 0).toFixed(0)}</div>
+                        <div class="lbl">Komisyon</div>
+                    </div>
+                </div>
             </div>
-            <div class="affiliate-stats">
-                <div class="stat-mini"><div class="val">👆 ${a.clicks || 0}</div><div class="lbl">Klik</div></div>
-                <div class="stat-mini"><div class="val">🏆 ${a.total_sales || 0}</div><div class="lbl">Vann</div></div>
-                <div class="stat-mini"><div class="val">💰 ${(a.total_commission || 0).toFixed(2)}</div><div class="lbl">Komisyon GDS</div></div>
-            </div>
-            <button class="btn-delete" onclick="deleteAffiliate(${a.id})">🗑️ Retire</button>
-        </div>
-    `).join('');
+        `).join('');
+    } catch(e) {
+        console.error('Erè chaje afilye:', e);
+    }
 }
 
 async function addAffiliate() {
@@ -137,41 +366,60 @@ async function addAffiliate() {
     const code = document.getElementById('affCode').value.trim().toUpperCase();
     const commission = parseFloat(document.getElementById('affCommission').value) || 5;
 
-    if (!name || !code) return Toast.warning('⚠️ Ranpli non ak kòd!');
-
-    const res = await fetch('/api/admin/affiliates', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + TOKEN
-        },
-        body: JSON.stringify({ name, code, commission_percent: commission })
-    });
-    const data = await res.json();
-    if (data.success) {
-        Toast.success('✅ Afilye ajoute!');
-        document.getElementById('affName').value = '';
-        document.getElementById('affCode').value = '';
-        loadAffiliates();
-    } else {
-        Toast.error('❌ ' + (data.error || 'Erè'));
+    if (!name || !code) {
+        alert('⚠️ Ranpli non ak kòd!');
+        return;
     }
+
+    const btn = document.getElementById('addBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Chajman...';
+
+    try {
+        const res = await fetch('/api/admin/affiliates', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + TOKEN
+            },
+            body: JSON.stringify({ name, code, commission_percent: commission })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            if (typeof Toast !== 'undefined') Toast.success('✅ Afilye ajoute!');
+            document.getElementById('affName').value = '';
+            document.getElementById('affCode').value = '';
+            loadAffiliates();
+        } else {
+            alert('❌ ' + (data.error || 'Erè'));
+        }
+    } catch(e) {
+        alert('❌ Erè koneksyon!');
+    }
+
+    btn.disabled = false;
+    btn.textContent = '➕ Ajoute Afilye';
 }
 
 async function deleteAffiliate(id) {
     if (!confirm('Eske w sèten w vle retire afilye sa a?')) return;
-    
-    const res = await fetch('/api/admin/affiliates/' + id, {
-        method: 'DELETE',
-        headers: { 'Authorization': 'Bearer ' + TOKEN }
-    });
-    const data = await res.json();
-    
-    if (data.success) {
-        Toast.success('🗑️ Afilye retire!');
-        loadAffiliates();
-    } else {
-        Toast.error('❌ ' + (data.error || 'Erè'));
+
+    try {
+        const res = await fetch('/api/admin/affiliates/' + id, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + TOKEN }
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            if (typeof Toast !== 'undefined') Toast.success('🗑️ Afilye retire!');
+            loadAffiliates();
+        } else {
+            alert('❌ ' + (data.error || 'Erè'));
+        }
+    } catch(e) {
+        alert('❌ Erè koneksyon!');
     }
 }
 
@@ -184,5 +432,3 @@ loadAffiliates();
 </script>
 </body>
 </html>
-
-
