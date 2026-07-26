@@ -150,21 +150,41 @@ app.delete('/api/admin/products/:id', verifyAdmin, async (req, res) => {
   res.json({ success: true });
 });
 
-// ========== UPLOAD ==========
-const upload = multer({ dest: path.join(__dirname, 'tmp'), limits: { fileSize: 10*1024*1024 } });
+// ========== UPLOAD IMAJ SOU SUPABASE STORAGE ==========
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
+
 app.post('/api/admin/upload', verifyAdmin, upload.single('image'), async (req, res) => {
   try {
-    if (!req.file) return res.status(400).json({ error: 'Pa gen fichye' });
-    const buf = fs.readFileSync(req.file.path);
-    const name = Date.now() + path.extname(req.file.originalname);
-    const { error } = await supabase.storage.from('product-images').upload(name, buf, { contentType: req.file.mimetype, upsert: true });
-    fs.unlinkSync(req.file.path);
-    if (error) throw error;
-    const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(name);
-    res.json({ success: true, url: urlData.publicUrl });
-  } catch(e) { res.status(500).json({ error: e.message }); }
-});
+    if (!req.file) return res.status(400).json({ error: 'Pa gen fichye! Chwazi yon foto.' });
 
+    const buffer = req.file.buffer;
+    const fileName = Date.now() + '_' + req.file.originalname.replace(/[^a-zA-Z0-9._-]/g, '');
+    const contentType = req.file.mimetype || 'image/png';
+
+    console.log('📸 Uploading:', fileName, '(' + (buffer.length / 1024).toFixed(1) + ' KB)');
+
+    const { data, error } = await supabase.storage
+      .from('product-images')
+      .upload(fileName, buffer, {
+        contentType: contentType,
+        upsert: true
+      });
+
+    if (error) {
+      console.error('Supabase storage error:', error);
+      return res.status(500).json({ error: 'Upload echwe: ' + error.message });
+    }
+
+    const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(fileName);
+    const imageUrl = urlData.publicUrl;
+
+    console.log('✅ Uploaded:', imageUrl);
+    res.json({ success: true, url: imageUrl });
+  } catch (err) {
+    console.error('Upload error:', err);
+    res.status(500).json({ error: 'Upload echwe: ' + err.message });
+  }
+});
 // ========== ESTATIK ==========
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
