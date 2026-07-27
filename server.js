@@ -151,6 +151,8 @@ app.delete('/api/admin/products/:id', verifyAdmin, async (req, res) => {
 });
 
 // ========== UPLOAD IMAJ SOU SUPABASE STORAGE ==========
+
+// ========== UPLOAD IMAJ SOU SUPABASE STORAGE ==========
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
 app.post('/api/admin/upload', verifyAdmin, upload.single('image'), async (req, res) => {
@@ -185,6 +187,7 @@ app.post('/api/admin/upload', verifyAdmin, upload.single('image'), async (req, r
     res.status(500).json({ error: 'Upload echwe: ' + err.message });
   }
 });
+
 // ========== ESTATIK ==========
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/admin', express.static(path.join(__dirname, 'admin')));

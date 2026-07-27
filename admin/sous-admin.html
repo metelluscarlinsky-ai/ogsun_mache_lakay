@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sous-Admin - OGSUN</title>
+    <title>Sous-Admin OGSUN</title>
     <link rel="stylesheet" href="../public/toast.css">
     <script src="../public/toast.js" defer></script>
     <style>
@@ -42,6 +42,8 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .admin-header .logo-area {
@@ -199,6 +201,120 @@
             gap: 10px;
         }
 
+        /* Two Column */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        /* Form */
+        .form-group { margin-bottom: 15px; }
+
+        .form-group label {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: white;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(255,107,107,0.1);
+        }
+
+        .form-group textarea { resize: vertical; min-height: 70px; }
+
+        /* Image Upload */
+        .image-upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--bg-dark);
+        }
+
+        .image-upload-area:hover {
+            border-color: var(--accent);
+            background: rgba(255,107,107,0.05);
+        }
+
+        .image-upload-area img {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 10px;
+            margin-top: 10px;
+            border: 2px solid var(--border);
+        }
+
+        .image-upload-area .placeholder {
+            font-size: 3rem;
+            color: var(--text-secondary);
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.2);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-delete {
+            background: var(--red);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .btn-delete:hover { background: #ff6b6b; }
+
         /* Table */
         .table {
             width: 100%;
@@ -239,88 +355,23 @@
         .badge-completed { background: rgba(0,212,170,0.15); color: var(--green); }
         .badge-affiliate { background: rgba(151,117,250,0.15); color: var(--purple); }
 
-        /* Chart */
-        .chart-container {
+        /* Product List */
+        .product-item {
             display: flex;
-            align-items: flex-end;
-            gap: 8px;
-            height: 180px;
-            padding: 10px 0;
-        }
-
-        .chart-bar {
-            flex: 1;
-            background: linear-gradient(180deg, var(--accent) 0%, rgba(255,107,107,0.3) 100%);
-            border-radius: 6px 6px 0 0;
-            position: relative;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
             transition: all 0.3s;
-            cursor: pointer;
-            min-height: 4px;
         }
 
-        .chart-bar:hover {
-            filter: brightness(1.3);
-        }
+        .product-item:hover { background: rgba(255,255,255,0.02); }
 
-        .chart-bar .bar-val {
-            position: absolute;
-            top: -22px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--accent);
-        }
-
-        .chart-labels {
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
-        }
-
-        .chart-labels span {
-            flex: 1;
-            text-align: center;
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-        }
-
-        /* Quick Actions */
-        .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 12px;
-            margin-bottom: 30px;
-        }
-
-        .action-btn {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-            color: var(--text);
-            display: block;
-        }
-
-        .action-btn:hover {
-            border-color: var(--accent);
-            background: rgba(255,107,107,0.1);
-            transform: translateY(-2px);
-        }
-
-        .action-btn .icon {
-            font-size: 1.8rem;
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        .action-btn .label {
-            font-weight: 600;
-            font-size: 0.85rem;
+        .product-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            object-fit: cover;
         }
 
         /* Section visibility */
@@ -376,35 +427,22 @@
             margin-bottom: 25px;
         }
 
-        .input-group {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .input-group .input-icon {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-secondary);
-            font-size: 1.2rem;
-        }
-
-        .input-group input {
+        .login-box input {
             width: 100%;
-            padding: 16px 16px 16px 50px;
+            padding: 16px;
             background: var(--bg-dark);
             border: 2px solid var(--border);
             border-radius: 14px;
             color: white;
             font-size: 1rem;
-            font-family: inherit;
-            letter-spacing: 3px;
             text-align: center;
+            letter-spacing: 3px;
+            font-family: inherit;
+            margin-bottom: 15px;
             transition: all 0.3s;
         }
 
-        .input-group input:focus {
+        .login-box input:focus {
             outline: none;
             border-color: var(--accent);
             box-shadow: 0 0 0 4px rgba(255,107,107,0.1);
@@ -429,18 +467,17 @@
             box-shadow: 0 15px 35px rgba(255,107,107,0.4);
         }
 
-        .error-msg {
+        .error {
             color: var(--red);
             margin-top: 15px;
             font-weight: 600;
-            min-height: 24px;
         }
 
         .hidden { display: none; }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .admin-header { flex-direction: column; gap: 10px; }
+            .admin-header { flex-direction: column; }
             .admin-header nav { justify-content: center; }
             .stats-grid { grid-template-columns: 1fr 1fr; }
         }
@@ -454,14 +491,9 @@
         <div class="lock-icon">🔐</div>
         <h2>Sous-Admin OGSUN</h2>
         <p class="sub">Espas Sekrè — Antre kòd ou a</p>
-
-        <div class="input-group">
-            <span class="input-icon">🔑</span>
-            <input type="password" id="sousCode" placeholder="Kòd Sekrè" autocomplete="off">
-        </div>
-
+        <input type="password" id="sousCode" placeholder="Kòd Sekrè" autocomplete="off">
         <button class="btn-login" onclick="doLogin()">🚀 Aksè Sous-Admin</button>
-        <div class="error-msg" id="errorMsg"></div>
+        <div class="error" id="errorMsg"></div>
         <p style="margin-top:20px;color:var(--text-secondary);font-size:0.85rem;">
             <a href="../index.html" style="color:var(--text-secondary);">🏠 Sit la</a> | 
             <a href="login.html" style="color:var(--accent);">Admin Prensipal</a>
@@ -491,65 +523,91 @@
         <div id="tab-stats" class="section active">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon">📦</div>
-                    </div>
+                    <div class="stat-header"><div class="stat-icon">📦</div></div>
                     <div class="stat-value" id="sProducts">—</div>
                     <div class="stat-label">Pwodui Total</div>
                     <div class="stat-sub">Nan katalòg la</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon">📋</div>
-                    </div>
+                    <div class="stat-header"><div class="stat-icon">📋</div></div>
                     <div class="stat-value" id="sOrders">—</div>
                     <div class="stat-label">Kòmand Total</div>
                     <div class="stat-sub" id="ordersToday">Jodi a: —</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon">🤝</div>
-                    </div>
+                    <div class="stat-header"><div class="stat-icon">🤝</div></div>
                     <div class="stat-value" id="sAffiliates">—</div>
                     <div class="stat-label">Afilye Aktif</div>
                     <div class="stat-sub" id="totalComm">Komisyon: — GDS</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon">💰</div>
-                    </div>
+                    <div class="stat-header"><div class="stat-icon">💰</div></div>
                     <div class="stat-value" id="sRevenue">— GDS</div>
                     <div class="stat-label">Revni Total</div>
                     <div class="stat-sub" id="revenueToday">Jodi a: — GDS</div>
-                </div>
-            </div>
-
-            <!-- Chart -->
-            <div class="panel">
-                <h3>📈 Revni Semèn sa a</h3>
-                <div id="revenueChart">
-                    <div class="chart-container" id="chartBars"></div>
-                    <div class="chart-labels" id="chartLabels"></div>
                 </div>
             </div>
         </div>
 
         <!-- ========== PRODUCTS ========== -->
         <div id="tab-products" class="section">
-            <div class="panel">
-                <h3>📦 Lis Pwodui yo (<span id="prodCount">0</span>)</h3>
-                <div id="productList" style="max-height:500px;overflow-y:auto;">
-                    <p style="color:var(--text-secondary);text-align:center;padding:40px;">Chajman...</p>
+            <div class="grid-2">
+                <!-- Ajoute Pwodui -->
+                <div class="panel">
+                    <h3>➕ Ajoute yon Pwodui</h3>
+                    <div class="form-group">
+                        <label>📦 Non Pwodui</label>
+                        <input type="text" id="prodName" placeholder="Antre non pwodui a">
+                    </div>
+                    <div class="form-group">
+                        <label>📝 Deskripsyon</label>
+                        <textarea id="prodDesc" placeholder="Deskripsyon pwodui a..." rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>💰 Pri (GDS)</label>
+                        <input type="number" id="prodPrice" placeholder="Pri an GDS" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>📂 Kategori</label>
+                        <select id="prodCategory">
+                            <option value="">Chwazi kategori...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>🖼️ Foto Pwodui</label>
+                        <div class="image-upload-area" onclick="document.getElementById('prodImage').click()">
+                            <div class="placeholder">📸</div>
+                            <p style="color:var(--text-secondary);font-size:0.85rem;">Klike pou chwazi yon foto depi galri</p>
+                            <img id="imagePreview" style="display:none;" alt="Preview">
+                        </div>
+                        <input type="file" id="prodImage" accept="image/*" style="display:none;" onchange="previewImage()">
+                    </div>
+                    <button class="btn-primary" id="addBtn" onclick="addProduct()">➕ Ajoute Pwodui</button>
+                </div>
+
+                <!-- Lis Pwodui -->
+                <div class="panel">
+                    <h3>📦 Lis Pwodui yo (<span id="prodCount">0</span>)</h3>
+                    <div id="productList" style="max-height:500px;overflow-y:auto;">
+                        <p style="color:var(--text-secondary);text-align:center;padding:40px;">Chajman...</p>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- ========== AFFILIATES ========== -->
         <div id="tab-affiliates" class="section">
-            <div class="panel">
-                <h3>🤝 Lis Afilye yo (<span id="affCount">0</span>)</h3>
-                <div id="affiliateList" style="max-height:500px;overflow-y:auto;">
-                    <p style="color:var(--text-secondary);text-align:center;padding:40px;">Chajman...</p>
+            <div class="grid-2">
+                <div class="panel">
+                    <h3>➕ Ajoute Afilye</h3>
+                    <div class="form-group"><label>👤 Non</label><input type="text" id="affName" placeholder="Non afilye"></div>
+                    <div class="form-group"><label>🔑 Kòd Promo</label><input type="text" id="affCode" placeholder="AF011" style="text-transform:uppercase;"></div>
+                    <div class="form-group"><label>💰 % Komisyon</label><input type="number" id="affCommission" value="5" step="0.1"></div>
+                    <button class="btn-primary" onclick="addAffiliate()">➕ Ajoute Afilye</button>
+                </div>
+                <div class="panel">
+                    <h3>🤝 Lis Afilye (<span id="affCount">0</span>)</h3>
+                    <div id="affiliateList" style="max-height:500px;overflow-y:auto;">Chajman...</div>
                 </div>
             </div>
         </div>
@@ -558,9 +616,7 @@
         <div id="tab-orders" class="section">
             <div class="panel">
                 <h3>📋 Dènye Kòmand yo</h3>
-                <div id="orderList" style="max-height:500px;overflow-y:auto;">
-                    <p style="color:var(--text-secondary);text-align:center;padding:40px;">Chajman...</p>
-                </div>
+                <div id="orderList" style="max-height:500px;overflow-y:auto;">Chajman...</div>
             </div>
         </div>
 
@@ -569,21 +625,17 @@
 
 <script>
 const SOUS_CODE = 'OGSUN';
-
 if (localStorage.getItem('sous_admin_logged')) showDashboard();
 
 // ========== LOGIN ==========
 function doLogin() {
-    const code = document.getElementById('sousCode').value.trim();
-    const error = document.getElementById('errorMsg');
-
-    if (code === SOUS_CODE) {
-        localStorage.setItem('sous_admin_logged', 'true');
+    if (document.getElementById('sousCode').value === SOUS_CODE) {
+        localStorage.setItem('sous_admin_logged', '1');
         if (typeof Toast !== 'undefined') Toast.success('✅ Byenveni Sous-Admin! 🎉');
         if (typeof launchConfetti !== 'undefined') launchConfetti();
         setTimeout(showDashboard, 600);
     } else {
-        error.textContent = '❌ Kòd pa bon!';
+        document.getElementById('errorMsg').textContent = '❌ Kòd pa bon!';
     }
 }
 
@@ -591,6 +643,7 @@ function showDashboard() {
     document.getElementById('loginSection').classList.add('hidden');
     document.getElementById('dashboardSection').classList.remove('hidden');
     loadStats();
+    loadCategories();
 }
 
 function logout() {
@@ -604,107 +657,198 @@ function showTab(t, el) {
     document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
     el.classList.add('active');
     if (t === 'stats') loadStats();
-    if (t === 'products') loadProducts();
+    if (t === 'products') { loadCategories(); loadProducts(); }
     if (t === 'affiliates') loadAffiliates();
     if (t === 'orders') loadOrders();
 }
 
-// ========== LOAD DATA ==========
+// ========== TOKEN ==========
+function getToken() { return localStorage.getItem('admin_token') || ''; }
+
+// ========== PREVIEW IMAJ ==========
+function previewImage() {
+    const f = document.getElementById('prodImage').files[0];
+    if (f) {
+        const r = new FileReader();
+        r.onload = e => {
+            document.getElementById('imagePreview').src = e.target.result;
+            document.getElementById('imagePreview').style.display = 'block';
+            document.querySelector('.image-upload-area .placeholder').style.display = 'none';
+        };
+        r.readAsDataURL(f);
+    }
+}
+
+// ========== STATS ==========
 async function loadStats() {
     try {
         const [p, o, a] = await Promise.all([
             fetch('/api/products').then(r => r.json()),
-            fetch('/api/admin/orders', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('admin_token') || '') } }).then(r => r.json()).catch(() => []),
-            fetch('/api/admin/affiliates', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('admin_token') || '') } }).then(r => r.json()).catch(() => [])
+            fetch('/api/admin/orders', { headers: { 'Authorization': 'Bearer ' + getToken() } }).then(r => r.json()).catch(() => []),
+            fetch('/api/admin/affiliates', { headers: { 'Authorization': 'Bearer ' + getToken() } }).then(r => r.json()).catch(() => [])
         ]);
-
         document.getElementById('sProducts').textContent = p.length;
         document.getElementById('sOrders').textContent = o.length;
         document.getElementById('sAffiliates').textContent = a.length;
-
-        const rev = o.reduce((s, x) => s + parseFloat(x.total || 0), 0);
-        document.getElementById('sRevenue').textContent = rev.toFixed(0) + ' GDS';
-
+        document.getElementById('sRevenue').textContent = o.reduce((s, x) => s + parseFloat(x.total || 0), 0).toFixed(0) + ' GDS';
         const today = new Date().toISOString().split('T')[0];
-        const todayOrders = o.filter(x => (x.created_at || '').startsWith(today));
-        document.getElementById('ordersToday').textContent = 'Jodi a: ' + todayOrders.length;
-        document.getElementById('revenueToday').textContent = 'Jodi a: ' + todayOrders.reduce((s, x) => s + parseFloat(x.total || 0), 0).toFixed(0) + ' GDS';
-
-        const totalComm = a.reduce((s, x) => s + (x.total_commission || 0), 0);
-        document.getElementById('totalComm').textContent = 'Komisyon: ' + totalComm.toFixed(0) + ' GDS';
-
-        // Chart
-        renderChart(o);
-    } catch (e) { console.error(e); }
+        const to = o.filter(x => (x.created_at || '').startsWith(today));
+        document.getElementById('ordersToday').textContent = 'Jodi a: ' + to.length;
+        document.getElementById('revenueToday').textContent = 'Jodi a: ' + to.reduce((s, x) => s + parseFloat(x.total || 0), 0).toFixed(0) + ' GDS';
+        document.getElementById('totalComm').textContent = 'Komisyon: ' + a.reduce((s, x) => s + (x.total_commission || 0), 0).toFixed(0) + ' GDS';
+    } catch (e) {}
 }
 
-function renderChart(orders) {
-    const days = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
-    const today = new Date();
-    const weekData = {};
-    for (let i = 6; i >= 0; i--) {
-        const d = new Date(today); d.setDate(d.getDate() - i);
-        weekData[d.toISOString().split('T')[0]] = 0;
-    }
-    orders.forEach(o => {
-        const k = (o.created_at || '').split('T')[0];
-        if (k && weekData[k] !== undefined) weekData[k] += parseFloat(o.total || 0);
-    });
-    const vals = Object.values(weekData);
-    const max = Math.max(...vals, 1);
-    const keys = Object.keys(weekData);
-
-    document.getElementById('chartBars').innerHTML = keys.map((k, i) => {
-        const h = Math.max((vals[i] / max) * 140, 6);
-        return `<div class="chart-bar" style="height:${h}px;" title="${k}: ${vals[i].toFixed(0)} GDS">${vals[i] > 0 ? '<span class="bar-val">' + vals[i].toFixed(0) + '</span>' : ''}</div>`;
-    }).join('');
-
-    document.getElementById('chartLabels').innerHTML = keys.map(k => {
-        return '<span>' + days[new Date(k).getDay()] + '</span>';
-    }).join('');
+// ========== CATEGORIES ==========
+async function loadCategories() {
+    const c = await fetch('/api/categories').then(r => r.json());
+    const s = document.getElementById('prodCategory');
+    s.innerHTML = '<option value="">Chwazi...</option>';
+    c.forEach(x => s.innerHTML += `<option value="${x.id}">${x.name}</option>`);
 }
 
+// ========== PRODUCTS ==========
 async function loadProducts() {
-    const d = await fetch('/api/products').then(r => r.json());
-    document.getElementById('prodCount').textContent = d.length;
-    document.getElementById('productList').innerHTML = d.map(x => `
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 15px;border-bottom:1px solid rgba(42,58,74,0.5);">
+    const p = await fetch('/api/products').then(r => r.json());
+    document.getElementById('prodCount').textContent = p.length;
+    document.getElementById('productList').innerHTML = p.map(x => `
+        <div class="product-item">
             <div style="display:flex;align-items:center;gap:12px;">
-                <img src="${x.image_url || '../logo.png'}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;" onerror="this.style.display='none'">
+                <img src="${x.image_url || '../logo.png'}" onerror="this.style.display='none'">
                 <div>
                     <strong>${x.name}</strong>
-                    <br><small style="color:var(--text-secondary);">${x.categories?.name || ''}</small>
+                    <br><small style="color:var(--text-secondary);">💰 ${x.price} GDS | 📂 ${x.categories?.name || ''}</small>
                 </div>
             </div>
-            <strong style="color:var(--green);">${parseFloat(x.price).toFixed(0)} GDS</strong>
+            <button class="btn-delete" onclick="deleteProduct(${x.id})">🗑️ Retire</button>
         </div>
     `).join('');
 }
 
+async function addProduct() {
+    const name = document.getElementById('prodName').value.trim();
+    const desc = document.getElementById('prodDesc').value.trim();
+    const price = parseFloat(document.getElementById('prodPrice').value);
+    const cat = parseInt(document.getElementById('prodCategory').value);
+    const img = document.getElementById('prodImage').files[0];
+    const btn = document.getElementById('addBtn');
+
+    if (!name || !price || !cat) return alert('⚠️ Ranpli non, pri, ak kategori!');
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Chajman...';
+    let url = 'logo.png';
+
+    if (img) {
+        const fd = new FormData();
+        fd.append('image', img);
+        const u = await fetch('/api/admin/upload', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + getToken() },
+            body: fd
+        }).then(r => r.json());
+        if (u.success) url = u.url;
+        else { alert('❌ Upload echwe!'); btn.disabled = false; btn.textContent = '➕ Ajoute Pwodui'; return; }
+    }
+
+    const r = await fetch('/api/admin/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() },
+        body: JSON.stringify({ name, description: desc, price, image_url: url, category_id: cat })
+    }).then(r => r.json());
+
+    btn.disabled = false;
+    btn.textContent = '➕ Ajoute Pwodui';
+
+    if (r.success) {
+        if (typeof Toast !== 'undefined') Toast.success('✅ Pwodui ajoute ak siksè!');
+        document.getElementById('prodName').value = '';
+        document.getElementById('prodDesc').value = '';
+        document.getElementById('prodPrice').value = '';
+        document.getElementById('prodImage').value = '';
+        document.getElementById('imagePreview').style.display = 'none';
+        document.querySelector('.image-upload-area .placeholder').style.display = 'block';
+        loadProducts();
+        loadStats();
+    } else {
+        alert('❌ ' + (r.error || 'Erè'));
+    }
+}
+
+async function deleteProduct(id) {
+    if (!confirm('Eske w sèten w vle retire pwodui sa a?')) return;
+    await fetch('/api/admin/products/' + id, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+    });
+    if (typeof Toast !== 'undefined') Toast.success('🗑️ Pwodui retire!');
+    loadProducts();
+    loadStats();
+}
+
+// ========== AFFILIATES ==========
 async function loadAffiliates() {
-    const d = await fetch('/api/admin/affiliates', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('admin_token') || '') } }).then(r => r.json()).catch(() => []);
-    document.getElementById('affCount').textContent = d.length;
-    document.getElementById('affiliateList').innerHTML = d.map(x => `
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 15px;border-bottom:1px solid rgba(42,58,74,0.5);">
+    const a = await fetch('/api/admin/affiliates', {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+    }).then(r => r.json()).catch(() => []);
+    document.getElementById('affCount').textContent = a.length;
+    document.getElementById('affiliateList').innerHTML = a.map(x => `
+        <div class="product-item">
             <div>
                 <strong>${x.name}</strong>
-                <span class="badge badge-affiliate" style="margin-left:8px;">${x.code}</span>
-                <br><small style="color:var(--text-secondary);">Komisyon: ${x.commission_percent}% | Klik: ${x.clicks || 0} | Vann: ${x.total_sales || 0}</small>
+                <span class="badge badge-affiliate">${x.code}</span>
+                <span style="color:var(--text-secondary);">— ${x.commission_percent}%</span>
+                <br><small style="color:var(--text-secondary);">💰 ${(x.total_commission || 0).toFixed(0)} GDS | 👆 ${x.clicks || 0} klik | 🏆 ${x.total_sales || 0} vann</small>
             </div>
-            <strong style="color:var(--gold);">${(x.total_commission || 0).toFixed(0)} GDS</strong>
+            <button class="btn-delete" onclick="deleteAffiliate(${x.id})">🗑️ Retire</button>
         </div>
     `).join('');
 }
 
+async function addAffiliate() {
+    const name = document.getElementById('affName').value.trim();
+    const code = document.getElementById('affCode').value.trim().toUpperCase();
+    const comm = parseFloat(document.getElementById('affCommission').value) || 5;
+    if (!name || !code) return alert('⚠️ Ranpli non ak kòd!');
+    const r = await fetch('/api/admin/affiliates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() },
+        body: JSON.stringify({ name, code, commission_percent: comm })
+    }).then(r => r.json());
+    if (r.success) {
+        if (typeof Toast !== 'undefined') Toast.success('✅ Afilye ajoute!');
+        document.getElementById('affName').value = '';
+        document.getElementById('affCode').value = '';
+        loadAffiliates();
+        loadStats();
+    } else {
+        alert('❌ ' + (r.error || 'Erè'));
+    }
+}
+
+async function deleteAffiliate(id) {
+    if (!confirm('Retire afilye sa a?')) return;
+    await fetch('/api/admin/affiliates/' + id, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+    });
+    if (typeof Toast !== 'undefined') Toast.success('🗑️ Afilye retire!');
+    loadAffiliates();
+    loadStats();
+}
+
+// ========== ORDERS ==========
 async function loadOrders() {
-    const d = await fetch('/api/admin/orders', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('admin_token') || '') } }).then(r => r.json()).catch(() => []);
-    document.getElementById('orderList').innerHTML = d.slice(0, 20).map(x => `
-        <div style="padding:12px 15px;border-bottom:1px solid rgba(42,58,74,0.5);">
-            <div style="display:flex;justify-content:space-between;align-items:center;">
+    const o = await fetch('/api/admin/orders', {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+    }).then(r => r.json()).catch(() => []);
+    document.getElementById('orderList').innerHTML = o.slice(0, 20).map(x => `
+        <div class="product-item" style="flex-direction:column;align-items:flex-start;">
+            <div style="display:flex;justify-content:space-between;width:100%;">
                 <strong>#${x.id} — ${x.customer_name}</strong>
-                <strong style="color:var(--green);">${parseFloat(x.total).toFixed(0)} GDS</strong>
+                <strong style="color:var(--green);">${x.total} GDS</strong>
             </div>
-            <div style="margin-top:5px;display:flex;gap:10px;align-items:center;">
+            <div style="display:flex;gap:10px;margin-top:5px;">
                 <small style="color:var(--text-secondary);">📞 ${x.customer_phone}</small>
                 <span class="badge badge-pending">${x.status || 'pending'}</span>
                 ${x.affiliate_code ? '<span class="badge badge-affiliate">🤝 ' + x.affiliate_code + '</span>' : ''}
