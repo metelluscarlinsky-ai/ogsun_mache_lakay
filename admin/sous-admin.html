@@ -486,21 +486,30 @@
 <body>
 
 <!-- ==================== LOGIN ==================== -->
+
 <div id="loginSection" class="login-overlay">
     <div class="login-box">
         <div class="lock-icon">🔐</div>
         <h2>Sous-Admin OGSUN</h2>
-        <p class="sub">Espas Sekrè — Antre kòd ou a</p>
-        <input type="password" id="sousCode" placeholder="Kòd Sekrè" autocomplete="off">
-        <button class="btn-login" onclick="doLogin()">🚀 Aksè Sous-Admin</button>
+        <p class="sub">Antre idantifyan admin ou yo</p>
+        
+        <!-- Admin Login -->
+        <input type="email" id="adminEmail" placeholder="📧 Email Admin" value="metelluscarlinsky@gmail.com">
+        <input type="password" id="adminPassword" placeholder="🔒 Modpas Admin">
+        <input type="password" id="adminSecret" placeholder="🔑 Kòd Sekrè Admin">
+        
+        <button class="btn-login" onclick="loginAdmin()" style="margin-bottom:20px;">🔐 Konekte Admin</button>
+        
+        <hr style="border-color:var(--border);margin:20px 0;">
+        <p style="color:var(--text-secondary);margin-bottom:15px;">Osinon antre kòd Sous-Admin dirèkteman</p>
+        
+        <!-- Sous-Admin Code -->
+        <input type="password" id="sousCode" placeholder="Kòd Sous-Admin" autocomplete="off">
+        <button class="btn-login" onclick="doLoginSous()" style="background:linear-gradient(135deg,var(--purple),var(--blue));">🚀 Aksè Sous-Admin</button>
+        
         <div class="error" id="errorMsg"></div>
-        <p style="margin-top:20px;color:var(--text-secondary);font-size:0.85rem;">
-            <a href="../index.html" style="color:var(--text-secondary);">🏠 Sit la</a> | 
-            <a href="login.html" style="color:var(--accent);">Admin Prensipal</a>
-        </p>
     </div>
 </div>
-
 <!-- ==================== DASHBOARD ==================== -->
 <div id="dashboardSection" class="hidden">
     <div class="admin-header">
@@ -705,6 +714,46 @@ async function loadCategories() {
     const s = document.getElementById('prodCategory');
     s.innerHTML = '<option value="">Chwazi...</option>';
     c.forEach(x => s.innerHTML += `<option value="${x.id}">${x.name}</option>`);
+}
+async function loginAdmin() {
+    const email = document.getElementById('adminEmail').value.trim();
+    const password = document.getElementById('adminPassword').value.trim();
+    const secret = document.getElementById('adminSecret').value.trim();
+    
+    if (!email || !password || !secret) {
+        document.getElementById('errorMsg').textContent = '❌ Ranpli tout chan admin yo!';
+        return;
+    }
+    
+    try {
+        const res = await fetch('/api/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password, secret_code: secret })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            localStorage.setItem('admin_token', data.token);
+            document.getElementById('errorMsg').style.color = '#00d4aa';
+            document.getElementById('errorMsg').textContent = '✅ Admin konekte! Ou ka antre kòd Sous-Admin kounye a.';
+        } else {
+            document.getElementById('errorMsg').textContent = '❌ Idantifyan admin pa bon!';
+        }
+    } catch (e) {
+        document.getElementById('errorMsg').textContent = '❌ Erè koneksyon!';
+    }
+}
+
+function doLoginSous() {
+    if (document.getElementById('sousCode').value === SOUS_CODE) {
+        localStorage.setItem('sous_admin_logged', '1');
+        if (typeof Toast !== 'undefined') Toast.success('✅ Byenveni Sous-Admin! 🎉');
+        if (typeof launchConfetti !== 'undefined') launchConfetti();
+        setTimeout(showDashboard, 600);
+    } else {
+        document.getElementById('errorMsg').textContent = '❌ Kòd Sous-Admin pa bon!';
+    }
 }
 
 // ========== PRODUCTS ==========
