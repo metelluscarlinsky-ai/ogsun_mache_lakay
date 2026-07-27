@@ -3,61 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kòmand yo - OGSUN Admin</title>
-    <link rel="stylesheet" href="../public/style.css">
+    <title>Kòmand - OGSUN Admin</title>
+    <link rel="stylesheet" href="../public/toast.css">
+    <script src="../public/toast.js" defer></script>
     <style>
-        .order-card {
-            background: white;
-            border-radius: 15px;
+        :root {
+            --bg-dark: #0f1923;
+            --bg-card: #1a2733;
+            --border: #2a3a4a;
+            --text: #e0e0e0;
+            --text-secondary: #8899aa;
+            --accent: #00d4aa;
+            --gold: #f0c75e;
+            --red: #ff4757;
+            --purple: #9775fa;
+            --blue: #4dabf7;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        header h1 { color: var(--gold); font-size: 1.4rem; }
+
+        nav { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        nav a:hover, nav a.active { background: var(--border); color: white; }
+        nav a.active { background: var(--accent); color: #000; }
+        .logout-btn { color: var(--red) !important; }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 25px; }
+
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
             padding: 25px;
             margin-bottom: 20px;
-            box-shadow: var(--shadow-sm);
         }
+
+        .panel h3 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Order Card */
+        .order-card {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .order-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
         .order-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #eee;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
-        .order-status {
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: 600;
+
+        .order-header .order-id {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .order-header .order-total {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .order-info {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .order-info span {
+            color: var(--text-secondary);
             font-size: 0.9rem;
         }
-        .status-pending { background: #fff3cd; color: #856404; }
-        .status-confirmed { background: #d4edda; color: #155724; }
-        .order-items { margin: 15px 0; }
-        .order-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dotted #ddd; }
-        .order-total { font-size: 1.3rem; font-weight: 700; text-align: right; margin-top: 15px; color: var(--primary); }
+
+        .order-info span strong {
+            color: var(--text);
+        }
+
+        /* Items */
+        .order-items {
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 10px 0;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px dotted var(--border);
+            font-size: 0.9rem;
+        }
+
+        .order-item:last-child { border-bottom: none; }
+
+        .order-item .item-name { color: var(--text); }
+        .order-item .item-qty { color: var(--text-secondary); }
+        .order-item .item-price { color: var(--accent); font-weight: 600; }
+
+        /* Badges */
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-pending { background: rgba(240,199,94,0.15); color: var(--gold); }
+        .badge-confirmed { background: rgba(0,212,170,0.15); color: var(--accent); }
+        .badge-affiliate { background: rgba(151,117,250,0.15); color: var(--purple); }
+        .badge-no-affiliate { background: rgba(136,153,170,0.15); color: var(--text-secondary); }
+
+        .affiliate-info {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: rgba(151,117,250,0.08);
+            border-radius: 10px;
+            border: 1px solid rgba(151,117,250,0.2);
+        }
+
+        .affiliate-info .aff-code {
+            font-weight: 700;
+            color: var(--purple);
+        }
+
+        .affiliate-info .aff-name {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .order-date {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        .btn-delete {
+            background: var(--red);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+        }
+
+        .btn-delete:hover { background: #ff6b6b; }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state .icon { font-size: 4rem; margin-bottom: 15px; }
+
+        @media (max-width: 768px) {
+            header { flex-direction: column; }
+            nav { justify-content: center; }
+        }
     </style>
 </head>
 <body>
+
 <header>
-    <div class="logo"><span>📋 Kòmand yo</span></div>
+    <h1>📋 Kòmand yo</h1>
     <nav>
         <a href="dashboard.html">📊 Dashboard</a>
         <a href="products.html">📦 Pwodui</a>
-        <a href="#" onclick="logout()">🚪 Dekonekte</a>
+        <a href="affiliates.html">🤝 Afilye</a>
+        <a href="orders.html" class="active">📋 Kòmand</a>
+        <a href="#" onclick="logout()" class="logout-btn">🚪 Sòti</a>
     </nav>
 </header>
 
-<div style="margin-top:10px;">
-    ${order.affiliate_code ? `
-        <span style="background:#d4a017;color:white;padding:5px 12px;border-radius:15px;font-size:0.9rem;font-weight:600;">
-            🤝 Afilye: ${order.affiliate_code}
-        </span>
-    ` : ''}
-</div>
-
 <div class="container">
-    <h2>Lis Kòmand yo</h2>
-    <div id="ordersList">Chajman...</div>
+    <div class="panel">
+        <h3>📋 Lis Tout Kòmand yo (<span id="orderCount">0</span>)</h3>
+        <div id="ordersList">
+            <div class="empty-state">
+                <div class="icon">📋</div>
+                <p>Chajman kòmand yo...</p>
+            </div>
+        </div>
+    </div>
 </div>
-
-<footer>&copy; 2026 OGSUN MACHE LAKAY - Admin Panel</footer>
 
 <script>
 if (!localStorage.getItem('admin_token')) {
@@ -67,44 +264,111 @@ if (!localStorage.getItem('admin_token')) {
 const TOKEN = localStorage.getItem('admin_token');
 
 async function loadOrders() {
-    const res = await fetch('/api/admin/orders', {
-        headers: { 'Authorization': 'Bearer ' + TOKEN }
-    });
-    const orders = await res.json();
-    const container = document.getElementById('ordersList');
-    
-    if (orders.length === 0) {
-        container.innerHTML = '<p style="text-align:center;padding:50px;">Pa gen kòmand ankò.</p>';
-        return;
-    }
-    
-    container.innerHTML = orders.map(order => `
-        <div class="order-card">
-            <div class="order-header">
-                <div>
-                    <strong>#${order.id}</strong> - ${new Date(order.created_at).toLocaleDateString('ht-HT')}
+    try {
+        const res = await fetch('/api/admin/orders', {
+            headers: { 'Authorization': 'Bearer ' + TOKEN }
+        });
+        const orders = await res.json();
+        
+        document.getElementById('orderCount').textContent = orders.length;
+        const container = document.getElementById('ordersList');
+        
+        if (!orders || orders.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="icon">📋</div>
+                    <p>Pa gen kòmand ankò</p>
+                    <p style="font-size:0.85rem;">Kòmand yo ap parèt isit la lè kliyan yo fè kòmand</p>
+                </div>`;
+            return;
+        }
+        
+        container.innerHTML = orders.map(order => {
+            // Kalkile total atik yo
+            const totalItems = order.items ? order.items.reduce((sum, item) => sum + (item.quantity || 1), 0) : 0;
+            
+            return `
+            <div class="order-card">
+                <!-- Header -->
+                <div class="order-header">
+                    <span class="order-id">🛒 Kòmand #${order.id}</span>
+                    <span class="order-total">💰 ${parseFloat(order.total).toFixed(2)} GDS</span>
                 </div>
-                <span class="order-status status-${order.status}">${order.status}</span>
-            </div>
-            <div>
-                <strong>👤 ${order.customer_name}</strong><br>
-                📞 ${order.customer_phone}<br>
-                📍 ${order.customer_address || '-'}
-            </div>
-            <div class="order-items">
-                ${order.items.map(item => `
-                    <div class="order-item">
-                        <span>${item.name} x${item.quantity}</span>
-                        <span>${(item.price * item.quantity).toFixed(2)} GDS</span>
+                
+                <!-- Info Kliyan -->
+                <div class="order-info">
+                    <span>👤 <strong>${order.customer_name}</strong></span>
+                    <span>📞 <strong>${order.customer_phone}</strong></span>
+                    <span>📍 ${order.customer_address || '—'}</span>
+                </div>
+                
+                <!-- Atik yo -->
+                <div class="order-items">
+                    ${order.items ? order.items.map(item => `
+                        <div class="order-item">
+                            <span class="item-name">${item.name}</span>
+                            <span class="item-qty">x${item.quantity || 1}</span>
+                            <span class="item-price">${(item.price * (item.quantity || 1)).toFixed(2)} GDS</span>
+                        </div>
+                    `).join('') : '<p style="color:var(--text-secondary);">Pa gen atik</p>'}
+                </div>
+                
+                <!-- Afilye -->
+                ${order.affiliate_code ? `
+                <div class="affiliate-info">
+                    <span>🤝</span>
+                    <span class="aff-code">${order.affiliate_code}</span>
+                    ${order.affiliate_name ? `<span class="aff-name">— ${order.affiliate_name}</span>` : ''}
+                    <span class="badge badge-affiliate">Afilye</span>
+                </div>
+                ` : `
+                <div style="margin-top:8px;">
+                    <span class="badge badge-no-affiliate">Pa gen kòd afilye</span>
+                </div>
+                `}
+                
+                <!-- Footer -->
+                <div class="order-footer">
+                    <span class="order-date">📅 ${new Date(order.created_at).toLocaleDateString('ht-HT', { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' })}</span>
+                    <div style="display:flex;gap:10px;align-items:center;">
+                        <span class="badge badge-pending">⏳ ${order.status || 'pending'}</span>
+                        ${order.delivery_fee > 0 ? `<span style="color:var(--text-secondary);font-size:0.8rem;">🚚 Livrezon: ${order.delivery_fee} GDS</span>` : '<span style="color:var(--accent);font-size:0.8rem;">🚚 Livrezon Gratis</span>'}
+                        <button class="btn-delete" onclick="deleteOrder(${order.id})">🗑️</button>
                     </div>
-                `).join('')}
+                </div>
             </div>
-            <div class="order-total">
-                Total: ${parseFloat(order.total).toFixed(2)} GDS
-                ${order.delivery_fee > 0 ? ` (Frè livrezon: ${order.delivery_fee} GDS)` : ' (Livrezon Gratis)'}
-            </div>
-        </div>
-    `).join('');
+            `;
+        }).join('');
+        
+    } catch (err) {
+        console.error('Erè chaje kòmand:', err);
+        document.getElementById('ordersList').innerHTML = `
+            <div class="empty-state">
+                <div class="icon">⚠️</div>
+                <p>Pa ka chaje kòmand yo</p>
+            </div>`;
+    }
+}
+
+async function deleteOrder(id) {
+    if (!confirm('Eske w sèten w vle retire kòmand #' + id + '?')) return;
+    
+    try {
+        const res = await fetch('/api/admin/orders/' + id, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + TOKEN }
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            if (typeof Toast !== 'undefined') Toast.success('🗑️ Kòmand retire!');
+            loadOrders();
+        } else {
+            alert('❌ ' + (data.error || 'Pa ka retire kòmand'));
+        }
+    } catch(e) {
+        alert('❌ Erè koneksyon!');
+    }
 }
 
 function logout() {
@@ -112,6 +376,7 @@ function logout() {
     window.location.href = 'login.html';
 }
 
+// Chaje kòmand yo lè paj la ouvri
 loadOrders();
 </script>
 </body>

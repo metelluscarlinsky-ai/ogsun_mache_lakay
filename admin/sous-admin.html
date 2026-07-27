@@ -8,609 +8,169 @@
     <script src="../public/toast.js" defer></script>
     <style>
         :root {
-            --bg-dark: #0f1923;
-            --bg-card: #1a2733;
-            --border: #2a3a4a;
-            --text: #e0e0e0;
-            --text-secondary: #8899aa;
-            --accent: #ff6b6b;
-            --accent2: #ff8e53;
-            --gold: #f0c75e;
-            --green: #00d4aa;
-            --red: #ff4757;
-            --purple: #9775fa;
-            --blue: #4dabf7;
+            --bg-dark:#0f1923;--bg-card:#1a2733;--border:#2a3a4a;
+            --text:#e0e0e0;--text-secondary:#8899aa;--accent:#ff6b6b;
+            --accent2:#ff8e53;--gold:#f0c75e;--green:#00d4aa;
+            --red:#ff4757;--purple:#9775fa;--blue:#4dabf7;
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Space Grotesk', 'Inter', sans-serif;
-            background: var(--bg-dark);
-            color: var(--text);
-            min-height: 100vh;
-        }
-
-        /* Header */
-        .admin-header {
-            background: var(--bg-card);
-            border-bottom: 1px solid var(--border);
-            padding: 16px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .admin-header .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .admin-header .logo-area img {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            border: 2px solid var(--accent);
-        }
-
-        .admin-header .logo-area h1 {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--accent);
-        }
-
-        .admin-header nav {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .admin-header nav a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            padding: 10px 18px;
-            border-radius: 10px;
-            font-weight: 500;
-            font-size: 0.9rem;
-            transition: all 0.3s;
-        }
-
-        .admin-header nav a:hover,
-        .admin-header nav a.active {
-            background: var(--border);
-            color: white;
-        }
-
-        .admin-header nav a.active {
-            background: var(--accent);
-            color: white;
-        }
-
-        .logout-btn { color: var(--red) !important; }
-
-        /* Container */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 25px;
-        }
-
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 25px;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(255,107,107,0.1);
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 4px;
-            height: 100%;
-            border-radius: 4px 0 0 4px;
-        }
-
-        .stat-card:nth-child(1)::before { background: var(--blue); }
-        .stat-card:nth-child(2)::before { background: var(--gold); }
-        .stat-card:nth-child(3)::before { background: var(--purple); }
-        .stat-card:nth-child(4)::before { background: var(--green); }
-
-        .stat-card .stat-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 15px;
-        }
-
-        .stat-card .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
-
-        .stat-card:nth-child(1) .stat-icon { background: rgba(77,171,247,0.15); color: var(--blue); }
-        .stat-card:nth-child(2) .stat-icon { background: rgba(240,199,94,0.15); color: var(--gold); }
-        .stat-card:nth-child(3) .stat-icon { background: rgba(151,117,250,0.15); color: var(--purple); }
-        .stat-card:nth-child(4) .stat-icon { background: rgba(0,212,170,0.15); color: var(--green); }
-
-        .stat-card .stat-value {
-            font-size: 2.2rem;
-            font-weight: 700;
-            margin: 5px 0;
-        }
-
-        .stat-card:nth-child(1) .stat-value { color: var(--blue); }
-        .stat-card:nth-child(2) .stat-value { color: var(--gold); }
-        .stat-card:nth-child(3) .stat-value { color: var(--purple); }
-        .stat-card:nth-child(4) .stat-value { color: var(--green); }
-
-        .stat-card .stat-label {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .stat-card .stat-sub {
-            margin-top: 10px;
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        /* Panels */
-        .panel {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 25px;
-            margin-bottom: 25px;
-        }
-
-        .panel h3 {
-            font-size: 1.1rem;
-            margin-bottom: 20px;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* Two Column */
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1.5fr;
-            gap: 25px;
-        }
-
-        @media (max-width: 900px) {
-            .grid-2 { grid-template-columns: 1fr; }
-        }
-
-        /* Form */
-        .form-group { margin-bottom: 15px; }
-
-        .form-group label {
-            display: block;
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 6px;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px 16px;
-            background: var(--bg-dark);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: white;
-            font-size: 0.95rem;
-            font-family: inherit;
-            transition: all 0.3s;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(255,107,107,0.1);
-        }
-
-        .form-group textarea { resize: vertical; min-height: 70px; }
-
-        /* Image Upload */
-        .image-upload-area {
-            border: 2px dashed var(--border);
-            border-radius: 12px;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: var(--bg-dark);
-        }
-
-        .image-upload-area:hover {
-            border-color: var(--accent);
-            background: rgba(255,107,107,0.05);
-        }
-
-        .image-upload-area img {
-            max-width: 150px;
-            max-height: 150px;
-            border-radius: 10px;
-            margin-top: 10px;
-            border: 2px solid var(--border);
-        }
-
-        .image-upload-area .placeholder {
-            font-size: 3rem;
-            color: var(--text-secondary);
-        }
-
-        /* Buttons */
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            width: 100%;
-            font-size: 1rem;
-            transition: all 0.3s;
-        }
-
-        .btn-primary:hover {
-            filter: brightness(1.2);
-            transform: translateY(-2px);
-        }
-
-        .btn-primary:disabled {
-            background: #555;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-delete {
-            background: var(--red);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.85rem;
-            transition: all 0.3s;
-        }
-
-        .btn-delete:hover { background: #ff6b6b; }
-
-        /* Table */
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .table th {
-            text-align: left;
-            padding: 12px 15px;
-            color: var(--text-secondary);
-            font-weight: 600;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .table td {
-            padding: 14px 15px;
-            border-bottom: 1px solid rgba(42,58,74,0.5);
-            font-size: 0.9rem;
-        }
-
-        .table tr:hover td {
-            background: rgba(255,255,255,0.02);
-        }
-
-        /* Badges */
-        .badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        .badge-pending { background: rgba(240,199,94,0.15); color: var(--gold); }
-        .badge-completed { background: rgba(0,212,170,0.15); color: var(--green); }
-        .badge-affiliate { background: rgba(151,117,250,0.15); color: var(--purple); }
-
-        /* Product List */
-        .product-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            border-bottom: 1px solid var(--border);
-            transition: all 0.3s;
-        }
-
-        .product-item:hover { background: rgba(255,255,255,0.02); }
-
-        .product-item img {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            object-fit: cover;
-        }
-
-        /* Section visibility */
-        .section { display: none; }
-        .section.active { display: block; }
-
-        /* Login */
-        .login-overlay {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: var(--bg-dark);
-        }
-
-        .login-box {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 50px 40px;
-            width: 420px;
-            text-align: center;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
-            animation: slideUp 0.5s ease;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .login-box .lock-icon {
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 2rem;
-            box-shadow: 0 10px 30px rgba(255,107,107,0.3);
-        }
-
-        .login-box h2 {
-            color: white;
-            font-size: 1.8rem;
-            margin-bottom: 5px;
-        }
-
-        .login-box .sub {
-            color: var(--text-secondary);
-            margin-bottom: 25px;
-        }
-
-        .login-box input {
-            width: 100%;
-            padding: 16px;
-            background: var(--bg-dark);
-            border: 2px solid var(--border);
-            border-radius: 14px;
-            color: white;
-            font-size: 1rem;
-            text-align: center;
-            letter-spacing: 3px;
-            font-family: inherit;
-            margin-bottom: 15px;
-            transition: all 0.3s;
-        }
-
-        .login-box input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 4px rgba(255,107,107,0.1);
-        }
-
-        .btn-login {
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            color: white;
-            border: none;
-            padding: 16px;
-            width: 100%;
-            border-radius: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 1.1rem;
-            transition: all 0.3s;
-            letter-spacing: 1px;
-        }
-
-        .btn-login:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(255,107,107,0.4);
-        }
-
-        .error {
-            color: var(--red);
-            margin-top: 15px;
-            font-weight: 600;
-        }
-
-        .hidden { display: none; }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .admin-header { flex-direction: column; }
-            .admin-header nav { justify-content: center; }
-            .stats-grid { grid-template-columns: 1fr 1fr; }
-        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Space Grotesk','Inter',sans-serif;background:var(--bg-dark);color:var(--text);min-height:100vh}
+        header{background:var(--bg-card);border-bottom:1px solid var(--border);padding:16px 30px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:10px}
+        header h1{color:var(--accent);font-size:1.4rem}
+        nav{display:flex;gap:10px;flex-wrap:wrap}
+        nav a{color:var(--text-secondary);text-decoration:none;padding:10px 18px;border-radius:10px;font-weight:500;font-size:0.9rem;transition:all 0.3s}
+        nav a:hover,nav a.active{background:var(--border);color:white}
+        nav a.active{background:var(--accent);color:white}
+        .container{max-width:1400px;margin:0 auto;padding:25px}
+        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-bottom:30px}
+        .stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:25px;transition:all 0.3s}
+        .stat-card:hover{border-color:var(--accent);transform:translateY(-3px)}
+        .stat-card .val{font-size:2.2rem;font-weight:700}
+        .stat-card:nth-child(1) .val{color:var(--blue)}
+        .stat-card:nth-child(2) .val{color:var(--gold)}
+        .stat-card:nth-child(3) .val{color:var(--purple)}
+        .stat-card:nth-child(4) .val{color:var(--green)}
+        .stat-card .lbl{color:var(--text-secondary);font-size:0.9rem}
+        .panel{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:25px;margin-bottom:20px}
+        .panel h3{color:white;margin-bottom:15px;font-size:1.1rem}
+        .section{display:none}
+        .section.active{display:block}
+        .hidden{display:none}
+        .logout-btn{color:var(--red)!important}
+        .grid-2{display:grid;grid-template-columns:1fr 1.5fr;gap:25px}
+        @media(max-width:900px){.grid-2{grid-template-columns:1fr}}
+
+        .form-group{margin-bottom:15px}
+        .form-group label{display:block;color:var(--text-secondary);font-size:0.85rem;font-weight:600;margin-bottom:6px}
+        .form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 16px;background:var(--bg-dark);border:1px solid var(--border);border-radius:10px;color:white;font-size:0.95rem;font-family:inherit}
+        .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--accent)}
+        .image-upload-area{border:2px dashed var(--border);border-radius:12px;padding:30px;text-align:center;cursor:pointer;transition:all 0.3s;background:var(--bg-dark)}
+        .image-upload-area:hover{border-color:var(--accent);background:rgba(255,107,107,0.05)}
+        .image-upload-area img{max-width:150px;max-height:150px;border-radius:10px;margin-top:10px}
+        .btn-primary{background:var(--accent);color:white;border:none;padding:14px 28px;border-radius:12px;font-weight:700;cursor:pointer;width:100%;font-size:1rem;transition:all 0.3s}
+        .btn-primary:hover{filter:brightness(1.2);transform:translateY(-2px)}
+        .btn-primary:disabled{background:#555;cursor:not-allowed;transform:none}
+        .btn-delete{background:var(--red);color:white;border:none;padding:6px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:0.8rem;transition:all 0.3s}
+        .btn-delete:hover{background:#ff6b6b}
+        .badge{padding:4px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;display:inline-block}
+        .badge-pending{background:rgba(240,199,94,0.15);color:var(--gold)}
+        .badge-affiliate{background:rgba(151,117,250,0.15);color:var(--purple)}
+        .product-item{display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid var(--border)}
+        .product-item img{width:40px;height:40px;border-radius:8px;object-fit:cover}
+
+        /* Order Card */
+        .order-card{background:var(--bg-dark);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:12px}
+        .order-card:hover{border-color:var(--accent)}
+        .order-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:10px}
+        .order-header .oid{font-weight:700;color:white;font-size:1.1rem}
+        .order-header .ototal{font-weight:700;color:var(--green);font-size:1.1rem}
+        .order-info{display:flex;gap:15px;flex-wrap:wrap;margin-bottom:8px;font-size:0.9rem;color:var(--text-secondary)}
+        .order-info strong{color:var(--text)}
+        .order-items{background:rgba(255,255,255,0.02);border-radius:10px;padding:10px;margin:8px 0;font-size:0.85rem}
+        .order-item{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dotted var(--border)}
+        .order-item:last-child{border-bottom:none}
+        .affiliate-info{display:inline-flex;align-items:center;gap:8px;margin-top:8px;padding:8px 12px;background:rgba(151,117,250,0.08);border-radius:10px;border:1px solid rgba(151,117,250,0.2)}
+        .affiliate-info .aff-code{font-weight:700;color:var(--purple)}
+        .affiliate-info .aff-name{color:var(--text-secondary);font-size:0.85rem}
+        .order-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:0.8rem;color:var(--text-secondary);flex-wrap:wrap;gap:8px}
+
+        .login-overlay{display:flex;justify-content:center;align-items:center;min-height:100vh}
+        .login-box{background:var(--bg-card);border:1px solid var(--border);border-radius:24px;padding:50px 40px;width:420px;text-align:center;box-shadow:0 30px 60px rgba(0,0,0,0.5)}
+        .login-box .lock-icon{width:70px;height:70px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:2rem;box-shadow:0 10px 30px rgba(255,107,107,0.3)}
+        .login-box h2{color:white;font-size:1.8rem;margin-bottom:5px}
+        .login-box .sub{color:var(--text-secondary);margin-bottom:15px}
+        .login-box input{width:100%;padding:14px;background:var(--bg-dark);border:2px solid var(--border);border-radius:12px;color:white;font-size:0.95rem;text-align:center;font-family:inherit;margin-bottom:10px;transition:all 0.3s}
+        .login-box input:focus{outline:none;border-color:var(--accent)}
+        .btn-login{background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;border:none;padding:14px;width:100%;border-radius:12px;font-weight:700;cursor:pointer;font-size:1rem;margin-bottom:8px;transition:all 0.3s}
+        .btn-login:hover{transform:translateY(-2px);box-shadow:0 10px 25px rgba(255,107,107,0.3)}
+        .btn-login2{background:linear-gradient(135deg,var(--purple),var(--blue));color:white;border:none;padding:14px;width:100%;border-radius:12px;font-weight:700;cursor:pointer;font-size:1rem;transition:all 0.3s}
+        .btn-login2:hover{transform:translateY(-2px);box-shadow:0 10px 25px rgba(151,117,250,0.3)}
+        .error{color:var(--red);margin-top:10px;font-weight:600;min-height:20px}
+        .success{color:var(--green);margin-top:10px;font-weight:600;min-height:20px}
+        hr{border-color:var(--border);margin:15px 0}
     </style>
 </head>
 <body>
 
 <!-- ==================== LOGIN ==================== -->
-
 <div id="loginSection" class="login-overlay">
     <div class="login-box">
         <div class="lock-icon">🔐</div>
         <h2>Sous-Admin OGSUN</h2>
-        <p class="sub">Antre idantifyan admin ou yo</p>
+        <p class="sub">Konekte ak Admin anvan</p>
         
-        <!-- Admin Login -->
         <input type="email" id="adminEmail" placeholder="📧 Email Admin" value="metelluscarlinsky@gmail.com">
         <input type="password" id="adminPassword" placeholder="🔒 Modpas Admin">
         <input type="password" id="adminSecret" placeholder="🔑 Kòd Sekrè Admin">
         
-        <button class="btn-login" onclick="loginAdmin()" style="margin-bottom:20px;">🔐 Konekte Admin</button>
+        <button class="btn-login" onclick="loginAdmin()">🔐 Konekte Admin</button>
+        <div class="success" id="successMsg"></div>
         
-        <hr style="border-color:var(--border);margin:20px 0;">
-        <p style="color:var(--text-secondary);margin-bottom:15px;">Osinon antre kòd Sous-Admin dirèkteman</p>
-        
-        <!-- Sous-Admin Code -->
+        <hr>
+        <p class="sub">Antre kòd Sous-Admin</p>
         <input type="password" id="sousCode" placeholder="Kòd Sous-Admin" autocomplete="off">
-        <button class="btn-login" onclick="doLoginSous()" style="background:linear-gradient(135deg,var(--purple),var(--blue));">🚀 Aksè Sous-Admin</button>
-        
+        <button class="btn-login2" onclick="doLoginSous()">🚀 Aksè Sous-Admin</button>
         <div class="error" id="errorMsg"></div>
     </div>
 </div>
+
 <!-- ==================== DASHBOARD ==================== -->
 <div id="dashboardSection" class="hidden">
-    <div class="admin-header">
-        <div class="logo-area">
-            <img src="../public/logo.png" alt="OGSUN" onerror="this.style.display='none'">
-            <h1>🔐 Sous-Admin</h1>
-        </div>
+    <header>
+        <h1>🔐 Sous-Admin</h1>
         <nav>
-            <a href="#" class="active" onclick="showTab('stats', this)">📊 Estatistik</a>
-            <a href="#" onclick="showTab('products', this)">📦 Pwodui</a>
-            <a href="#" onclick="showTab('affiliates', this)">🤝 Afilye</a>
-            <a href="#" onclick="showTab('orders', this)">📋 Kòmand</a>
+            <a href="#" class="active" onclick="showTab('stats',this)">📊 Estatistik</a>
+            <a href="#" onclick="showTab('products',this)">📦 Pwodui</a>
+            <a href="#" onclick="showTab('affiliates',this)">🤝 Afilye</a>
+            <a href="#" onclick="showTab('orders',this)">📋 Kòmand</a>
             <a href="#" onclick="logout()" class="logout-btn">🚪 Sòti</a>
         </nav>
-    </div>
-
+    </header>
     <div class="container">
 
-        <!-- ========== STATS ========== -->
+        <!-- STATS -->
         <div id="tab-stats" class="section active">
             <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-header"><div class="stat-icon">📦</div></div>
-                    <div class="stat-value" id="sProducts">—</div>
-                    <div class="stat-label">Pwodui Total</div>
-                    <div class="stat-sub">Nan katalòg la</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-header"><div class="stat-icon">📋</div></div>
-                    <div class="stat-value" id="sOrders">—</div>
-                    <div class="stat-label">Kòmand Total</div>
-                    <div class="stat-sub" id="ordersToday">Jodi a: —</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-header"><div class="stat-icon">🤝</div></div>
-                    <div class="stat-value" id="sAffiliates">—</div>
-                    <div class="stat-label">Afilye Aktif</div>
-                    <div class="stat-sub" id="totalComm">Komisyon: — GDS</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-header"><div class="stat-icon">💰</div></div>
-                    <div class="stat-value" id="sRevenue">— GDS</div>
-                    <div class="stat-label">Revni Total</div>
-                    <div class="stat-sub" id="revenueToday">Jodi a: — GDS</div>
-                </div>
+                <div class="stat-card"><div class="val" id="sProducts">—</div><div class="lbl">Pwodui Total</div></div>
+                <div class="stat-card"><div class="val" id="sOrders">—</div><div class="lbl">Kòmand Total</div></div>
+                <div class="stat-card"><div class="val" id="sAffiliates">—</div><div class="lbl">Afilye Aktif</div></div>
+                <div class="stat-card"><div class="val" id="sRevenue">— GDS</div><div class="lbl">Revni Total</div></div>
             </div>
         </div>
 
-        <!-- ========== PRODUCTS ========== -->
+        <!-- PRODUCTS -->
         <div id="tab-products" class="section">
             <div class="grid-2">
-                <!-- Ajoute Pwodui -->
                 <div class="panel">
-                    <h3>➕ Ajoute yon Pwodui</h3>
-                    <div class="form-group">
-                        <label>📦 Non Pwodui</label>
-                        <input type="text" id="prodName" placeholder="Antre non pwodui a">
-                    </div>
-                    <div class="form-group">
-                        <label>📝 Deskripsyon</label>
-                        <textarea id="prodDesc" placeholder="Deskripsyon pwodui a..." rows="2"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>💰 Pri (GDS)</label>
-                        <input type="number" id="prodPrice" placeholder="Pri an GDS" step="0.01">
-                    </div>
-                    <div class="form-group">
-                        <label>📂 Kategori</label>
-                        <select id="prodCategory">
-                            <option value="">Chwazi kategori...</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>🖼️ Foto Pwodui</label>
+                    <h3>➕ Ajoute Pwodui</h3>
+                    <div class="form-group"><label>📦 Non</label><input type="text" id="prodName"></div>
+                    <div class="form-group"><label>📝 Deskripsyon</label><textarea id="prodDesc" rows="2"></textarea></div>
+                    <div class="form-group"><label>💰 Pri (GDS)</label><input type="number" id="prodPrice" step="0.01"></div>
+                    <div class="form-group"><label>📂 Kategori</label><select id="prodCategory"></select></div>
+                    <div class="form-group"><label>🖼️ Foto</label>
                         <div class="image-upload-area" onclick="document.getElementById('prodImage').click()">
-                            <div class="placeholder">📸</div>
-                            <p style="color:var(--text-secondary);font-size:0.85rem;">Klike pou chwazi yon foto depi galri</p>
-                            <img id="imagePreview" style="display:none;" alt="Preview">
+                            <span style="font-size:2rem;">📸</span>
+                            <p style="color:var(--text-secondary);font-size:0.85rem;">Klike pou chwazi foto</p>
+                            <img id="imagePreview" style="display:none;">
                         </div>
                         <input type="file" id="prodImage" accept="image/*" style="display:none;" onchange="previewImage()">
                     </div>
                     <button class="btn-primary" id="addBtn" onclick="addProduct()">➕ Ajoute Pwodui</button>
                 </div>
-
-                <!-- Lis Pwodui -->
                 <div class="panel">
-                    <h3>📦 Lis Pwodui yo (<span id="prodCount">0</span>)</h3>
-                    <div id="productList" style="max-height:500px;overflow-y:auto;">
-                        <p style="color:var(--text-secondary);text-align:center;padding:40px;">Chajman...</p>
-                    </div>
+                    <h3>📦 Lis Pwodui (<span id="prodCount">0</span>)</h3>
+                    <div id="productList" style="max-height:500px;overflow-y:auto;">Chajman...</div>
                 </div>
             </div>
         </div>
 
-        <!-- ========== AFFILIATES ========== -->
+        <!-- AFFILIATES -->
         <div id="tab-affiliates" class="section">
             <div class="grid-2">
                 <div class="panel">
                     <h3>➕ Ajoute Afilye</h3>
-                    <div class="form-group"><label>👤 Non</label><input type="text" id="affName" placeholder="Non afilye"></div>
-                    <div class="form-group"><label>🔑 Kòd Promo</label><input type="text" id="affCode" placeholder="AF011" style="text-transform:uppercase;"></div>
+                    <div class="form-group"><label>👤 Non</label><input type="text" id="affName"></div>
+                    <div class="form-group"><label>🔑 Kòd</label><input type="text" id="affCode" style="text-transform:uppercase;"></div>
                     <div class="form-group"><label>💰 % Komisyon</label><input type="number" id="affCommission" value="5" step="0.1"></div>
                     <button class="btn-primary" onclick="addAffiliate()">➕ Ajoute Afilye</button>
                 </div>
@@ -621,10 +181,10 @@
             </div>
         </div>
 
-        <!-- ========== ORDERS ========== -->
+        <!-- ORDERS -->
         <div id="tab-orders" class="section">
             <div class="panel">
-                <h3>📋 Dènye Kòmand yo</h3>
+                <h3>📋 Tout Kòmand yo (<span id="orderCount">0</span>)</h3>
                 <div id="orderList" style="max-height:500px;overflow-y:auto;">Chajman...</div>
             </div>
         </div>
@@ -633,282 +193,117 @@
 </div>
 
 <script>
-const SOUS_CODE = 'OGSUN';
-if (localStorage.getItem('sous_admin_logged')) showDashboard();
+const SOUS_CODE='OGSUN';
+if(localStorage.getItem('sous_admin_logged') && localStorage.getItem('admin_token')) showDashboard();
 
 // ========== LOGIN ==========
-function doLogin() {
-    if (document.getElementById('sousCode').value === SOUS_CODE) {
-        localStorage.setItem('sous_admin_logged', '1');
-        if (typeof Toast !== 'undefined') Toast.success('✅ Byenveni Sous-Admin! 🎉');
-        if (typeof launchConfetti !== 'undefined') launchConfetti();
-        setTimeout(showDashboard, 600);
-    } else {
-        document.getElementById('errorMsg').textContent = '❌ Kòd pa bon!';
-    }
+async function loginAdmin(){
+    const e=document.getElementById('adminEmail').value.trim();
+    const p=document.getElementById('adminPassword').value.trim();
+    const s=document.getElementById('adminSecret').value.trim();
+    if(!e||!p||!s){document.getElementById('errorMsg').textContent='❌ Ranpli tout chan admin!';return;}
+    try{
+        const r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p,secret_code:s})});
+        const d=await r.json();
+        if(d.success){localStorage.setItem('admin_token',d.token);document.getElementById('successMsg').textContent='✅ Admin konekte!';}
+        else document.getElementById('errorMsg').textContent='❌ Idantifyan admin pa bon!';
+    }catch(x){document.getElementById('errorMsg').textContent='❌ Erè!';}
 }
-
-function showDashboard() {
-    document.getElementById('loginSection').classList.add('hidden');
-    document.getElementById('dashboardSection').classList.remove('hidden');
-    loadStats();
-    loadCategories();
+function doLoginSous(){
+    if(document.getElementById('sousCode').value===SOUS_CODE){
+        if(!localStorage.getItem('admin_token')){document.getElementById('errorMsg').textContent='❌ Konekte ak Admin anvan!';return;}
+        localStorage.setItem('sous_admin_logged','1');
+        if(typeof Toast!=='undefined')Toast.success('✅ Byenveni Sous-Admin!');
+        if(typeof launchConfetti!=='undefined')launchConfetti();
+        setTimeout(showDashboard,600);
+    }else{document.getElementById('errorMsg').textContent='❌ Kòd pa bon!';}
 }
-
-function logout() {
-    localStorage.removeItem('sous_admin_logged');
-    location.reload();
-}
-
-function showTab(t, el) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById('tab-' + t).classList.add('active');
-    document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+function showDashboard(){document.getElementById('loginSection').classList.add('hidden');document.getElementById('dashboardSection').classList.remove('hidden');loadStats();loadCategories();}
+function logout(){localStorage.removeItem('sous_admin_logged');location.reload();}
+function showTab(t,el){
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    document.getElementById('tab-'+t).classList.add('active');
+    document.querySelectorAll('nav a').forEach(a=>a.classList.remove('active'));
     el.classList.add('active');
-    if (t === 'stats') loadStats();
-    if (t === 'products') { loadCategories(); loadProducts(); }
-    if (t === 'affiliates') loadAffiliates();
-    if (t === 'orders') loadOrders();
+    if(t==='stats')loadStats();
+    if(t==='products'){loadCategories();loadProducts();}
+    if(t==='affiliates')loadAffiliates();
+    if(t==='orders')loadOrders();
 }
+function getToken(){return localStorage.getItem('admin_token')||'';}
 
-// ========== TOKEN ==========
-function getToken() { return localStorage.getItem('admin_token') || ''; }
-
-// ========== PREVIEW IMAJ ==========
-function previewImage() {
-    const f = document.getElementById('prodImage').files[0];
-    if (f) {
-        const r = new FileReader();
-        r.onload = e => {
-            document.getElementById('imagePreview').src = e.target.result;
-            document.getElementById('imagePreview').style.display = 'block';
-            document.querySelector('.image-upload-area .placeholder').style.display = 'none';
-        };
-        r.readAsDataURL(f);
-    }
+// ========== PREVIEW ==========
+function previewImage(){
+    const f=document.getElementById('prodImage').files[0];
+    if(f){const r=new FileReader();r.onload=e=>{document.getElementById('imagePreview').src=e.target.result;document.getElementById('imagePreview').style.display='block';};r.readAsDataURL(f);}
 }
 
 // ========== STATS ==========
-async function loadStats() {
-    try {
-        const [p, o, a] = await Promise.all([
-            fetch('/api/products').then(r => r.json()),
-            fetch('/api/admin/orders', { headers: { 'Authorization': 'Bearer ' + getToken() } }).then(r => r.json()).catch(() => []),
-            fetch('/api/admin/affiliates', { headers: { 'Authorization': 'Bearer ' + getToken() } }).then(r => r.json()).catch(() => [])
-        ]);
-        document.getElementById('sProducts').textContent = p.length;
-        document.getElementById('sOrders').textContent = o.length;
-        document.getElementById('sAffiliates').textContent = a.length;
-        document.getElementById('sRevenue').textContent = o.reduce((s, x) => s + parseFloat(x.total || 0), 0).toFixed(0) + ' GDS';
-        const today = new Date().toISOString().split('T')[0];
-        const to = o.filter(x => (x.created_at || '').startsWith(today));
-        document.getElementById('ordersToday').textContent = 'Jodi a: ' + to.length;
-        document.getElementById('revenueToday').textContent = 'Jodi a: ' + to.reduce((s, x) => s + parseFloat(x.total || 0), 0).toFixed(0) + ' GDS';
-        document.getElementById('totalComm').textContent = 'Komisyon: ' + a.reduce((s, x) => s + (x.total_commission || 0), 0).toFixed(0) + ' GDS';
-    } catch (e) {}
+async function loadStats(){
+    try{
+        const[p,o,a]=await Promise.all([fetch('/api/products').then(r=>r.json()),fetch('/api/admin/orders',{headers:{'Authorization':'Bearer '+getToken()}}).then(r=>r.json()).catch(()=>[]),fetch('/api/admin/affiliates',{headers:{'Authorization':'Bearer '+getToken()}}).then(r=>r.json()).catch(()=>[])]);
+        document.getElementById('sProducts').textContent=p.length;
+        document.getElementById('sOrders').textContent=o.length;
+        document.getElementById('sAffiliates').textContent=a.length;
+        document.getElementById('sRevenue').textContent=o.reduce((s,x)=>s+parseFloat(x.total||0),0).toFixed(0)+' GDS';
+    }catch(e){}
 }
 
 // ========== CATEGORIES ==========
-async function loadCategories() {
-    const c = await fetch('/api/categories').then(r => r.json());
-    const s = document.getElementById('prodCategory');
-    s.innerHTML = '<option value="">Chwazi...</option>';
-    c.forEach(x => s.innerHTML += `<option value="${x.id}">${x.name}</option>`);
-}
-async function loginAdmin() {
-    const email = document.getElementById('adminEmail').value.trim();
-    const password = document.getElementById('adminPassword').value.trim();
-    const secret = document.getElementById('adminSecret').value.trim();
-    
-    if (!email || !password || !secret) {
-        document.getElementById('errorMsg').textContent = '❌ Ranpli tout chan admin yo!';
-        return;
-    }
-    
-    try {
-        const res = await fetch('/api/admin/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password, secret_code: secret })
-        });
-        const data = await res.json();
-        
-        if (data.success) {
-            localStorage.setItem('admin_token', data.token);
-            document.getElementById('errorMsg').style.color = '#00d4aa';
-            document.getElementById('errorMsg').textContent = '✅ Admin konekte! Ou ka antre kòd Sous-Admin kounye a.';
-        } else {
-            document.getElementById('errorMsg').textContent = '❌ Idantifyan admin pa bon!';
-        }
-    } catch (e) {
-        document.getElementById('errorMsg').textContent = '❌ Erè koneksyon!';
-    }
-}
-
-function doLoginSous() {
-    if (document.getElementById('sousCode').value === SOUS_CODE) {
-        localStorage.setItem('sous_admin_logged', '1');
-        if (typeof Toast !== 'undefined') Toast.success('✅ Byenveni Sous-Admin! 🎉');
-        if (typeof launchConfetti !== 'undefined') launchConfetti();
-        setTimeout(showDashboard, 600);
-    } else {
-        document.getElementById('errorMsg').textContent = '❌ Kòd Sous-Admin pa bon!';
-    }
+async function loadCategories(){
+    const c=await fetch('/api/categories').then(r=>r.json());
+    const s=document.getElementById('prodCategory');s.innerHTML='<option value="">Chwazi...</option>';
+    c.forEach(x=>s.innerHTML+=`<option value="${x.id}">${x.name}</option>`);
 }
 
 // ========== PRODUCTS ==========
-async function loadProducts() {
-    const p = await fetch('/api/products').then(r => r.json());
-    document.getElementById('prodCount').textContent = p.length;
-    document.getElementById('productList').innerHTML = p.map(x => `
-        <div class="product-item">
-            <div style="display:flex;align-items:center;gap:12px;">
-                <img src="${x.image_url || '../logo.png'}" onerror="this.style.display='none'">
-                <div>
-                    <strong>${x.name}</strong>
-                    <br><small style="color:var(--text-secondary);">💰 ${x.price} GDS | 📂 ${x.categories?.name || ''}</small>
-                </div>
-            </div>
-            <button class="btn-delete" onclick="deleteProduct(${x.id})">🗑️ Retire</button>
-        </div>
-    `).join('');
+async function loadProducts(){
+    const p=await fetch('/api/products').then(r=>r.json());
+    document.getElementById('prodCount').textContent=p.length;
+    document.getElementById('productList').innerHTML=p.map(x=>`
+        <div class="product-item"><div style="display:flex;align-items:center;gap:10px;"><img src="${x.image_url||'../logo.png'}" onerror="this.style.display='none'"><div><strong>${x.name}</strong><br><small style="color:var(--text-secondary);">${x.price} GDS | ${x.categories?.name||''}</small></div></div><button class="btn-delete" onclick="deleteProduct(${x.id})">🗑️</button></div>`).join('');
 }
-
-async function addProduct() {
-    const name = document.getElementById('prodName').value.trim();
-    const desc = document.getElementById('prodDesc').value.trim();
-    const price = parseFloat(document.getElementById('prodPrice').value);
-    const cat = parseInt(document.getElementById('prodCategory').value);
-    const img = document.getElementById('prodImage').files[0];
-    const btn = document.getElementById('addBtn');
-
-    if (!name || !price || !cat) return alert('⚠️ Ranpli non, pri, ak kategori!');
-
-    btn.disabled = true;
-    btn.textContent = '⏳ Chajman...';
-    let url = 'logo.png';
-
-    if (img) {
-        const fd = new FormData();
-        fd.append('image', img);
-        const u = await fetch('/api/admin/upload', {
-            method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + getToken() },
-            body: fd
-        }).then(r => r.json());
-        if (u.success) url = u.url;
-        else { alert('❌ Upload echwe!'); btn.disabled = false; btn.textContent = '➕ Ajoute Pwodui'; return; }
-    }
-
-    const r = await fetch('/api/admin/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() },
-        body: JSON.stringify({ name, description: desc, price, image_url: url, category_id: cat })
-    }).then(r => r.json());
-
-    btn.disabled = false;
-    btn.textContent = '➕ Ajoute Pwodui';
-
-    if (r.success) {
-        if (typeof Toast !== 'undefined') Toast.success('✅ Pwodui ajoute ak siksè!');
-        document.getElementById('prodName').value = '';
-        document.getElementById('prodDesc').value = '';
-        document.getElementById('prodPrice').value = '';
-        document.getElementById('prodImage').value = '';
-        document.getElementById('imagePreview').style.display = 'none';
-        document.querySelector('.image-upload-area .placeholder').style.display = 'block';
-        loadProducts();
-        loadStats();
-    } else {
-        alert('❌ ' + (r.error || 'Erè'));
-    }
+async function addProduct(){
+    const n=document.getElementById('prodName').value.trim(),d=document.getElementById('prodDesc').value.trim(),p=parseFloat(document.getElementById('prodPrice').value),c=parseInt(document.getElementById('prodCategory').value),img=document.getElementById('prodImage').files[0],btn=document.getElementById('addBtn');
+    if(!n||!p||!c)return alert('Ranpli non, pri, ak kategori!');
+    btn.disabled=true;btn.textContent='⏳...';let url='logo.png';
+    if(img){const fd=new FormData();fd.append('image',img);const u=await fetch('/api/admin/upload',{method:'POST',headers:{'Authorization':'Bearer '+getToken()},body:fd}).then(r=>r.json());if(u.success)url=u.url;else{alert('Upload echwe!');btn.disabled=false;btn.textContent='➕ Ajoute Pwodui';return;}}
+    const r=await fetch('/api/admin/products',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+getToken()},body:JSON.stringify({name:n,description:d,price:p,image_url:url,category_id:c})}).then(r=>r.json());
+    btn.disabled=false;btn.textContent='➕ Ajoute Pwodui';
+    if(r.success){if(typeof Toast!=='undefined')Toast.success('✅ Ajoute!');document.getElementById('prodName').value='';document.getElementById('prodPrice').value='';document.getElementById('prodImage').value='';document.getElementById('imagePreview').style.display='none';loadProducts();loadStats();}else alert('❌ '+r.error);
 }
-
-async function deleteProduct(id) {
-    if (!confirm('Eske w sèten w vle retire pwodui sa a?')) return;
-    await fetch('/api/admin/products/' + id, {
-        method: 'DELETE',
-        headers: { 'Authorization': 'Bearer ' + getToken() }
-    });
-    if (typeof Toast !== 'undefined') Toast.success('🗑️ Pwodui retire!');
-    loadProducts();
-    loadStats();
-}
+async function deleteProduct(id){if(!confirm('Retire?'))return;await fetch('/api/admin/products/'+id,{method:'DELETE',headers:{'Authorization':'Bearer '+getToken()}});if(typeof Toast!=='undefined')Toast.success('🗑️ Retire!');loadProducts();loadStats();}
 
 // ========== AFFILIATES ==========
-async function loadAffiliates() {
-    const a = await fetch('/api/admin/affiliates', {
-        headers: { 'Authorization': 'Bearer ' + getToken() }
-    }).then(r => r.json()).catch(() => []);
-    document.getElementById('affCount').textContent = a.length;
-    document.getElementById('affiliateList').innerHTML = a.map(x => `
-        <div class="product-item">
-            <div>
-                <strong>${x.name}</strong>
-                <span class="badge badge-affiliate">${x.code}</span>
-                <span style="color:var(--text-secondary);">— ${x.commission_percent}%</span>
-                <br><small style="color:var(--text-secondary);">💰 ${(x.total_commission || 0).toFixed(0)} GDS | 👆 ${x.clicks || 0} klik | 🏆 ${x.total_sales || 0} vann</small>
-            </div>
-            <button class="btn-delete" onclick="deleteAffiliate(${x.id})">🗑️ Retire</button>
-        </div>
-    `).join('');
+async function loadAffiliates(){
+    const a=await fetch('/api/admin/affiliates',{headers:{'Authorization':'Bearer '+getToken()}}).then(r=>r.json()).catch(()=>[]);
+    document.getElementById('affCount').textContent=a.length;
+    document.getElementById('affiliateList').innerHTML=a.map(x=>`<div class="product-item"><div><strong>${x.name}</strong> <span class="badge badge-affiliate">${x.code}</span> — ${x.commission_percent}%<br><small style="color:var(--text-secondary);">💰 ${(x.total_commission||0).toFixed(0)} GDS | 👆 ${x.clicks||0} klik | 🏆 ${x.total_sales||0} vann</small></div><button class="btn-delete" onclick="deleteAffiliate(${x.id})">🗑️</button></div>`).join('');
 }
-
-async function addAffiliate() {
-    const name = document.getElementById('affName').value.trim();
-    const code = document.getElementById('affCode').value.trim().toUpperCase();
-    const comm = parseFloat(document.getElementById('affCommission').value) || 5;
-    if (!name || !code) return alert('⚠️ Ranpli non ak kòd!');
-    const r = await fetch('/api/admin/affiliates', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() },
-        body: JSON.stringify({ name, code, commission_percent: comm })
-    }).then(r => r.json());
-    if (r.success) {
-        if (typeof Toast !== 'undefined') Toast.success('✅ Afilye ajoute!');
-        document.getElementById('affName').value = '';
-        document.getElementById('affCode').value = '';
-        loadAffiliates();
-        loadStats();
-    } else {
-        alert('❌ ' + (r.error || 'Erè'));
-    }
+async function addAffiliate(){
+    const n=document.getElementById('affName').value.trim(),c=document.getElementById('affCode').value.trim().toUpperCase(),comm=parseFloat(document.getElementById('affCommission').value)||5;
+    if(!n||!c)return alert('Ranpli non ak kòd!');
+    const r=await fetch('/api/admin/affiliates',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+getToken()},body:JSON.stringify({name:n,code:c,commission_percent:comm})}).then(r=>r.json());
+    if(r.success){if(typeof Toast!=='undefined')Toast.success('✅ Ajoute!');document.getElementById('affName').value='';document.getElementById('affCode').value='';loadAffiliates();loadStats();}else alert('❌ '+r.error);
 }
-
-async function deleteAffiliate(id) {
-    if (!confirm('Retire afilye sa a?')) return;
-    await fetch('/api/admin/affiliates/' + id, {
-        method: 'DELETE',
-        headers: { 'Authorization': 'Bearer ' + getToken() }
-    });
-    if (typeof Toast !== 'undefined') Toast.success('🗑️ Afilye retire!');
-    loadAffiliates();
-    loadStats();
-}
+async function deleteAffiliate(id){if(!confirm('Retire?'))return;await fetch('/api/admin/affiliates/'+id,{method:'DELETE',headers:{'Authorization':'Bearer '+getToken()}});if(typeof Toast!=='undefined')Toast.success('🗑️ Retire!');loadAffiliates();loadStats();}
 
 // ========== ORDERS ==========
-async function loadOrders() {
-    const o = await fetch('/api/admin/orders', {
-        headers: { 'Authorization': 'Bearer ' + getToken() }
-    }).then(r => r.json()).catch(() => []);
-    document.getElementById('orderList').innerHTML = o.slice(0, 20).map(x => `
-        <div class="product-item" style="flex-direction:column;align-items:flex-start;">
-            <div style="display:flex;justify-content:space-between;width:100%;">
-                <strong>#${x.id} — ${x.customer_name}</strong>
-                <strong style="color:var(--green);">${x.total} GDS</strong>
-            </div>
-            <div style="display:flex;gap:10px;margin-top:5px;">
-                <small style="color:var(--text-secondary);">📞 ${x.customer_phone}</small>
-                <span class="badge badge-pending">${x.status || 'pending'}</span>
-                ${x.affiliate_code ? '<span class="badge badge-affiliate">🤝 ' + x.affiliate_code + '</span>' : ''}
-                <small style="color:var(--text-secondary);">${(x.created_at || '').split('T')[0]}</small>
-            </div>
-        </div>
-    `).join('');
+async function loadOrders(){
+    const o=await fetch('/api/admin/orders',{headers:{'Authorization':'Bearer '+getToken()}}).then(r=>r.json()).catch(()=>[]);
+    document.getElementById('orderCount').textContent=o.length;
+    document.getElementById('orderList').innerHTML=o.length===0?'<p style="text-align:center;color:var(--text-secondary);padding:40px;">Pa gen kòmand ankò</p>':o.map(x=>`
+        <div class="order-card">
+            <div class="order-header"><span class="oid">🛒 #${x.id}</span><span class="ototal">💰 ${parseFloat(x.total).toFixed(2)} GDS</span></div>
+            <div class="order-info"><span>👤 <strong>${x.customer_name}</strong></span><span>📞 <strong>${x.customer_phone}</strong></span><span>📍 ${x.customer_address||'—'}</span></div>
+            <div class="order-items">${x.items?x.items.map(i=>`<div class="order-item"><span>${i.name}</span><span>x${i.quantity||1}</span><span style="color:var(--green);">${(i.price*(i.quantity||1)).toFixed(2)} GDS</span></div>`).join(''):''}</div>
+            ${x.affiliate_code?`<div class="affiliate-info"><span>🤝</span><span class="aff-code">${x.affiliate_code}</span>${x.affiliate_name?`<span class="aff-name">— ${x.affiliate_name}</span>`:''}<span class="badge badge-affiliate">Afilye</span></div>`:'<div style="margin-top:8px;"><span class="badge" style="background:rgba(136,153,170,0.15);color:var(--text-secondary);">Pa gen kòd afilye</span></div>'}
+            <div class="order-footer"><span>📅 ${new Date(x.created_at).toLocaleDateString('ht-HT')}</span><span class="badge badge-pending">⏳ ${x.status||'pending'}</span>${x.delivery_fee>0?`<span>🚚 ${x.delivery_fee} GDS</span>`:'<span style="color:var(--green);">🚚 Gratis</span>'}<button class="btn-delete" onclick="deleteOrder(${x.id})">🗑️</button></div>
+        </div>`).join('');
 }
+async function deleteOrder(id){if(!confirm('Retire kòmand #'+id+'?'))return;await fetch('/api/admin/orders/'+id,{method:'DELETE',headers:{'Authorization':'Bearer '+getToken()}});if(typeof Toast!=='undefined')Toast.success('🗑️ Retire!');loadOrders();loadStats();}
 
-document.getElementById('sousCode')?.addEventListener('keypress', e => { if (e.key === 'Enter') doLogin(); });
+document.getElementById('sousCode')?.addEventListener('keypress',e=>{if(e.key==='Enter')doLoginSous();});
 </script>
 </body>
 </html>
-
