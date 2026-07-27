@@ -453,6 +453,45 @@ async function loadDashboard() {
         const orders = await orderRes.json();
         const affiliates = await affRes.json();
 
+async function loadOrders() {
+    try {
+        const TOKEN = localStorage.getItem('admin_token');
+        if (!TOKEN) {
+            console.error('Pa gen token admin!');
+            return;
+        }
+        
+        const res = await fetch('/api/admin/orders', {
+            headers: { 'Authorization': 'Bearer ' + TOKEN }
+        });
+        const orders = await res.json();
+        console.log('Kòmand chaje:', orders.length);
+        
+        const container = document.getElementById('recentOrders');
+        if (!container) return;
+        
+        if (!orders || orders.length === 0) {
+            container.innerHTML = '<p style="color:var(--text-secondary);text-align:center;padding:20px;">Pa gen kòmand ankò</p>';
+            return;
+        }
+        
+        container.innerHTML = orders.slice(0, 5).map(o => `
+            <div style="background:var(--bg-dark);border:1px solid var(--border);border-radius:12px;padding:15px;margin:10px 0;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <strong>#${o.id} — ${o.customer_name}</strong>
+                    <strong style="color:var(--green);">${o.total} GDS</strong>
+                </div>
+                <div style="margin-top:8px;display:flex;gap:10px;flex-wrap:wrap;">
+                    <span class="badge badge-pending">${o.status || 'pending'}</span>
+                    ${o.affiliate_code ? `<span class="badge badge-affiliate">🤝 ${o.affiliate_code}${o.affiliate_name ? ' — ' + o.affiliate_name : ''}</span>` : ''}
+                    <small style="color:var(--text-secondary);">📞 ${o.customer_phone}</small>
+                </div>
+            </div>
+        `).join('');
+    } catch(e) {
+        console.error('Erè chaje kòmand:', e);
+    }
+}
         // Stats
         document.getElementById('totalProducts').textContent = products.length;
         document.getElementById('totalOrders').textContent = orders.length;

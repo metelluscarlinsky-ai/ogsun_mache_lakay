@@ -291,19 +291,30 @@ async function deleteAffiliate(id){if(!confirm('Retire?'))return;await fetch('/a
 // ========== ORDERS ==========
 async function loadOrders(){
     const o=await fetch('/api/admin/orders',{headers:{'Authorization':'Bearer '+getToken()}}).then(r=>r.json()).catch(()=>[]);
+    console.log('Kòmand chaje nan Sous-Admin:', o.length);
+    
     document.getElementById('orderCount').textContent=o.length;
-    document.getElementById('orderList').innerHTML=o.length===0?'<p style="text-align:center;color:var(--text-secondary);padding:40px;">Pa gen kòmand ankò</p>':o.map(x=>`
+    
+    if(o.length===0){
+        document.getElementById('orderList').innerHTML='<p style="text-align:center;color:var(--text-secondary);padding:40px;">Pa gen kòmand ankò</p>';
+        return;
+    }
+    
+    document.getElementById('orderList').innerHTML=o.map(x=>`
         <div class="order-card">
             <div class="order-header"><span class="oid">🛒 #${x.id}</span><span class="ototal">💰 ${parseFloat(x.total).toFixed(2)} GDS</span></div>
             <div class="order-info"><span>👤 <strong>${x.customer_name}</strong></span><span>📞 <strong>${x.customer_phone}</strong></span><span>📍 ${x.customer_address||'—'}</span></div>
             <div class="order-items">${x.items?x.items.map(i=>`<div class="order-item"><span>${i.name}</span><span>x${i.quantity||1}</span><span style="color:var(--green);">${(i.price*(i.quantity||1)).toFixed(2)} GDS</span></div>`).join(''):''}</div>
-            ${x.affiliate_code?`<div class="affiliate-info"><span>🤝</span><span class="aff-code">${x.affiliate_code}</span>${x.affiliate_name?`<span class="aff-name">— ${x.affiliate_name}</span>`:''}<span class="badge badge-affiliate">Afilye</span></div>`:'<div style="margin-top:8px;"><span class="badge" style="background:rgba(136,153,170,0.15);color:var(--text-secondary);">Pa gen kòd afilye</span></div>'}
-            <div class="order-footer"><span>📅 ${new Date(x.created_at).toLocaleDateString('ht-HT')}</span><span class="badge badge-pending">⏳ ${x.status||'pending'}</span>${x.delivery_fee>0?`<span>🚚 ${x.delivery_fee} GDS</span>`:'<span style="color:var(--green);">🚚 Gratis</span>'}<button class="btn-delete" onclick="deleteOrder(${x.id})">🗑️</button></div>
+            ${x.affiliate_code?`<div class="affiliate-info"><span>🤝</span><span class="aff-code">${x.affiliate_code}</span>${x.affiliate_name?`<span class="aff-name">— ${x.affiliate_name}</span>`:''}</div>`:'<div style="margin-top:8px;"><span style="color:var(--text-secondary);font-size:0.8rem;">Pa gen kòd afilye</span></div>'}
+            <div class="order-footer"><span>📅 ${new Date(x.created_at).toLocaleDateString('ht-HT')}</span><span class="badge badge-pending">⏳ ${x.status||'pending'}</span>${x.delivery_fee>0?`<span>🚚 ${x.delivery_fee} GDS</span>`:'<span style="color:var(--green);">🚚 Gratis</span>'}</div>
         </div>`).join('');
 }
+
+
 async function deleteOrder(id){if(!confirm('Retire kòmand #'+id+'?'))return;await fetch('/api/admin/orders/'+id,{method:'DELETE',headers:{'Authorization':'Bearer '+getToken()}});if(typeof Toast!=='undefined')Toast.success('🗑️ Retire!');loadOrders();loadStats();}
 
 document.getElementById('sousCode')?.addEventListener('keypress',e=>{if(e.key==='Enter')doLoginSous();});
 </script>
 </body>
 </html>
+
