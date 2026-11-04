@@ -6,11 +6,13 @@
     <title>Admin Login - OGSUN</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #0b111e; color: white; }
-        .box { background: #1a2536; padding: 40px; border-radius: 15px; text-align: center; width: 90%; max-width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #263346; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #0d1117; color: white; }
+        .box { background: #161b22; padding: 40px; border-radius: 15px; text-align: center; width: 90%; max-width: 380px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); border: 1px solid #30363d; }
         h2 { margin-bottom: 20px; color: #00d494; }
-        input { width: 100%; padding: 14px; margin: 10px 0; border-radius: 8px; border: 1px solid #263346; background: #0b111e; color: white; font-size: 16px; }
+        input { width: 100%; padding: 14px; margin: 10px 0; border-radius: 8px; border: 1px solid #30363d; background: #0d1117; color: white; font-size: 16px; }
+        input:focus { outline: none; border-color: #00d494; }
         button { width: 100%; padding: 14px; background: #00d494; border: none; color: #000; font-weight: bold; cursor: pointer; border-radius: 8px; margin-top: 10px; font-size: 16px; }
+        button:hover { background: #00b37d; }
         #msg { color: #ef4444; margin-top: 15px; font-weight: bold; font-size: 14px; }
     </style>
 </head>
@@ -18,9 +20,9 @@
     <div class="box">
         <h2>🔐 Admin OGSUN</h2>
         <form id="loginForm">
-            <input type="email" id="email" placeholder="📧 Email Admin" value="metelluscarlinsky@gmail.com" required>
-            <input type="password" id="password" placeholder="🔒 Modpas Admin" value="OGPLUG45" required>
-            <input type="text" id="secret" placeholder="🔑 Kòd Sekrè (carlinsky)" required>
+            <input type="email" id="email" placeholder="📧 Email Admin" required>
+            <input type="password" id="password" placeholder="🔒 Modpas Admin" required>
+            <input type="text" id="secret" placeholder="🔑 Kòd Sekrè" required>
             <button type="submit" id="btn">🚀 Konekte</button>
         </form>
         <div id="msg"></div>
@@ -45,12 +47,10 @@
                         secret_code: document.getElementById('secret').value
                     })
                 });
-                
                 const data = await res.json();
-                
                 if (data.success) {
                     msg.style.color = '#00d494';
-                    msg.textContent = '✅ Koneksyon reyisi! K ap tann...';
+                    msg.textContent = '✅ Koneksyon reyisi!';
                     localStorage.setItem('admin_token', data.token);
                     window.location.href = 'dashboard.html';
                 } else {
