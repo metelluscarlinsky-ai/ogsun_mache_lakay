@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <title>Konfigirasyon - Admin</title>
+    <style>
+        body { font-family: sans-serif; background: #0d1117; color: white; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: #161b22; padding: 30px; border-radius: 10px; border: 1px solid #30363d; }
+        h1 { color: #00d494; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #8b949e; }
+        input { width: 100%; padding: 10px; background: #0d1117; border: 1px solid #30363d; color: white; border-radius: 5px; }
+        button { background: #00d494; color: black; border: none; padding: 12px 20px; font-weight: bold; border-radius: 5px; cursor: pointer; margin-top: 10px; width: 100%; }
+        #msg { color: #00d494; margin-top: 10px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚙️ Konfigirasyon Sit la</h1>
+        <div class="form-group">
+            <label>Tit Sit la</label>
+            <input type="text" id="siteTitle">
+        </div>
+        <div class="form-group">
+            <label>Koulè Prensipal (Theme Color)</label>
+            <input type="color" id="themeColor" style="height: 50px;">
+        </div>
+        <div class="form-group">
+            <label>Chanje Logo (Telechaje)</label>
+            <input type="file" id="logoFile" accept="image/*">
+        </div>
+        <hr style="border-color: #30363d; margin: 20px 0;">
+        <div class="form-group">
+            <label>Chanje Modpas Admin lan</label>
+            <input type="password" id="newPassword" placeholder="Mete nouvo modpas la...">
+        </div>
+        <button onclick="saveSettings()">💾 Sove Tout Chanjman yo</button>
+        <div id="msg"></div>
+        <br>
+        <a href="dashboard.html" style="color: #8b949e; text-decoration: none;">← Retounen sou Dashboard</a>
+    </div>
+
+    <script>
+        const TOKEN = localStorage.getItem('admin_token');
+        if(!TOKEN) window.location.href = 'login.html';
+
+        // Chaje paramèt aktyèl yo
+        fetch('/api/settings').then(r => r.json()).then(data => {
+            document.getElementById('siteTitle').value = data.siteTitle;
+            document.getElementById('themeColor').value = data.themeColor;
+        });
+
+        async function saveSettings() {
+            const title = document.getElementById('siteTitle').value;
+            const color = document.getElementById('themeColor').value;
+            const newPass = document.getElementById('newPassword').value;
+            const logoFile = document.getElementById('logoFile').files[0];
+            let logoUrl = null;
+
+            // Si gen yon nouvo logo, upload li dabò
+            if (logoFile) {
+                const formData = new FormData();
+                formData.append('logo', logoFile);
+                const res = await fetch('/api/admin/upload-logo', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + TOKEN },
+                    body: formData
+                });
+                const logoData = await res.json();
+                if (logoData.success) logoUrl = logoData.url;
+            }
+
+            // Prepare done yo pou sove
+            const body = { siteTitle: title, themeColor: color };
+            if (newPass) body.adminPassword = newPass;
+            if (logoUrl) body.logoUrl = logoUrl;
+
+            // Sove yo nan baz done a
+            const res = await fetch('/api/admin/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+                body: JSON.stringify(body)
+            });
+
+            if (res.ok) {
+                document.getElementById('msg').textContent = '✅ Tout bagay sove ak siksè!';
+                setTimeout(() => window.location.reload(), 1500);
+            }
+        }
+    </script>
+</body>
+</html>
