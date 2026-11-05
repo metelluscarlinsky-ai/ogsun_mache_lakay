@@ -6,142 +6,150 @@ const jwt = require('jsonwebtoken');
 const helmet = require('helmet');
 const cors = require('cors');
 const multer = require('multer');
-const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-// ========== SUPABASE ==========
-const supabase = createClient(
-  'https://tbgltnltmbeobfsctixt.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRiZ2x0bmx0bWJlb2Jmc2N0aXh0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NDc0NzcxMywiZXhwIjoyMTAwMzIzNzEzfQ.HvP5aRKwjIXbJIaUdIT4_04nun9hNv6tD-UClQ-G-cA'
-);
-
-// ========== DOSYE SETTINGS ==========
 const DATA_DIR = path.join(__dirname, 'data');
+const UPLOAD_DIR = path.join(__dirname, 'public', 'uploads');
 const TMP_DIR = path.join(__dirname, 'tmp');
-if (fs.existsSync(DATA_DIR) === false) fs.mkdirSync(DATA_DIR);
-if (fs.existsSync(TMP_DIR) === false) fs.mkdirSync(TMP_DIR);
+[DATA_DIR, UPLOAD_DIR, TMP_DIR].forEach(d => { if (fs.existsSync(d) === false) fs.mkdirSync(d, { recursive: true }); });
 
-const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
-if (fs.existsSync(SETTINGS_FILE) === false) {
-  fs.writeFileSync(SETTINGS_FILE, JSON.stringify({ siteTitle: 'OGSUN', themeColor: '#d4a017', logoUrl: '/logo.png', adminPassword: 'OGPLUG45' }, null, 2));
+function readJSON(n) { const f = path.join(DATA_DIR, n); if (fs.existsSync(f) === false) return []; try { return JSON.parse(fs.readFileSync(f, 'utf8')); } catch(e) { return []; } }
+function writeJSON(n, d) { fs.writeFileSync(path.join(DATA_DIR, n), JSON.stringify(d, null, 2)); }
+
+// ========== INISYALIZE DONE ==========
+if (fs.existsSync(path.join(DATA_DIR, 'merchants.json')) === false) writeJSON('merchants.json', []);
+if (fs.existsSync(path.join(DATA_DIR, 'settings.json')) === false) {
+  writeJSON('settings.json', { siteTitle: 'OGSUN MACHE LAKAY', themeColor: '#d4a017', logoUrl: '/logo.png', adminPassword: 'OGPLUG45' });
 }
 
-function getSettings() { return JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf8')); }
-function saveSettings(d) { fs.writeFileSync(SETTINGS_FILE, JSON.stringify(d, null, 2)); }
-
-// ========== ADMIN AUTH ==========
 const JWT_SECRET = 'OgsunSecret2026!';
 const verifyAdmin = (req, res, next) => {
   const t = req.headers['authorization'];
   if (t === undefined) return res.status(401).json({ error: 'Non otorize' });
-  try { jwt.verify(t.replace('Bearer ', ''), JWT_SECRET); next(); }
-  catch(e) { res.status(401).json({ error: 'Token invalide' }); }
+  try { jwt.verify(t.replace('Bearer ', ''), JWT_SECRET); next(); } catch(e) { res.status(401).json({ error: 'Token invalide' }); }
 };
 
+// ========== SETTINGS & AUTH ==========
+app.get('/api/settings', (req, res) => { const s = readJSON('settings.json'); res.json(s); });
 app.post('/api/admin/login', (req, res) => {
-  const settings = getSettings();
-  const { email, password, secret_code } = req.body;
-  if (email === 'metelluscarlinsky@gmail.com' && password === settings.adminPassword && secret_code === 'carlinsky') {
-    return res.json({ success: true, token: jwt.sign({ email, role: 'admin' }, JWT_SECRET, { expiresIn: '24h' }) });
+  const s = readJSON('settings.json');
+  if (req.body.email === 'metelluscarlinsky@gmail.com' && req.body.password === s.adminPassword && req.body.secret_code === 'carlinsky') {
+    return res.json({ success: true, token: jwt.sign({ role: 'admin' }, JWT_SECRET, { expiresIn: '24h' }) });
   }
   res.status(401).json({ error: 'Idantifyan pa bon' });
 });
 
-// ========== SETTINGS API ==========
-app.get('/api/settings', (req, res) => {
-  const s = getSettings();
-  res.json({ siteTitle: s.siteTitle, themeColor: s.themeColor, logoUrl: s.logoUrl });
-});
-app.post('/api/admin/settings', verifyAdmin, (req, res) => {
-  const s = getSettings(); const ns = { ...s, ...req.body }; saveSettings(ns); res.json({ success: true });
-});
-
-// ========== PWODUI (SUPABASE) ==========
-app.get('/api/products', async (req, res) => {
-  try {
-    const { data, error } = await supabase.from('products').select('*').order('id', { ascending: false });
-    if (error) throw error;
-    res.json(data || []);
-  } catch(e) { res.status(500).json({ error: e.message }); }
-});
-
-app.post('/api/admin/products', verifyAdmin, async (req, res) => {
-  try {
-    const { data, error } = await supabase.from('products').insert([req.body]).select();
-    if (error) throw error;
-    res.json({ success: true, id: data[0].id });
-  } catch(e) { res.status(500).json({ error: e.message }); }
+// ========== MACHANN (MERCHANTS) API ==========
+app.post('/api/merchant/register', (req, res) => {
+  const merchants = readJSON('merchants.json');
+  if (merchants.find(m => m.email === req.body.email)) return res.status(400).json({ error: 'Email sa a deja itilize' });
+  
+  const newMerchant = {
+    id: 'M' + Date.now(),
+    name: req.body.name,
+    email: req.body.email,
+    phone: req.body.phone,
+    password: req.body.password,
+    status: 'active', // active, suspended, pending
+    sub_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 1 mwa gratis
+    created_at: new Date().toISOString()
+  };
+  merchants.push(newMerchant);
+  writeJSON('merchants.json', merchants);
+  res.json({ success: true });
 });
 
-app.delete('/api/admin/products/:id', verifyAdmin, async (req, res) => {
-  try {
-    const { error } = await supabase.from('products').delete().eq('id', req.params.id);
-    if (error) throw error;
-    res.json({ success: true });
-  } catch(e) { res.status(500).json({ error: e.message }); }
+app.post('/api/merchant/login', (req, res) => {
+  const merchants = readJSON('merchants.json');
+  const m = merchants.find(x => x.email === req.body.email && x.password === req.body.password);
+  if (!m) return res.status(401).json({ error: 'Email oswa modpas pa bon' });
+  if (m.status === 'suspended') return res.status(403).json({ error: 'Kont ou sispann. Tanpri peye abònman w.' });
+  
+  res.json({ success: true, token: jwt.sign({ id: m.id, role: 'merchant' }, JWT_SECRET, { expiresIn: '24h' }), merchant: m });
 });
 
-// ========== KATEGORI ==========
-app.get('/api/categories', (req, res) => { 
-  res.json([{id:1,name:'Manje'},{id:2,name:'Bwason'},{id:3,name:'Vètman'},{id:4,name:'Elektwonik'},{id:5,name:'Kay ak Jaden'},{id:6,name:'Bote ak Swen'},{id:7,name:'Sante'},{id:8,name:'Lwazi'},{id:9,name:'Edikasyon'},{id:10,name:'Lòt'}]); 
+// Admin wè tout machann yo
+app.get('/api/admin/merchants', verifyAdmin, (req, res) => res.json(readJSON('merchants.json')));
+
+// Admin konfime pèman (Ajoute 30 jou)
+app.put('/api/admin/merchants/:id/pay', verifyAdmin, (req, res) => {
+  let merchants = readJSON('merchants.json');
+  const m = merchants.find(x => x.id === req.params.id);
+  if (m) {
+    m.status = 'active';
+    m.sub_end = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    writeJSON('merchants.json', merchants);
+  }
+  res.json({ success: true });
 });
 
-// ========== KÒMAND (SUPABASE) ==========
-app.post('/api/order', async (req, res) => {
-  try {
-    const { data, error } = await supabase.from('orders').insert([req.body]).select();
-    if (error) throw error;
-    res.json({ success: true, order_id: data[0].id });
-  } catch(e) { res.status(500).json({ error: e.message }); }
+// Admin sispann yon machann
+app.put('/api/admin/merchants/:id/suspend', verifyAdmin, (req, res) => {
+  let merchants = readJSON('merchants.json');
+  const m = merchants.find(x => x.id === req.params.id);
+  if (m) { m.status = 'suspended'; writeJSON('merchants.json', merchants); }
+  res.json({ success: true });
 });
 
-app.get('/api/admin/orders', verifyAdmin, async (req, res) => {
-  try {
-    const { data, error } = await supabase.from('orders').select('*').order('id', { ascending: false });
-    if (error) throw error;
-    res.json(data || []);
-  } catch(e) { res.status(500).json({ error: e.message }); }
+// ========== PWODUI (Vandè ak Admin) ==========
+app.get('/api/products', (req, res) => {
+  let p = readJSON('products.json');
+  const merchants = readJSON('merchants.json');
+  // Sèlman montre pwodui machann ki aktif yo
+  p = p.filter(x => !x.merchant_id || merchants.find(m => m.id === x.merchant_id && m.status === 'active'));
+  res.json(p.reverse());
 });
 
-// ========== AFILYE (SUPABASE) ==========
-app.get('/api/affiliates', async (req, res) => {
-  try {
-    const { data, error } = await supabase.from('affiliates').select('*');
-    if (error) throw error;
-    res.json(data || []);
-  } catch(e) { res.status(500).json({ error: e.message }); }
+app.post('/api/admin/products', verifyAdmin, (req, res) => {
+  const p = readJSON('products.json'); const np = { ...req.body, id: p.length + 1, created_at: new Date().toISOString() }; p.push(np); writeJSON('products.json', p); res.json({ success: true });
 });
 
-app.get('/api/admin/affiliates', verifyAdmin, async (req, res) => {
-  try {
-    const { data, error } = await supabase.from('affiliates').select('*');
-    if (error) throw error;
-    res.json(data || []);
-  } catch(e) { res.status(500).json({ error: e.message }); }
+app.delete('/api/admin/products/:id', verifyAdmin, (req, res) => {
+  let p = readJSON('products.json'); p = p.filter(x => x.id !== parseInt(req.params.id)); writeJSON('products.json', p); res.json({ success: true });
 });
 
-// ========== UPLOAD LOGO ==========
+app.get('/api/categories', (req, res) => res.json([{id:1,name:'Manje'},{id:2,name:'Bwason'},{id:3,name:'Vètman'},{id:4,name:'Elektwonik'}]));
+
+// ========== KÒMAND ==========
+app.post('/api/order', (req, res) => {
+  const orders = readJSON('orders.json');
+  const products = readJSON('products.json');
+  const merchants = readJSON('merchants.json');
+  
+  // Jwenn machann lan ki posede premye pwodui nan kòmand lan
+  let merchant_id = null, merchant_phone = null, merchant_name = null;
+  if (req.body.items && req.body.items.length > 0) {
+    const p = products.find(x => x.id === req.body.items[0].id);
+    if (p && p.merchant_id) {
+      const m = merchants.find(x => x.id === p.merchant_id);
+      if (m) { merchant_id = m.id; merchant_phone = m.phone; merchant_name = m.name; }
+    }
+  }
+
+  const o = { ...req.body, id: orders.length + 1, merchant_id, merchant_phone, merchant_name, status: 'pending', created_at: new Date().toISOString() };
+  orders.push(o); writeJSON('orders.json', orders); res.json({ success: true, order_id: o.id });
+});
+
+app.get('/api/admin/orders', verifyAdmin, (req, res) => res.json(readJSON('orders.json').reverse()));
+app.get('/api/admin/affiliates', verifyAdmin, (req, res) => res.json(readJSON('affiliates.json')));
+app.get('/api/affiliates', (req, res) => res.json(readJSON('affiliates.json')));
+
 const upload = multer({ dest: TMP_DIR });
 app.post('/api/admin/upload-logo', verifyAdmin, upload.single('logo'), (req, res) => {
   if (req.file === undefined) return res.status(400).json({ error: 'Pa gen fichye' });
-  const ext = path.extname(req.file.originalname) || '.png';
-  const fileName = 'logo' + ext;
+  const fileName = 'logo' + (path.extname(req.file.originalname) || '.png');
   fs.renameSync(req.file.path, path.join(__dirname, 'public', fileName));
   res.json({ success: true, url: '/' + fileName });
 });
 
-// ========== ESTATIK ==========
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
 app.use('/affiliate', express.static(path.join(__dirname, 'affiliate')));
+app.use('/merchant', express.static(path.join(__dirname, 'merchant')));
+app.use('/uploads', express.static(UPLOAD_DIR));
 
-app.listen(process.env.PORT || 8000, '0.0.0.0', () => {
-  console.log('════════════════════════════════════════');
-  console.log('🌴 OGSUN MACHE LAKAY (Supabase Cloud)');
-  console.log('🌐 http://localhost:' + (process.env.PORT || 8000));
-  console.log('════════════════════════════════════════');
-});
+app.listen(process.env.PORT || 8000, '0.0.0.0', () => console.log('🌴 OGSUN (Multi-Vendor) sou pò ' + (process.env.PORT || 8000)));
