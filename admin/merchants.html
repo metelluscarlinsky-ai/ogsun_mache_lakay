@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ht"><head><meta charset="UTF-8"><title>Jere Machann - Admin</title>
+<style>body{font-family:sans-serif;background:#0d1117;color:white;padding:20px}.container{max-width:1000px;margin:auto}table{width:100%;border-collapse:collapse;background:#161b22;border-radius:10px;overflow:hidden}th,td{padding:12px;text-align:left;border-bottom:1px solid #30363d}th{background:#0d1117;color:#00d494}button{padding:6px 12px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;margin:2px}.btn-pay{background:#00d494;color:black}.btn-sus{background:#ef4444;color:white}.active{color:#00d494}.suspended{color:#ef4444}</style></head>
+<body>
+<div class="container"><h2>🤝 Jere Machann yo</h2><a href="dashboard.html" style="color:#8b949e">← Retounen Dashboard</a><br><br>
+<table><thead><tr><th>Non Boutik</th><th>ID</th><th>WhatsApp</th><th>Status</th><th>Dat Pèman</th><th>Aksyon</th></tr></thead><tbody id="tBody"></tbody></table></div>
+<script>
+const token = localStorage.getItem('admin_token');
+if(!token) window.location.href='login.html';
+async function loadMerchants(){
+  const res = await fetch('/api/admin/merchants', { headers: { 'Authorization': 'Bearer ' + token } });
+  const data = await res.json();
+  document.getElementById('tBody').innerHTML = data.map(m => `
+    <tr>
+      <td><strong>${m.name}</strong></td>
+      <td>${m.id}</td>
+      <td><a href="https://wa.me/${m.phone}" target="_blank" style="color:#00d494">${m.phone}</a></td>
+      <td class="${m.status}">${m.status.toUpperCase()}</td>
+      <td>${new Date(m.sub_end).toLocaleDateString()}</td>
+      <td>
+        <button class="btn-pay" onclick="pay('${m.id}')">✅ Peye 500 GDS</button>
+        <button class="btn-sus" onclick="suspend('${m.id}')">🚫 Sispann</button>
+      </td>
+    </tr>
+  `).join('');
+}
+async function pay(id){ await fetch('/api/admin/merchants/'+id+'/pay',{method:'PUT',headers:{'Authorization':'Bearer '+token}}); loadMerchants(); }
+async function suspend(id){ await fetch('/api/admin/merchants/'+id+'/suspend',{method:'PUT',headers:{'Authorization':'Bearer '+token}}); loadMerchants(); }
+loadMerchants();
+</script></body></html>
