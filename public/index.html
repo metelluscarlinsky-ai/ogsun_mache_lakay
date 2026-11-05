@@ -4,9 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OGSUN MACHE LAKAY 2026</title>
-    <!-- Lyen pou bèl ikòn yo (FontAwesome) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="toast.css">
+    <script src="toast.js" defer></script>
+    <style>
+        /* Kèk ti ajisteman pou header a parèt byen ak ikòn yo */
+        header nav a { display: flex; align-items: center; gap: 5px; }
+        .hero-banner h1, .hero-banner p { margin-bottom: 10px; }
+        .quick-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 30px 0; }
+        .quick-link-card { background: rgba(255,255,255,0.9); border-radius: 15px; padding: 20px; text-align: center; text-decoration: none; color: var(--text); box-shadow: 0 5px 15px rgba(0,0,0,0.1); transition: 0.3s; }
+        .quick-link-card:hover { transform: translateY(-5px); }
+        .quick-link-card .icon { font-size: 2rem; color: var(--gold); margin-bottom: 10px; display: block; }
+        .quick-link-card h3 { font-size: 1rem; margin-bottom: 5px; color: var(--primary); }
+        .quick-link-card p { font-size: 0.8rem; color: #666; }
+    </style>
 </head>
 <body>
 <header>
@@ -24,21 +36,44 @@
 </header>
 
 <div class="container">
-    <div class="hero-banner">
-        <h1><i class="fa-solid fa-store"></i> Byenveni nan OGSUN</h1>
-        <p>Pi bon mache lokal ou a — Livrezon rapid nan Gonayiv ak tout peyi a!</p>
+    <div class="hero-banner" style="background: linear-gradient(135deg, #0a3d0a, #1a5c1a); padding: 40px; border-radius: 20px; text-align: center; color: white; margin-bottom: 30px;">
+        <h1 style="font-size: 2.5rem;"><i class="fa-solid fa-star" style="color: gold;"></i> Byenveni nan OGSUN</h1>
+        <p style="font-size: 1.2rem;">Pi bon mache lokal ou a — Livrezon rapid nan Gonayiv ak tout peyi a!</p>
     </div>
     
-    <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Chèche yon pwodui... (ekzanp: diri, mayo)">
-        <button onclick="searchProducts()"><i class="fa-solid fa-magnifying-glass"></i> Chèche</button>
+    <div class="search-bar" style="display: flex; gap: 10px; margin-bottom: 30px;">
+        <input type="text" id="searchInput" placeholder="Chèche yon pwodui... (ekzanp: diri, mayo)" style="flex: 1; padding: 15px; border-radius: 10px; border: 1px solid #ccc;">
+        <button onclick="searchProducts()" style="padding: 15px 30px; background: var(--gold); border: none; border-radius: 10px; font-weight: bold; cursor: pointer;"><i class="fa-solid fa-magnifying-glass"></i> Chèche</button>
+    </div>
+
+    <div class="quick-links">
+        <a href="merchant/register.html" class="quick-link-card">
+            <i class="fa-solid fa-store icon"></i>
+            <h3>Vin yon Machann</h3>
+            <p>Vann pwodui ou sou OGSUN</p>
+        </a>
+        <a href="affiliate/login.html" class="quick-link-card">
+            <i class="fa-solid fa-handshake icon"></i>
+            <h3>Pwogram Afilye</h3>
+            <p>Touche komisyon</p>
+        </a>
+        <a href="about.html" class="quick-link-card">
+            <i class="fa-solid fa-circle-info icon"></i>
+            <h3>Sou Nou</h3>
+            <p>Misyon ak vizyon nou</p>
+        </a>
+        <a href="cart.html" class="quick-link-card">
+            <i class="fa-solid fa-cart-shopping icon"></i>
+            <h3>Panier</h3>
+            <p>Gade panier ou</p>
+        </a>
     </div>
     
-    <div id="category-filters" class="category-filters"></div>
+    <div id="category-filters" class="category-filters" style="margin-bottom: 30px; display: flex; flex-wrap: wrap; gap: 10px;"></div>
     <div id="product-grid" class="product-grid"></div>
 </div>
 
-<footer>
+<footer style="text-align: center; padding: 30px; background: #0a3d0a; color: white; margin-top: 50px;">
     <p>&copy; 2026 OGSUN MACHE LAKAY - Tout dwa rezève</p>
     <p><i class="fa-brands fa-whatsapp"></i> 32924776 | <i class="fa-solid fa-envelope"></i> metelluscarlinsky@gmail.com</p>
 </footer>
