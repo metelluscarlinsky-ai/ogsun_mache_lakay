@@ -37,6 +37,7 @@
         .affiliate-banner a { display: inline-block; background: var(--primary); color: white; padding: 12px 28px; border-radius: 50px; text-decoration: none; font-weight: 600; margin-top: 10px; transition: all 0.3s; }
         .affiliate-banner a:hover { transform: scale(1.05); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
     </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 <header>
@@ -45,10 +46,10 @@
         <span>OGSUN MACHE LAKAY</span>
     </div>
     <nav>
-        <a href="index.html">🏠 Akèy</a>
-        <a href="about.html">📖 Sou Nou</a>
+        <a href="index.html"><i class="fa-solid fa-house"></i> Akèy</a>
+        <a href="about.html"><i class="fa-solid fa-circle-info"></i> Sou Nou</a>
         <a href="merchant/login.html">🏪 Espas Machann</a>
-        <a href="affiliate/login.html">🤝 Afilye</a>
+        <a href="affiliate/login.html"><i class="fa-solid fa-handshake"></i> Afilye</a>
         <a href="cart.html" class="cart-icon">🛒 <span id="cart-badge" class="cart-badge">0</span></a>
     </nav>
 </header>
@@ -58,14 +59,14 @@
         <h1>🌴 Byenveni nan OGSUN MACHE LAKAY</h1>
         <p>Pi bon mache lokal ou a — Livrezon rapid nan Gonayiv ak tout peyi a!</p>
         <div class="hero-buttons">
-            <a href="#products" class="hero-btn hero-btn-primary">🛍️ Gade Pwodui yo</a>
+            <a href="#products" class="hero-btn hero-btn-primary"><i class="fa-solid fa-bag-shopping"></i> Gade Pwodui yo</a>
             <a href="about.html" class="hero-btn hero-btn-outline">📖 Aprann Plis</a>
         </div>
     </div>
     
     <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="🔍 Chèche yon pwodui... (ekzanp: diri, mayo, telefòn)">
-        <button onclick="searchProducts()">🔍 Chèche</button>
+        <input type="text" id="searchInput" placeholder="<i class="fa-solid fa-magnifying-glass"></i> Chèche yon pwodui... (ekzanp: diri, mayo, telefòn)">
+        <button onclick="searchProducts()"><i class="fa-solid fa-magnifying-glass"></i> Chèche</button>
     </div>
     <div id="searchResults" class="product-grid" style="display:none;"></div>
     
@@ -180,7 +181,7 @@ window.searchProducts = function() {
                             <span class="category">📂 ${prod.categories?.name || ''}</span>
                             <h3>${prod.name}</h3>
                             <div class="price">💰 ${parseFloat(prod.price).toFixed(2)} GDS</div>
-                            <button class="add-to-cart" onclick='addToCart(${JSON.stringify(prod).replace(/'/g, "&#39;")}, event)'>🛒 Ajoute</button>
+                            <button class="add-to-cart" onclick='addToCart(${JSON.stringify(prod).replace(/'/g, "&#39;")}, event)'><i class="fa-solid fa-cart-plus"></i> Ajoute</button>
                         </div>
                     </div>
                 `).join('');
@@ -243,7 +244,7 @@ async function loadProducts(categorySlug = '') {
                     <p>${prod.description ? prod.description.substring(0, 80) : ''}</p>
                     <div class="price">💰 ${parseFloat(prod.price).toFixed(2)} GDS</div>
                     <button class="add-to-cart" onclick='addToCart(${JSON.stringify(prod).replace(/'/g, "&#39;")}, event)'>
-                        🛒 Ajoute nan Panier
+                        <i class="fa-solid fa-cart-plus"></i> Ajoute nan Panier
                     </button>
                 </div>
             </div>
