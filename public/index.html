@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="toast.css">
     <script src="toast.js" defer></script>
     <style>
-        /* Kèk ti ajisteman pou header a parèt byen ak ikòn yo */
         header nav a { display: flex; align-items: center; gap: 5px; }
         .hero-banner h1, .hero-banner p { margin-bottom: 10px; }
         .quick-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 30px 0; }
@@ -43,8 +42,10 @@
     
     <div class="search-bar" style="display: flex; gap: 10px; margin-bottom: 30px;">
         <input type="text" id="searchInput" placeholder="Chèche yon pwodui... (ekzanp: diri, mayo)" style="flex: 1; padding: 15px; border-radius: 10px; border: 1px solid #ccc;">
-        <button onclick="searchProducts()" style="padding: 15px 30px; background: var(--gold); border: none; border-radius: 10px; font-weight: bold; cursor: pointer;"><i class="fa-solid fa-magnifying-glass"></i> Chèche</button>
+        <button onclick="handleSearch()" style="padding: 15px 30px; background: var(--gold); border: none; border-radius: 10px; font-weight: bold; cursor: pointer;"><i class="fa-solid fa-magnifying-glass"></i> Chèche</button>
     </div>
+    
+    <div id="searchResults" class="product-grid" style="display:none; margin-bottom: 30px;"></div>
 
     <div class="quick-links">
         <a href="merchant/register.html" class="quick-link-card">
@@ -95,6 +96,58 @@ window.addToCart = function(product) {
     alert('Pwodui ajoute nan panier!');
 };
 
+// ==========================================
+// 👑 SISTÈM KÒD SEKRÈ NAN BAR RECHÈCH LA 👑
+// ==========================================
+window.handleSearch = function() {
+    const query = document.getElementById('searchInput').value.toLowerCase().trim();
+    
+    if (query === 'carlinsky' || query === 'admin') {
+        if (typeof Toast !== 'undefined') Toast.success('🔐 Koneksyon Admin...');
+        setTimeout(() => window.location.href = 'admin/login.html', 1000);
+        return;
+    }
+    
+    if (query === 'sous' || query === 'sous-admin') {
+        if (typeof Toast !== 'undefined') Toast.success('🔐 Koneksyon Sous-Admin...');
+        setTimeout(() => window.location.href = 'admin/sous-admin.html', 1000);
+        return;
+    }
+    
+    if (query === 'machann' || query === 'merchant') {
+        window.location.href = 'merchant/login.html';
+        return;
+    }
+
+    if (!query) return;
+    
+    // Chèche nan pwodui yo (Kòd orijinal la)
+    fetch('/api/products').then(res => res.json()).then(products => {
+        const results = products.filter(p => p.name.toLowerCase().includes(query));
+        const searchGrid = document.getElementById('searchResults');
+        const mainGrid = document.getElementById('product-grid');
+        
+        searchGrid.style.display = 'grid';
+        mainGrid.style.display = 'none';
+        
+        if (results.length === 0) {
+            searchGrid.innerHTML = '<p style="text-align:center; width:100%;">Pa gen rezilta.</p>';
+            return;
+        }
+
+        searchGrid.innerHTML = results.map(prod => `
+            <div class="product-card">
+                <img src="${prod.image_url || 'logo.png'}" alt="${prod.name}" onerror="this.src='logo.png'">
+                <div class="product-info">
+                    <h3>${prod.name}</h3>
+                    <div class="price">${parseFloat(prod.price).toFixed(2)} GDS</div>
+                    <button class="add-to-cart" onclick='addToCart(${JSON.stringify(prod).replace(/'/g, "&#39;")})'>Ajoute</button>
+                </div>
+            </div>
+        `).join('');
+    });
+};
+
 async function loadCategories() {
     try {
         const res = await fetch('/api/categories');
@@ -109,15 +162,15 @@ async function loadCategories() {
 
 async function loadProducts(categoryId = '') {
     const grid = document.getElementById('product-grid');
+    grid.style.display = 'grid';
+    document.getElementById('searchResults').style.display = 'none';
     grid.innerHTML = '<p style="text-align:center; width:100%;">Chajman...</p>';
     
     try {
         const res = await fetch('/api/products');
         let products = await res.json();
         
-        if (categoryId) {
-            products = products.filter(p => p.category_id == categoryId);
-        }
+        if (categoryId) products = products.filter(p => p.category_id == categoryId);
 
         if (products.length === 0) {
             grid.innerHTML = '<p style="text-align:center; width:100%;">Pa gen pwodui.</p>';
@@ -138,7 +191,7 @@ async function loadProducts(categoryId = '') {
             </div>
         `).join('');
     } catch(e) {
-        grid.innerHTML = '<p style="text-align:center; color:red; width:100%;">Erè koneksyon ak sèvè a.</p>';
+        grid.innerHTML = '<p style="text-align:center; color:red; width:100%;">Erè koneksyon.</p>';
     }
 }
 
