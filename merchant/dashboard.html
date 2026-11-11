@@ -1,11 +1,21 @@
 <!DOCTYPE html>
 <html lang="ht"><head><meta charset="UTF-8"><title>Dashboard Machann</title>
-<style>body{font-family:sans-serif;background:#0d1117;color:white;margin:0;padding:20px}.header{display:flex;justify-content:space-between;background:#161b22;padding:15px;border-radius:10px;border:1px solid #30363d;margin-bottom:20px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.panel{background:#161b22;padding:20px;border-radius:10px;border:1px solid #30363d}h3{color:#00d494;margin-top:0}input,button{padding:10px;margin:5px 0;border-radius:5px;width:100%}input{background:#0d1117;border:1px solid #30363d;color:white}button{background:#00d494;color:black;font-weight:bold;border:none;cursor:pointer}.item{background:#0d1117;padding:10px;margin:5px 0;border-radius:5px;display:flex;justify-content:space-between}</style></head>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>body{font-family:sans-serif;background:#0d1117;color:white;margin:0;padding:20px}.header{display:flex;justify-content:space-between;background:#161b22;padding:15px;border-radius:10px;border:1px solid #30363d;margin-bottom:20px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.panel{background:#161b22;padding:20px;border-radius:10px;border:1px solid #30363d}h3{color:#00d494;margin-top:0}input,button{padding:12px;margin:8px 0;border-radius:5px;width:100%;box-sizing:border-box}input{background:#0d1117;border:1px solid #30363d;color:white}button{background:#00d494;color:black;font-weight:bold;border:none;cursor:pointer}.item{background:#0d1117;padding:10px;margin:5px 0;border-radius:5px;display:flex;justify-content:space-between;align-items:center}.item img{width:40px;height:40px;border-radius:5px;object-fit:cover;margin-right:10px}</style></head>
 <body>
-<div class="header"><div><strong style="color:#00d494" id="shopName">Boutik</strong><br><small id="shopId">ID: </small></div><a href="login.html" style="color:#ef4444;text-decoration:none" onclick="localStorage.clear()">Sòti</a></div>
+<div class="header"><div><strong style="color:#00d494" id="shopName">Boutik</strong><br><small id="shopId">ID: </small></div><a href="login.html" style="color:#ef4444;text-decoration:none" onclick="localStorage.clear()"><i class="fa-solid fa-right-from-bracket"></i> Sòti</a></div>
 <div class="grid">
-<div class="panel"><h3>➕ Ajoute Pwodui</h3><form id="addForm"><input type="text" id="pName" placeholder="Non Pwodui" required><input type="number" id="pPrice" placeholder="Pri (GDS)" required><button type="submit">Ajoute</button></form><div id="msg" style="color:#00d494;margin-top:10px"></div></div>
-<div class="panel"><h3>📦 Pwodui Mwen</h3><div id="myProducts"></div></div>
+<div class="panel"><h3><i class="fa-solid fa-plus"></i> Ajoute Pwodui</h3>
+<form id="addForm">
+    <input type="text" id="pName" placeholder="Non Pwodui" required>
+    <input type="number" id="pPrice" placeholder="Pri (GDS)" required>
+    <label style="color:#8b949e;font-size:0.9rem;">Foto Pwodui (Soti nan galri)</label>
+    <input type="file" id="pImage" accept="image/*" style="background:none;border:none;padding:0;">
+    <button type="submit" id="btn"><i class="fa-solid fa-cloud-arrow-up"></i> Ajoute Pwodui</button>
+</form>
+<div id="msg" style="color:#00d494;margin-top:10px;text-align:center;"></div>
+</div>
+<div class="panel"><h3><i class="fa-solid fa-box"></i> Pwodui Mwen</h3><div id="myProducts"></div></div>
 </div>
 <script>
 const token = localStorage.getItem('merchant_token');
@@ -18,17 +28,52 @@ async function loadMyProducts() {
   const res = await fetch('/api/products');
   const all = await res.json();
   const mine = all.filter(p => p.merchant_id === merchant.id);
-  document.getElementById('myProducts').innerHTML = mine.length > 0 ? mine.map(p => `<div class="item"><span>${p.name} - ${p.price} GDS</span></div>`).join('') : '<p style="color:#8b949e">Pa gen pwodui.</p>';
+  document.getElementById('myProducts').innerHTML = mine.length > 0 ? mine.map(p => `<div class="item"><div style="display:flex;align-items:center;"><img src="${p.image_url || 'logo.png'}"><span>${p.name} - ${p.price} GDS</span></div></div>`).join('') : '<p style="color:#8b949e">Pa gen pwodui.</p>';
 }
+
 document.getElementById('addForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const res = await fetch('/api/admin/products', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-    body: JSON.stringify({ name: document.getElementById('pName').value, price: parseFloat(document.getElementById('pPrice').value), category_id: 1, image_url: 'logo.png', merchant_id: merchant.id, merchant_phone: merchant.phone, merchant_name: merchant.name })
-  });
-  const d = await res.json();
-  if(d.success || res.status === 200) { document.getElementById('msg').textContent='✅ Pwodui ajoute!'; loadMyProducts(); }
+  const btn = document.getElementById('btn');
+  const msg = document.getElementById('msg');
+  btn.textContent = 'K ap chaje...';
+  btn.disabled = true;
+  msg.textContent = '';
+
+  const formData = new FormData();
+  formData.append('name', document.getElementById('pName').value);
+  formData.append('price', document.getElementById('pPrice').value);
+  formData.append('category_id', '1');
+  formData.append('merchant_id', merchant.id);
+  formData.append('merchant_phone', merchant.phone);
+  formData.append('merchant_name', merchant.name);
+  
+  const imgFile = document.getElementById('pImage').files[0];
+  if(imgFile) formData.append('image', imgFile);
+
+  try {
+      const res = await fetch('/api/merchant/products', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token },
+        body: formData
+      });
+      
+      const data = await res.json();
+      
+      if(res.ok) { 
+          msg.textContent='✅ Pwodui ak foto ajoute!'; 
+          loadMyProducts();
+          document.getElementById('addForm').reset();
+      } else {
+          msg.style.color = '#ef4444';
+          msg.textContent='❌ Erè: ' + (data.error || 'Pa ka ajoute');
+      }
+  } catch (err) {
+      msg.style.color = '#ef4444';
+      msg.textContent='❌ Erè rezo. Eseye ankò.';
+  }
+
+  btn.textContent = 'Ajoute Pwodui';
+  btn.disabled = false;
 });
 loadMyProducts();
 </script></body></html>

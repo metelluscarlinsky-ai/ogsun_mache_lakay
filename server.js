@@ -12,13 +12,13 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-// ========== KONFIGIRASYON ==========
 const supabase = createClient(
   'https://tbgltnltmbeobfsctixt.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRiZ2x0bmx0bWJlb2Jmc2N0aXh0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NDc0NzcxMywiZXhwIjoyMTAwMzIzNzEzfQ.HvP5aRKwjIXbJIaUdIT4_04nun9hNv6tD-UClQ-G-cA'
 );
 
 const JWT_SECRET = 'OgsunSecret2026!';
+const upload = multer({ storage: multer.memoryStorage() }); // Pou kenbe foto a an memwa
 
 const verifyAdmin = (req, res, next) => {
   const t = req.headers['authorization'];
@@ -34,32 +34,69 @@ app.post('/api/admin/login', (req, res) => {
   res.status(401).json({ error: 'Idantifyan pa bon' });
 });
 
-// ========== MACHANN (SAN VERIFIKASYON IMÈL) ==========
+// ========== MACHANN ==========
 app.post('/api/merchant/register', async (req, res) => {
   const { name, email, phone, password } = req.body;
   const id = 'M' + Date.now();
   const sub_end = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
-  // Nou mete is_verified: true dirèkteman pou l pa bezwen kòd
   const { error } = await supabase.from('merchants').insert([{ 
-      id, name, email, phone, password, 
-      status: 'active', sub_end, is_verified: true, otp_code: null 
+      id, name, email, phone, password, status: 'active', sub_end, is_verified: true
   }]);
   
   if (error) return res.status(400).json({ error: error.message });
-  
-  res.json({ success: true, message: 'Kont ou aktive ak siksè! Ou ka konekte kounye a.' });
+  res.json({ success: true, message: 'Kont ou aktive!' });
 });
 
 app.post('/api/merchant/login', async (req, res) => {
   const { data: m, error } = await supabase.from('merchants').select('*').eq('email', req.body.email).eq('password', req.body.password).single();
-  
   if (error || !m) return res.status(401).json({ error: 'Email oswa modpas pa bon' });
-  if (m.status === 'suspended') return res.status(403).json({ error: 'Kont ou sispann. Tanpri peye abònman w.' });
+  if (m.status === 'suspended') return res.status(403).json({ error: 'Kont ou sispann.' });
   
   res.json({ success: true, token: jwt.sign({ id: m.id, role: 'merchant' }, JWT_SECRET, { expiresIn: '24h' }), merchant: m });
 });
 
+// ========== WOUT ESPESYAL POU MACHANN AJOUTE PWODUI (AK FOTO) ==========
+app.post('/api/merchant/products', upload.single('image'), async (req, res) => {
+  try {
+    let image_url = 'logo.png';
+    
+    // 1. Si gen yon foto, nou voye l sou Supabase Storage
+    if (req.file) {
+      const ext = path.extname(req.file.originalname) || '.png';
+      const fileName = Date.now() + ext;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(fileName, req.file.buffer, { contentType: req.file.mimetype, upsert: true });
+        
+      if (uploadError) throw uploadError;
+      
+      const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(fileName);
+      image_url = urlData.publicUrl;
+    }
+
+    // 2. Nou anrejistre pwodui a nan baz done a
+    const { data, error } = await supabase.from('products').insert([{
+      name: req.body.name, 
+      price: parseFloat(req.body.price), 
+      category_id: parseInt(req.body.category_id || 1),
+      image_url: image_url, 
+      merchant_id: req.body.merchant_id || null,
+      merchant_phone: req.body.merchant_phone || null, 
+      merchant_name: req.body.merchant_name || null
+    }]).select();
+    
+    if (error) throw error;
+    res.json({ success: true, id: data[0].id });
+    
+  } catch (err) {
+    console.error('Erè Machann ajoute pwodui:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ========== LÒT API YO ==========
 app.get('/api/admin/merchants', verifyAdmin, async (req, res) => {
   const { data } = await supabase.from('merchants').select('*');
   res.json(data || []);
@@ -76,30 +113,15 @@ app.put('/api/admin/merchants/:id/suspend', verifyAdmin, async (req, res) => {
   res.json({ success: true });
 });
 
-// ========== PWODUI ==========
 app.get('/api/products', async (req, res) => {
   const { data } = await supabase.from('products').select('*').order('id', { ascending: false });
   const cats = [{id:1,name:'Manje'},{id:2,name:'Bwason'},{id:3,name:'Vètman'},{id:4,name:'Elektwonik'},{id:5,name:'Kay'},{id:6,name:'Bote'},{id:7,name:'Sante'},{id:8,name:'Lwazi'},{id:9,name:'Edikasyon'},{id:10,name:'Lòt'}];
   res.json((data || []).map(p => ({ ...p, categories: { name: cats.find(c => c.id === p.category_id)?.name || 'Lòt' } })));
 });
 
-const upload = multer({ storage: multer.memoryStorage() });
-app.post('/api/admin/products', upload.single('image'), async (req, res) => {
-  let image_url = 'logo.png';
-  if (req.file) {
-    const ext = path.extname(req.file.originalname) || '.png';
-    const fileName = Date.now() + ext;
-    const { error } = await supabase.storage.from('product-images').upload(fileName, req.file.buffer, { contentType: req.file.mimetype, upsert: true });
-    if (!error) {
-      const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(fileName);
-      image_url = urlData.publicUrl;
-    }
-  }
-  const { data, error } = await supabase.from('products').insert([{
-    name: req.body.name, price: parseFloat(req.body.price), category_id: parseInt(req.body.category_id || 1),
-    image_url: image_url, merchant_id: req.body.merchant_id || null,
-    merchant_phone: req.body.merchant_phone || null, merchant_name: req.body.merchant_name || null
-  }]).select();
+// Wout Admin pou ajoute pwodui (san foto pou kounye a)
+app.post('/api/admin/products', verifyAdmin, async (req, res) => {
+  const { data, error } = await supabase.from('products').insert([req.body]).select();
   if (error) return res.status(500).json({ error: error.message });
   res.json({ success: true, id: data[0].id });
 });
@@ -126,4 +148,4 @@ app.use('/admin', express.static(path.join(__dirname, 'admin')));
 app.use('/affiliate', express.static(path.join(__dirname, 'affiliate')));
 app.use('/merchant', express.static(path.join(__dirname, 'merchant')));
 
-app.listen(process.env.PORT || 8000, '0.0.0.0', () => console.log('🌴 OGSUN (San OTP) sou pò ' + (process.env.PORT || 8000)));
+app.listen(process.env.PORT || 8000, '0.0.0.0', () => console.log('🌴 OGSUN (Machann Upload) sou pò ' + (process.env.PORT || 8000)));
