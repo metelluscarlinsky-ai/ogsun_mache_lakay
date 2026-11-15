@@ -25,17 +25,19 @@ const supabase = createClient(
 const JWT_SECRET = 'OgsunSecret2026!';
 const upload = multer({ storage: multer.memoryStorage() });
 
-// ========== MIDDLEWARE POU AFILYE ==========
+// ========== MIDDLEWARE POU SOOVE KÒD AFILYE A (30 JOU) ==========
 app.use((req, res, next) => {
     if (req.query.ref) {
+        // Nou sove kòd la nan yon cookie ki dire 30 jou
         res.cookie('affiliate_ref', req.query.ref, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
     }
     next();
 });
 
-// ========== WEBHOOK PATNÈ ==========
+// ========== FONKSYON POU VOYE VANT LAN BAY ENTERPRISE ==========
 async function notifyPartnerSale(referralCode, customerName, amount) {
-    if (!referralCode) return;
+    if (!referralCode) return; // Si kliyan an pa t vini ak yon lyen afilye, pa voye anyen
+
     try {
         await axios.post('https://ogsunentreprise.onrender.com/api/partner/webhook/sale', {
             api_key: process.env.OGSUN_API_KEY,
@@ -43,10 +45,14 @@ async function notifyPartnerSale(referralCode, customerName, amount) {
             customer_name: customerName,
             amount: amount,
             site_source: "OGSUN MACHE LAKAY"
-        }, { headers: { 'Content-Type': 'application/json' }, timeout: 5000 });
-        console.log('✅ Webhook patnè voye ak siksè.');
+        }, {
+            headers: { 'Content-Type': 'application/json' },
+            timeout: 5000 // 5 segond maksimòm pou pa bloke kliyan an
+        });
+        console.log('✅ Vant lan voye bay OGSUNENTERPRISE ak siksè.');
     } catch (error) {
-        console.error('❌ Erè pandan w ap voye webhook patnè a:', error.message);
+        // ERÈ A PA BLOKE KLIYAN AN. NOU JIS LOGE L.
+        console.error('❌ Erè pandan w ap voye vant lan bay Enterprise:', error.message);
     }
 }
 
@@ -64,7 +70,7 @@ app.post('/api/admin/login', (req, res) => {
   res.status(401).json({ error: 'Idantifyan pa bon' });
 });
 
-// ========== MACHANN ==========
+// ========== MACHANN (POU SIT LA) ==========
 app.post('/api/merchant/register', async (req, res) => {
   const { name, email, phone, password } = req.body;
   const id = 'M' + Date.now();
@@ -113,8 +119,10 @@ app.post('/api/merchant/products', upload.single('image'), async (req, res) => {
 // ========== KÒMAND (AK TRACKING WEBHOOK) ==========
 app.post('/api/order', async (req, res) => {
   try {
+    // 1. Nou jwenn kòd afilye a soti nan URL a oswa nan Cookie a
     const refCode = req.query.ref || req.cookies.affiliate_ref;
 
+    // 2. Nou anrejistre kòmand lan nan Supabase
     const { data, error } = await supabase.from('orders').insert([{
         customer_name: req.body.customer_name,
         customer_phone: req.body.customer_phone,
@@ -122,15 +130,17 @@ app.post('/api/order', async (req, res) => {
         items: req.body.items,
         total: req.body.total,
         delivery_fee: req.body.delivery_fee,
-        affiliate_code: refCode || null,
+        affiliate_code: refCode || null, // Nou sove kòd la pou trasabilite
         status: 'pending',
         created_at: new Date().toISOString()
     }]).select();
 
     if (error) throw error;
 
+    // 3. Nou voye webhook la bay Enterprise lan (San bloke kliyan an)
     await notifyPartnerSale(refCode, req.body.customer_name, req.body.total);
 
+    // 4. Nou konfime acha a pou kliyan an
     res.json({ success: true, order_id: data[0].id });
   } catch (e) {
     console.error('Erè kòmand:', e);
@@ -138,7 +148,7 @@ app.post('/api/order', async (req, res) => {
   }
 });
 
-// ========== API PIBLIK ==========
+// ========== LÒT API YO (ADMIN AK PWODUI) ==========
 app.get('/api/products', async (req, res) => {
   const { data } = await supabase.from('products').select('*').order('id', { ascending: false });
   const cats = [{id:1,name:'Manje'},{id:2,name:'Bwason'},{id:3,name:'Vètman'},{id:4,name:'Elektwonik'},{id:5,name:'Kay'},{id:6,name:'Bote'},{id:7,name:'Sante'},{id:8,name:'Lwazi'},{id:9,name:'Edikasyon'},{id:10,name:'Lòt'}];
@@ -147,19 +157,8 @@ app.get('/api/products', async (req, res) => {
 
 app.get('/api/categories', (req, res) => res.json([{id:1,name:'Manje'},{id:2,name:'Bwason'},{id:3,name:'Vètman'},{id:4,name:'Elektwonik'},{id:5,name:'Kay'},{id:6,name:'Bote'},{id:7,name:'Sante'},{id:8,name:'Lwazi'},{id:9,name:'Edikasyon'},{id:10,name:'Lòt'}]));
 
-app.get('/api/affiliates', async (req, res) => {
-  const { data } = await supabase.from('affiliates').select('*');
-  res.json(data || []);
-});
-
-// ========== API ADMIN (KOTE MWEN TE BLIYE A) ==========
 app.get('/api/admin/orders', verifyAdmin, async (req, res) => {
   const { data } = await supabase.from('orders').select('*').order('id', { ascending: false });
-  res.json(data || []);
-});
-
-app.get('/api/admin/affiliates', verifyAdmin, async (req, res) => {
-  const { data } = await supabase.from('affiliates').select('*');
   res.json(data || []);
 });
 
@@ -182,7 +181,6 @@ app.put('/api/admin/merchants/:id/suspend', verifyAdmin, async (req, res) => {
 // ========== ESTATIK ==========
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
-app.use('/affiliate', express.static(path.join(__dirname, 'affiliate')));
-app.use('/merchant', express.static(path.join(__dirname, 'merchant')));
+app.use('/merchant', express.static(path.join(__dirname, 'merchant'))); // Nou pa gen '/affiliate' ankò
 
-app.listen(process.env.PORT || 8000, '0.0.0.0', () => console.log('🌴 OGSUN sou pò ' + (process.env.PORT || 8000)));
+app.listen(process.env.PORT || 8000, '0.0.0.0', () => console.log('🌴 OGSUN PATNÈ (Webhook) sou pò ' + (process.env.PORT || 8000)));
