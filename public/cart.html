@@ -4,81 +4,140 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panier - OGSUN MACHE LAKAY</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="toast.css">
-    <script src="supabase-config.js" defer></script>
     <script src="toast.js" defer></script>
+    <style>
+        /* Kèk ajisteman pou paj la parèt bèl */
+        .cart-item { background: rgba(20, 30, 20, 0.8); border: 1px solid #2a3a4a; border-radius: 15px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .cart-item img { width: 80px; height: 80px; border-radius: 10px; object-fit: cover; }
+        .cart-info { flex: 1; min-width: 150px; }
+        .cart-info h3 { margin-bottom: 5px; color: white; font-size: 1.1rem; }
+        .cart-info p { color: #8b949e; font-size: 0.9rem; }
+        .qty-controls { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); padding: 5px 10px; border-radius: 20px; }
+        .qty-controls button { background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer; }
+        .qty-controls span { font-weight: bold; color: white; }
+        .item-price { font-weight: bold; color: var(--gold); font-size: 1.2rem; min-width: 100px; text-align: right; }
+        .remove-btn { background: #ef4444; color: white; border: none; padding: 8px; border-radius: 8px; cursor: pointer; }
+        
+        .summary-box { background: rgba(20, 30, 20, 0.8); border: 1px solid #2a3a4a; border-radius: 15px; padding: 20px; margin-bottom: 20px; color: white; }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 10px; color: #ccc; }
+        .summary-total { display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: bold; color: var(--gold); border-top: 1px solid #30363d; padding-top: 10px; margin-top: 10px; }
+        
+        .checkout-form { background: rgba(20, 30, 20, 0.8); border: 1px solid #2a3a4a; border-radius: 15px; padding: 25px; }
+        .checkout-form h2 { color: white; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; color: #8b949e; margin-bottom: 5px; font-size: 0.9rem; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid #30363d; border-radius: 8px; color: white; font-family: inherit; }
+        .btn-whatsapp { width: 100%; padding: 15px; background: #25d366; color: black; font-weight: bold; border: none; border-radius: 10px; font-size: 1.1rem; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 20px; transition: 0.3s; }
+        .btn-whatsapp:hover { background: #128c7e; color: white; }
+        
+        .affiliate-badge { background: rgba(0, 212, 148, 0.1); border: 1px solid #00d494; color: #00d494; padding: 10px; border-radius: 10px; margin-bottom: 20px; display: none; align-items: center; gap: 10px; font-weight: bold; }
+    </style>
 </head>
 <body>
 <header>
     <div class="logo">
         <img src="logo.png" alt="OGSUN Logo">
-        <span>🛒 Panier</span>
+        <span>Panier Ou</span>
     </div>
     <nav>
-        <a href="index.html">🏠 Akèy</a>
+        <a href="index.html"><i class="fa-solid fa-house"></i> Akèy</a>
     </nav>
 </header>
 
 <div class="container">
-    <h2 style="text-align:center;margin-bottom:30px;">🛒 Panier Ou</h2>
-    <div id="cart-items"></div>
-    <div id="cart-summary"></div>
-    <div id="checkout-form" class="checkout-form" style="display:none;">
-        <h2>📝 Enfòmasyon Kliyan</h2>
-        <div class="form-group">
-            <label>👤 Non konplè</label>
-            <input type="text" id="customer-name" placeholder="Antre non ou..." required>
-        </div>
+    <!-- Badj pou kòd afilye a -->
+    <div id="affiliate-badge" class="affiliate-badge">
+        <i class="fa-solid fa-handshake"></i> Kòd Afilye Detekte: <span id="aff-code-display" style="margin-left:auto;"></span>
+    </div>
 
-<div class="form-group">
-    <label>🏷️ Kòd Promo / Afilye (si genyen)</label>
-    <input type="text" id="promo-code" placeholder="Ekzanp: AF001" style="text-transform: uppercase;">
-    <button type="button" onclick="verifyPromoCode()" style="background:var(--gold);color:white;border:none;padding:10px 20px;border-radius:20px;cursor:pointer;margin-top:5px;font-weight:600;">✅ Verifye Kòd</button>
-    <span id="promo-status" style="margin-left:10px;font-weight:600;"></span>
-</div>
+    <div id="cart-items"></div>
+    <div id="cart-summary-container"></div>
+    
+    <div id="checkout-form" class="checkout-form" style="display:none;">
+        <h2><i class="fa-solid fa-user"></i> Enfòmasyon Kliyan</h2>
+        
         <div class="form-group">
-            <label>📞 WhatsApp / Telefòn</label>
-            <input type="text" id="customer-phone" placeholder="32924776" required>
+            <label>Non Konplè</label>
+            <input type="text" id="customer-name" placeholder="Antre non w..." required>
         </div>
+        
         <div class="form-group">
-            <label>📍 Adrès livrezon</label>
+            <label>Nimewo WhatsApp / Telefòn</label>
+            <input type="text" id="customer-phone" placeholder="Ekzanp: 32924776" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Adrès Livrezon</label>
             <textarea id="customer-address" rows="2" placeholder="Antre adrès ou..."></textarea>
         </div>
+        
         <div class="form-group">
-            <label>💳 Mètòd Peman</label>
+            <label>Mètòd Peman</label>
             <select id="payment-method">
                 <option value="cash">💵 Lajan Kach</option>
-                <option value="natcash">📱 Natcash (32924776)</option>
                 <option value="moncash">📱 Moncash</option>
+                <option value="natcash">📱 Natcash (32924776)</option>
             </select>
         </div>
-        <p style="color:#d4a017; font-weight:600; text-align:center; padding:15px; background:#fff8e1; border-radius:10px; margin:15px 0;">
-            ⚠️ Ou dwe voye screenshot peman an sou WhatsApp (32924776) pou konfime kòmand la.
+        
+        <p style="color:var(--gold); font-size:0.9rem; margin-bottom: 15px;">
+            <i class="fa-solid fa-circle-exclamation"></i> Ou dwe voye screenshot peman an sou WhatsApp pou konfime kòmand la.
         </p>
-        <button id="send-order" class="btn-whatsapp">📲 Voye Kòmand sou WhatsApp</button>
+        
+        <button id="send-order" class="btn-whatsapp">
+            <i class="fa-brands fa-whatsapp"></i> Voye Kòmand sou WhatsApp
+        </button>
     </div>
 </div>
 
-<footer>
+<footer style="text-align: center; padding: 30px; color: #8b949e; margin-top: 40px;">
     <p>&copy; 2026 OGSUN MACHE LAKAY - Tout dwa rezève</p>
-    <p>📞 32924776 | 📧 metelluscarlinsky@gmail.com</p>
 </footer>
 
 <script>
+// ==========================================
+// 1. TRACKING AFILYE (Soti nan URL a)
+// ==========================================
+const urlParams = new URLSearchParams(window.location.search);
+const refCode = urlParams.get('ref');
+
+// Si gen yon kòd ref nan URL a, nou sove l nan localStorage pou n pa pèdi l
+if (refCode) {
+    localStorage.setItem('ogsun_affiliate_ref', refCode);
+}
+
+// Nou tcheke si nou gen yon kòd afilye ki sove deja
+const savedRef = localStorage.getItem('ogsun_affiliate_ref');
+if (savedRef) {
+    document.getElementById('affiliate-badge').style.display = 'flex';
+    document.getElementById('aff-code-display').textContent = savedRef;
+}
+
+// ==========================================
+// 2. JESYON PANIER
+// ==========================================
 let cart = JSON.parse(localStorage.getItem('ogsun_cart')) || [];
 
 function renderCart() {
     const container = document.getElementById('cart-items');
+    const summaryContainer = document.getElementById('cart-summary-container');
+    const checkoutForm = document.getElementById('checkout-form');
     
     if (cart.length === 0) {
-        container.innerHTML = '<p style="text-align:center;padding:60px;font-size:1.3rem;">🛒 Panier ou vid.<br><a href="index.html" style="color:var(--gold);">🏠 Klike la pou w al achte</a></p>';
-        document.getElementById('checkout-form').style.display = 'none';
-        document.getElementById('cart-summary').innerHTML = '';
+        container.innerHTML = `
+            <div style="text-align:center; padding:60px 20px;">
+                <i class="fa-solid fa-cart-shopping" style="font-size:4rem; color:#8b949e; margin-bottom:20px;"></i>
+                <h2 style="color:white; margin-bottom:15px;">Panier ou vid</h2>
+                <a href="index.html" style="background:var(--gold); color:black; padding:12px 25px; border-radius:30px; text-decoration:none; font-weight:bold;">Ale Achte Kounye a</a>
+            </div>`;
+        summaryContainer.innerHTML = '';
+        checkoutForm.style.display = 'none';
         return;
     }
     
-    document.getElementById('checkout-form').style.display = 'block';
+    checkoutForm.style.display = 'block';
     let total = 0;
     
     container.innerHTML = cart.map((item, index) => {
@@ -87,34 +146,35 @@ function renderCart() {
         return `
         <div class="cart-item">
             <img src="${item.image_url || 'logo.png'}" alt="${item.name}" onerror="this.src='logo.png'">
-            <div style="flex:1;">
-                <strong style="font-size:1.1rem;">${item.name}</strong><br>
-                <span style="color:#666;">${parseFloat(item.price).toFixed(2)} GDS chak</span>
+            <div class="cart-info">
+                <h3>${item.name}</h3>
+                <p>${parseFloat(item.price).toFixed(2)} GDS / chak</p>
             </div>
-            <div class="quantity-controls">
-                <button onclick="changeQuantity(${index}, -1)">−</button>
-                <span style="font-weight:700;min-width:30px;text-align:center;">${item.quantity}</span>
-                <button onclick="changeQuantity(${index}, 1)">+</button>
+            <div class="qty-controls">
+                <button onclick="changeQty(${index}, -1)">−</button>
+                <span>${item.quantity}</span>
+                <button onclick="changeQty(${index}, 1)">+</button>
             </div>
-            <div style="font-weight:700;color:var(--primary);">${subtotal.toFixed(2)} GDS</div>
-            <button onclick="removeItem(${index})" style="background:#e74c3c;color:white;border:none;padding:8px 12px;border-radius:10px;cursor:pointer;">🗑️</button>
+            <div class="item-price">${subtotal.toFixed(2)} GDS</div>
+            <button class="remove-btn" onclick="removeItem(${index})"><i class="fa-solid fa-trash"></i></button>
         </div>`;
     }).join('');
     
-    const deliveryFee = total > 2500 ? 0 : 200;
+    const deliveryFee = total > 2500 ? 0 : 200; // Egzanp: gratis si plis pase 2500
     const grandTotal = total + deliveryFee;
     
-    document.getElementById('cart-summary').innerHTML = `
-        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;padding:25px;background:var(--glass);border-radius:20px;margin-top:20px;font-size:1.1rem;">
-            <span>Sou-total: <strong>${total.toFixed(2)} GDS</strong></span>
-            <span>Livrezon: <strong style="color:${deliveryFee === 0 ? 'green' : 'var(--primary)'};">${deliveryFee === 0 ? '🎉 Gratis (Gonayiv)' : deliveryFee.toFixed(2) + ' GDS'}</strong></span>
-            <span style="font-size:1.4rem;">Total: <strong style="color:var(--gold);">${grandTotal.toFixed(2)} GDS</strong></span>
-        </div>`;
+    summaryContainer.innerHTML = `
+        <div class="summary-box">
+            <div class="summary-row"><span>Sou-total</span><span>${total.toFixed(2)} GDS</span></div>
+            <div class="summary-row"><span>Livrezon</span><span>${deliveryFee === 0 ? '<span style="color:#00d494;">Gratis</span>' : deliveryFee.toFixed(2) + ' GDS'}</span></div>
+            <div class="summary-total"><span>Total</span><span>${grandTotal.toFixed(2)} GDS</span></div>
+        </div>
+    `;
     
-    window._cartData = { total, deliveryFee, grandTotal };
+    window._cartTotal = { total, deliveryFee, grandTotal };
 }
 
-window.changeQuantity = (index, delta) => {
+window.changeQty = (index, delta) => {
     cart[index].quantity += delta;
     if (cart[index].quantity < 1) cart.splice(index, 1);
     localStorage.setItem('ogsun_cart', JSON.stringify(cart));
@@ -122,51 +182,17 @@ window.changeQuantity = (index, delta) => {
 };
 
 window.removeItem = (index) => {
-    const itemName = cart[index].name;
     cart.splice(index, 1);
     localStorage.setItem('ogsun_cart', JSON.stringify(cart));
     renderCart();
-    Toast.info(`🗑️ ${itemName} retire nan panier`);
+    Toast.success('Atik retire nan panier!');
 };
 
 renderCart();
-let verifiedPromoCode = null;
-let promoDiscount = 0;
 
-async function verifyPromoCode() {
-    const code = document.getElementById('promo-code').value.trim().toUpperCase();
-    const status = document.getElementById('promo-status');
-    
-    if (!code) {
-        status.style.color = 'red';
-        status.textContent = '❌ Antre yon kòd!';
-        return;
-    }
-    
-    try {
-        const res = await fetch('/api/affiliates');
-        const affiliates = await res.json();
-        const affiliate = affiliates.find(a => a.code === code);
-        
-        if (affiliate) {
-            status.style.color = 'green';
-            status.textContent = '✅ Kòd valide: ' + affiliate.name + ' (' + affiliate.commission_percent + '% komisyon)';
-            verifiedPromoCode = code;
-            promoDiscount = 0; // Pa gen rabè, se komisyon afilye
-            Toast.success('✅ Kòd promo valide: ' + affiliate.name);
-        } else {
-            status.style.color = 'red';
-            status.textContent = '❌ Kòd pa valid!';
-            verifiedPromoCode = null;
-            promoDiscount = 0;
-            Toast.error('❌ Kòd pa valid!');
-        }
-    } catch (err) {
-        status.style.color = 'red';
-        status.textContent = '❌ Erè verifye kòd';
-    }
-}
-
+// ==========================================
+// 3. VOYE KÒMAND LAN
+// ==========================================
 document.getElementById('send-order').addEventListener('click', async () => {
     const name = document.getElementById('customer-name').value.trim();
     const phone = document.getElementById('customer-phone').value.trim();
@@ -174,64 +200,58 @@ document.getElementById('send-order').addEventListener('click', async () => {
     const payment = document.getElementById('payment-method').value;
     
     if (!name || !phone) {
-        Toast.warning('⚠️ Tanpri ranpli non ak telefòn.');
+        Toast.error('Tanpri ranpli non ak nimewo telefòn!');
         return;
     }
     
-    const { total, deliveryFee, grandTotal } = window._cartData;
+    const { total, deliveryFee, grandTotal } = window._cartTotal;
     
-    const hideLoading = showLoading(document.getElementById('send-order'));
-    
+    // Nou prepare done kòmand lan
+    const orderData = {
+        customer_name: name,
+        customer_phone: phone,
+        customer_address: address,
+        items: cart,
+        total: grandTotal,
+        delivery_fee: deliveryFee,
+        payment_method: payment
+    };
+
     try {
-        await fetch('/api/order', {
+        // Voye bay sèvè a (server.js)
+        const res = await fetch('/api/order', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                customer_name: name,
-                customer_phone: phone,
-                customer_address: address,
-                items: cart,
-                total: grandTotal,
-                delivery_fee: deliveryFee
-            })
+            body: JSON.stringify(orderData)
         });
+        
+        if (!res.ok) throw new Error('Erè sèvè');
+        
+        Toast.success('Kòmand anrejistre! Ouvèti WhatsApp...');
+        
+        // Prepare mesaj WhatsApp
+        let msg = `*NOUVO KÒMAND OGSUN*%0A%0A`;
+        msg += `*Non:* ${name}%0A*Telefòn:* ${phone}%0A*Adrès:* ${address}%0A*Peman:* ${payment}%0A`;
+        if (savedRef) msg += `*Kòd Afilye:* ${savedRef}%0A`; // Mete kòd afilye a nan mesaj la
+        msg += `%0A*ATIK YO:*%0A`;
+        
+        cart.forEach(item => {
+            msg += `- ${item.name} x${item.quantity} = ${(item.price*item.quantity).toFixed(2)} GDS%0A`;
+        });
+        
+        msg += `%0A*Total:* ${grandTotal.toFixed(2)} GDS`;
+        
+        // Ouvri WhatsApp
+        setTimeout(() => {
+            window.open(`https://wa.me/32924776?text=${msg}`, '_blank');
+            localStorage.removeItem('ogsun_cart');
+            window.location.href = 'order-success.html';
+        }, 1500);
+
     } catch (err) {
-        console.warn('Sèvè pa disponib, men nap kontinye ak WhatsApp.');
+        Toast.error('Erè koneksyon. Eseye ankò.');
+        console.error(err);
     }
-
-
-body: JSON.stringify({
-    customer_name: name,
-    customer_phone: phone,
-    customer_address: address,
-    items: cart,
-    total: grandTotal,
-    delivery_fee: deliveryFee,
-    affiliate_code: verifiedPromoCode  // AJOUTE SA A
-})    
-    hideLoading();
-    
-    let msg = `*🛒 Kòmand OGSUN MACHE LAKAY*%0A%0A`;
-    msg += `*👤 Non:* ${name}%0A`;
-    msg += `*📞 Tel:* ${phone}%0A`;
-    msg += `*📍 Adrès:* ${address}%0A`;
-    msg += `*💳 Peman:* ${payment}%0A%0A`;
-    msg += `*📦 Atik:*%0A`;
-    cart.forEach(item => {
-        msg += `- ${item.name} x${item.quantity} = ${(item.price*item.quantity).toFixed(2)} GDS%0A`;
-    });
-    msg += `%0A*💰 Total:* ${grandTotal.toFixed(2)} GDS (Frè livrezon: ${deliveryFee} GDS)`;
-    msg += `%0A%0A⚠️ *Tanpri voye screenshot peman an isit la.*`;
-    
-    Toast.success('🎉 Kòmand prepare! Ouvèti WhatsApp...');
-    launchConfetti();
-    
-    localStorage.removeItem('ogsun_cart');
-    
-    setTimeout(() => {
-        window.open(`https://wa.me/32924776?text=${msg}`, '_blank');
-        window.location.href = 'order-success.html';
-    }, 1500);
 });
 </script>
 </body>
