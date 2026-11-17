@@ -4,42 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kòmand Reyisi - OGSUN MACHE LAKAY</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="toast.css">
-    <script src="toast.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #0d1117; color: white; margin: 0; font-family: sans-serif; }
+        .success-card { background: #161b22; border: 1px solid #30363d; border-radius: 20px; padding: 40px 30px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .icon-check { font-size: 5rem; color: #00d494; margin-bottom: 20px; animation: popIn 0.5s ease; }
+        @keyframes popIn { 0% { transform: scale(0); } 80% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        h1 { color: white; margin-bottom: 10px; font-size: 1.8rem; }
+        p { color: #8b949e; margin-bottom: 25px; line-height: 1.5; }
+        .whatsapp-box { background: rgba(37, 211, 102, 0.1); border: 1px solid #25d366; padding: 15px; border-radius: 10px; margin-bottom: 25px; }
+        .whatsapp-box p { color: #25d366; margin-bottom: 10px; font-weight: bold; }
+        .btn-wa { background: #25d366; color: black; text-decoration: none; padding: 12px 25px; border-radius: 30px; font-weight: bold; display: inline-block; width: 100%; box-sizing: border-box; transition: 0.3s; }
+        .btn-wa:hover { background: #128c7e; color: white; }
+        .btn-home { background: #30363d; color: white; text-decoration: none; padding: 12px 25px; border-radius: 30px; font-weight: bold; display: block; width: 100%; box-sizing: border-box; margin-top: 15px; transition: 0.3s; }
+        .btn-home:hover { background: #21262d; }
+    </style>
 </head>
 <body>
-<header>
-    <div class="logo">
-        <img src="logo.png" alt="OGSUN Logo">
-        <span>OGSUN MACHE LAKAY</span>
-    </div>
-    <nav><a href="index.html">🏠 Akèy</a></nav>
-</header>
 
-<div class="container" style="text-align:center;padding:80px 20px;">
-    <div style="font-size:6rem;animation:bounce 1s ease infinite;">🎉</div>
-    <h1 style="font-size:3rem;color:var(--gold);margin:20px 0;">Mèsi Anpil!</h1>
-    <p style="font-size:1.4rem;margin:20px 0;color:#555;">Kòmand ou anrejistre ak siksè! ✅</p>
-    <p style="font-size:1.1rem;color:#777;">Nap kontakte w byento sou WhatsApp pou konfime kòmand lan.</p>
+<div class="success-card">
+    <i class="fa-solid fa-circle-check icon-check"></i>
+    <h1>Mèsi Anpil!</h1>
+    <p>Kòmand ou anrejistre ak siksè nan sistèm nou an.</p>
     
-    <div style="background:var(--glass);border-radius:20px;padding:30px;margin:30px auto;max-width:400px;">
-        <p style="font-size:1.2rem;font-weight:600;">📞 WhatsApp: <strong>32924776</strong></p>
-        <p style="font-size:1.2rem;font-weight:600;">📱 Natcash: <strong>32924776</strong></p>
-        <p style="font-size:1rem;color:#666;">📧 metelluscarlinsky@gmail.com</p>
+    <div class="whatsapp-box">
+        <p><i class="fa-brands fa-whatsapp"></i> Dènye Etap La:</p>
+        <p style="color: #ccc; font-weight: normal; font-size: 0.9rem;">Ou dwe voye screenshot peman an sou WhatsApp <strong>32924776</strong> pou n ka konfime epi livre kòmand lan.</p>
+        <a href="https://wa.me/32924776?text=Bonjou%20OGSUN,%20mwen%20f%C3%A8k%20fin%20pase%20yon%20k%C3%B2mand.%20Men%20screenshot%20peman%20mwen." target="_blank" class="btn-wa">Voye Screenshot sou WhatsApp</a>
     </div>
-    
-    <a href="index.html" style="display:inline-block;background:var(--gold);color:white;padding:18px 40px;border-radius:50px;text-decoration:none;font-weight:700;font-size:1.2rem;margin-top:20px;transition:all 0.3s;box-shadow:0 10px 30px rgba(212,160,23,0.4);">🏠 Kontinye Achte</a>
+
+    <a href="index.html" class="btn-home">Retounen nan Akèy</a>
 </div>
 
-<footer>
-    <p>&copy; 2026 OGSUN MACHE LAKAY - Tout dwa rezève</p>
-</footer>
-
 <script>
-launchConfetti();
-Toast.success('🎉 Kòmand reyisi! Mèsi pou konfyans ou!');
+document.addEventListener('DOMContentLoaded', () => {
+    // Nou pran kòd afilye a ak total kòmand lan
+    const refCode = localStorage.getItem('ogsun_affiliate_ref');
+    const savedTotal = localStorage.getItem('last_order_total') || 1500;
+    const savedName = localStorage.getItem('last_customer_name') || "Kliyan OGSUN";
+
+    if (refCode) {
+        // Nou voye bay pwòp sèvè w la (ki pral voye l bay Enterprise ak kle sekrè a)
+        fetch('/api/webhook/sale', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                referral_code: refCode,
+                customer_name: savedName,
+                amount: parseFloat(savedTotal)
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) console.log("✅ Vant voye bay Enterprise ak siksè!");
+        })
+        .catch(err => console.error("❌ Erè rezo:", err));
+    }
+    
+    // Netwaye panier a
+    localStorage.removeItem('ogsun_cart');
+});
 </script>
-<script src="affiliate-tracker.js"></script>
+
 </body>
 </html>
